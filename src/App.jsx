@@ -9,6 +9,7 @@ import LoginPage from "./pages/login";
 import ForgotPassword from "./pages/forgotPassword";
 import AcademicPage from "./Modules/Academic/index";
 import ValidateAuth from "./helper/validateauth";
+import ManageBookings from "./Modules/Visitors_Hostel/manageBookings";
 import VisitorsContent from "./Modules/Visitors_Hostel/visitorsContent";
 
 export default function App() {
@@ -51,6 +52,63 @@ export default function App() {
         />
         <Route
           path="/visitors_hostel"
+          element={
+            <Layout>
+              <VisitorsContent />
+              <ManageBookings />
+            </Layout>
+          }
+        />
+        {/* <Route
+          path="/visitors_hostel/manage_bookings"
+          element={
+            <Layout>
+              <ManageBookings />
+            </Layout>
+          }
+        /> */}
+        <Route
+          path="/visitors_hostel/booking-form"
+          element={
+            <Layout>
+              <VisitorsContent />
+            </Layout>
+          }
+        />
+        <Route
+          path="/visitors_hostel/room-availability"
+          element={
+            <Layout>
+              <VisitorsContent />
+            </Layout>
+          }
+        />
+        <Route
+          path="/visitors_hostel/mess-record"
+          element={
+            <Layout>
+              <VisitorsContent />
+            </Layout>
+          }
+        />
+        <Route
+          path="/visitors_hostel/inventory"
+          element={
+            <Layout>
+              <VisitorsContent />
+            </Layout>
+          }
+        />
+        <Route
+          path="/visitors_hostel/account-statement"
+          element={
+            <Layout>
+              <VisitorsContent />
+            </Layout>
+          }
+        />
+        <Route
+          path="/visitors_hostel/rules"
           element={
             <Layout>
               <VisitorsContent />
