@@ -1,18 +1,17 @@
-import React from "react";
-import { MantineProvider, Table, Badge, Text, Box } from "@mantine/core";
+import React, { useState } from "react";
+import {
+  MantineProvider,
+  Table,
+  Button,
+  Badge,
+  Text,
+  Box,
+} from "@mantine/core";
+import BookingForm from "./bookingForm";
 
 const bookings = [
   {
     id: 1,
-    intender: "SINDHU VUKKURTHY",
-    email: "22BCS233@iiitdmj.ac.in",
-    bookingFrom: "Sept 3, 2024",
-    bookingTo: "Sept 4, 2024",
-    category: "A",
-    status: "Pending",
-  },
-  {
-    id: 2,
     intender: "Prof. Atul Gupta",
     email: "atul@iiitdmj.ac.in",
     bookingFrom: "Sept 4, 2024",
@@ -21,26 +20,41 @@ const bookings = [
     status: "Pending",
   },
   {
-    id: 3,
-    intender: "S.V. RISHITHA",
-    email: "22BCS216@iiitdmj.ac.in",
-    bookingFrom: "Sept 15, 2024",
-    bookingTo: "Sept 16, 2024",
-    category: "B",
-    status: "Cancelled",
-  },
-  {
-    id: 4,
+    id: 2,
     intender: "KESHAV SONI",
     email: "22BCS135@iiitdmj.ac.in",
     bookingFrom: "Sept 16, 2024",
     bookingTo: "Sept 18, 2024",
     category: "B",
-    status: "Cancelled",
+    status: "Confirmed",
+  },
+
+  {
+    id: 3,
+    intender: "SINDHU VUKKURTHY",
+    email: "22BCS233@iiitdmj.ac.in",
+    bookingFrom: "Sept 3, 2024",
+    bookingTo: "Sept 4, 2024",
+    category: "A",
+    status: "Pending",
+  },
+  {
+    id: 4,
+    intender: "S.V. RISHITHA",
+    email: "22BCS216@iiitdmj.ac.in",
+    bookingFrom: "Sept 15, 2024",
+    bookingTo: "Sept 16, 2024",
+    category: "B",
+    status: "Confirmed",
   },
 ];
 
-function CancellationRequestTable() {
+function BookingsRequestTable() {
+  const [showForm, setShowForm] = useState(false); // Manage form visibility
+
+  const handleButtonClick = () => {
+    setShowForm(true); // Show the BookingForm when button is clicked
+  };
   return (
     <Box p="md" style={{ margin: 10 }}>
       <Box
@@ -52,12 +66,13 @@ function CancellationRequestTable() {
         }}
       >
         <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
-          Cancellation Request
+          Booking Requests
         </Text>
 
-        {/* <Button variant="outline" color="red">
+        <Button variant="outline" color="red" onClick={handleButtonClick}>
           Place Request
-        </Button> */}
+        </Button>
+        {showForm && <BookingForm onClose={() => setShowForm(false)} />}
       </Box>
       <Table
         style={{
@@ -145,8 +160,8 @@ function CancellationRequestTable() {
                   variant="light"
                   style={{
                     backgroundColor:
-                      booking.status === "Pending" ? "#E0E0E0" : "#FFE0E0",
-                    color: booking.status === "Pending" ? "#757575" : "#FF6B6B",
+                      booking.status === "Pending" ? "#E0E0E0" : "#dffbe0",
+                    color: booking.status === "Pending" ? "#757575" : "#84b28c",
                     padding: "4px 8px",
                     borderRadius: "4px",
                   }}
@@ -162,7 +177,7 @@ function CancellationRequestTable() {
   );
 }
 
-function CancellationRequest() {
+function Bookings() {
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <Box
@@ -175,10 +190,10 @@ function CancellationRequest() {
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Optional shadow
         }}
       >
-        <CancellationRequestTable />
+        <BookingsRequestTable />
       </Box>
     </MantineProvider>
   );
 }
 
-export default CancellationRequest;
+export default Bookings;
