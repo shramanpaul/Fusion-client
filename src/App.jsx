@@ -12,6 +12,8 @@ import ValidateAuth from "./helper/validateauth";
 import ManageBookings from "./Modules/Visitors_Hostel/manageBookings";
 import VisitorsContent from "./Modules/Visitors_Hostel/visitorsContent";
 import CancellationRequest from "./Modules/Visitors_Hostel/cancellationRequest";
+import ActiveBookingsPage from "./Modules/Visitors_Hostel/activeBookings";
+import CompletedBookingsPage from "./Modules/Visitors_Hostel/completedBookings";
 import BookingForm from "./Modules/Visitors_Hostel/bookingConfirm";
 
 export default function App() {
@@ -77,6 +79,7 @@ export default function App() {
             <Layout>
               <VisitorsContent />
               <ManageBookings />
+              <ActiveBookingsPage />
             </Layout>
           }
         />
@@ -86,6 +89,7 @@ export default function App() {
             <Layout>
               <VisitorsContent />
               <ManageBookings />
+              <CompletedBookingsPage />
             </Layout>
           }
         />
