@@ -31,8 +31,12 @@ function BookingForm() {
   });
 
   const navigate = useNavigate();
+  const [modalOpened, setModalOpened] = useState(true);
   const handleClose = () => {
-    navigate("/visitors_hostel"); // Redirect to the desired route
+    setModalOpened(false); // Close the modal first
+    setTimeout(() => {
+      navigate("/visitors_hostel"); // Redirect after closing the modal
+    }, 300); // Delay to allow the modal closing animation (adjust if needed)
   };
   const handleInputChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -45,9 +49,24 @@ function BookingForm() {
 
   return (
     <MantineProvider theme={{ fontFamily: "Arial, sans-serif" }}>
-      <Modal opened onClick={handleClose} title="Place a Request" size="lg">
+      <Modal
+        opened={modalOpened}
+        onClose={handleClose}
+        title="Place a Request"
+        size="lg"
+      >
         <form onSubmit={handleSubmit}>
           <Grid>
+            <Grid.Col span={12}>
+              <Select
+                label="Intender ID "
+                placeholder="Select"
+                data={["22BCS229", "22BCS230", "22BCS231"]}
+                value={formData.billsBy}
+                onChange={(value) => handleInputChange("billsBy", value)}
+                required
+              />
+            </Grid.Col>
             <Grid.Col span={12}>
               <TextInput
                 label="Arrival Date"
@@ -156,7 +175,7 @@ function BookingForm() {
               <Select
                 label="Category "
                 placeholder="Select"
-                data={["AC", "Non-AC"]}
+                data={["A", "B", "C", "D"]}
                 value={formData.category}
                 onChange={(value) => handleInputChange("category", value)}
                 required
@@ -185,7 +204,12 @@ function BookingForm() {
               <Select
                 label="Bills to be Settled by "
                 placeholder="Select"
-                data={["Self", "Organization"]}
+                data={[
+                  "Visitor",
+                  "Intender",
+                  "Institute / No Charges",
+                  "Project No.",
+                ]}
                 value={formData.billsBy}
                 onChange={(value) => handleInputChange("billsBy", value)}
                 required
