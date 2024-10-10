@@ -11,6 +11,7 @@ import AcademicPage from "./Modules/Academic/index";
 import ValidateAuth from "./helper/validateauth";
 import ManageBookings from "./Modules/Visitors_Hostel/manageBookings";
 import VisitorsContent from "./Modules/Visitors_Hostel/visitorsContent";
+import CancellationRequest from "./Modules/Visitors_Hostel/cancellationRequest";
 
 export default function App() {
   const location = useLocation();
@@ -52,6 +53,34 @@ export default function App() {
         />
         <Route
           path="/visitors_hostel"
+          element={
+            <Layout>
+              <VisitorsContent />
+              <ManageBookings />
+            </Layout>
+          }
+        />
+        <Route
+          path="/visitors_hostel/cancel_request"
+          element={
+            <Layout>
+              <VisitorsContent />
+              <ManageBookings />
+              <CancellationRequest />
+            </Layout>
+          }
+        />
+        <Route
+          path="/visitors_hostel/active_bookings"
+          element={
+            <Layout>
+              <VisitorsContent />
+              <ManageBookings />
+            </Layout>
+          }
+        />
+        <Route
+          path="/visitors_hostel/completed_bookings"
           element={
             <Layout>
               <VisitorsContent />
