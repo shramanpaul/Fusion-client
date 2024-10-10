@@ -11,6 +11,7 @@ import {
   Modal,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import VisitorsDetails from "./bookingFormNext";
 
 function BookingForm() {
   const [formData, setFormData] = useState({
@@ -47,17 +48,23 @@ function BookingForm() {
     console.log("Form submitted", formData);
   };
 
+  const [showForm, setShowForm] = useState(false); // Manage form visibility
+
+  const handleButtonClick = () => {
+    setShowForm(true); // Show the BookingForm when button is clicked
+  };
+
   return (
     <MantineProvider theme={{ fontFamily: "Arial, sans-serif" }}>
       <Modal
         opened={modalOpened}
         onClose={handleClose}
         title="Place a Request"
-        size="lg"
+        size="xl"
       >
         <form onSubmit={handleSubmit}>
           <Grid>
-            <Grid.Col span={12}>
+            {/* <Grid.Col span={12}>
               <Select
                 label="Intender ID "
                 placeholder="Select"
@@ -66,7 +73,7 @@ function BookingForm() {
                 onChange={(value) => handleInputChange("billsBy", value)}
                 required
               />
-            </Grid.Col>
+            </Grid.Col> */}
             <Grid.Col span={12}>
               <TextInput
                 label="Arrival Date"
@@ -216,8 +223,17 @@ function BookingForm() {
               />
             </Grid.Col>
             <Grid.Col span={12}>
-              <Group position="center">
-                <Button type="submit">Next</Button>
+              <Group position="center" style={{ marginTop: "auto" }}>
+                <Button type="submit" onClick={handleButtonClick}>
+                  Next
+                </Button>
+                {showForm && (
+                  <VisitorsDetails
+                    onClose={() => {
+                      setShowForm(false);
+                    }}
+                  />
+                )}
               </Group>
             </Grid.Col>
           </Grid>
