@@ -53,6 +53,7 @@ export default function App() {
             </Layout>
           }
         />
+        {/* visitors hostel */}
         <Route
           path="/visitors_hostel"
           element={
