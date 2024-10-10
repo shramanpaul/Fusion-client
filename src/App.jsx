@@ -12,6 +12,7 @@ import ValidateAuth from "./helper/validateauth";
 import ManageBookings from "./Modules/Visitors_Hostel/manageBookings";
 import VisitorsContent from "./Modules/Visitors_Hostel/visitorsContent";
 import CancellationRequest from "./Modules/Visitors_Hostel/cancellationRequest";
+import BookingForm from "./Modules/Visitors_Hostel/bookingConfirm";
 
 export default function App() {
   const location = useLocation();
@@ -101,6 +102,7 @@ export default function App() {
           element={
             <Layout>
               <VisitorsContent />
+              <BookingForm />
             </Layout>
           }
         />
