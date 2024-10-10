@@ -42,7 +42,7 @@ function ManageBookings() {
     <MantineProvider>
       <div>
         {" "}
-        <div className="tabs-container">
+        <div className="tabs-container" style={{ marginBottom: 30 }}>
           <Group position="apart" noWrap>
             <Button variant="subtle" compact>
               <IconChevronLeft size={18} />
