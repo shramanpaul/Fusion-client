@@ -10,11 +10,10 @@ import {
 import { CaretCircleLeft, CaretCircleRight } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
-import classes from "./ComplaintModule.module.css";
-
-// Import all the components here
-
 import ComplaintForm from "./components/ComplaintForm.jsx";
+import ComplaintHistory from "./components/ComplaintHistory.jsx"; // Import the new component
+import GenerateReport from "./components/Generate_Report.jsx"; // Import the new component
+import classes from "./ComplaintModule.module.css";
 
 function ComplaintModuleLayout() {
   const [activeTab, setActiveTab] = useState("0");
@@ -41,13 +40,12 @@ function ComplaintModuleLayout() {
     });
   };
 
-  // Function to render content based on active tab
   const renderTabContent = () => {
     switch (activeTab) {
       case "0":
         return <ComplaintForm />;
       case "1":
-        return <p>Complaint History Content</p>;
+        return <ComplaintHistory />; // Show Complaint History
       case "2":
         return <p>Feedback Content</p>;
       case "3":
@@ -55,7 +53,7 @@ function ComplaintModuleLayout() {
       case "4":
         return <p>Unresolved Complaints Content</p>;
       case "5":
-        return <p>Generate Report Content</p>;
+        return <GenerateReport />;
       default:
         return <Loader />;
     }
@@ -63,7 +61,6 @@ function ComplaintModuleLayout() {
 
   return (
     <>
-      {/* Navbar contents */}
       <CustomBreadcrumbs />
       <Flex justify="space-between" align="center" mt="lg">
         <Flex justify="flex-start" align="center" gap="1rem" mt="1.5rem">
@@ -114,10 +111,6 @@ function ComplaintModuleLayout() {
           </Button>
         </Flex>
       </Flex>
-
-      {/* end */}
-
-      {/* Main content */}
       <Grid mt="xl">
         <Container py="xl">{renderTabContent()}</Container>
       </Grid>
