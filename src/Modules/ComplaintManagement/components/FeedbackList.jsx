@@ -22,14 +22,26 @@ function FeedbackList({ setSelectedComplaint }) {
         maw="1240px"
         backgroundColor="white"
       >
+        {/* Inline CSS to hide scrollbars */}
         <div
           style={{
             height: "100%",
             width: "100%",
-            overflow: "auto",
+            overflowY: "auto", // Enable vertical scrolling
             fontFamily: "Manrope",
+            scrollbarWidth: "none", // Hide scrollbar in Firefox
+            msOverflowStyle: "none", // Hide scrollbar in IE/Edge
           }}
         >
+          {/* Webkit-based browsers CSS to hide scrollbars */}
+          <style>
+            {`
+              div::-webkit-scrollbar {
+                display: none; /* Hide scrollbar in Chrome, Safari, and Opera */
+              }
+            `}
+          </style>
+
           <Flex direction="column" gap="md" style={{ width: "100%" }}>
             <FeedbackItem
               ComplaintId="500"

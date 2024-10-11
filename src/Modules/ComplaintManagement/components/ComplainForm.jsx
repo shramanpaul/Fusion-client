@@ -60,7 +60,15 @@ function ComplaintForm({ onSubmit }) {
                 placeholder="Select Complaint Type"
                 value={complaintType}
                 onChange={setComplaintType}
-                data={["Electricity", "Water", "Maintenance", "Other"]}
+                data={[
+                  "Electricity",
+                  "Carpenter",
+                  "Plumber",
+                  "Garbage",
+                  "Dustbin",
+                  "Internet",
+                  "Other",
+                ]}
                 required
                 mb="md"
               />
@@ -71,7 +79,22 @@ function ComplaintForm({ onSubmit }) {
                 placeholder="Select Location"
                 value={location}
                 onChange={setLocation}
-                data={["Hostel", "Campus", "Gymkhana", "Other"]}
+                data={[
+                  "H1",
+                  "H3",
+                  "H4",
+                  "PA",
+                  "PB",
+                  "PC",
+                  "Nagarjuna",
+                  "Maa Saraswati",
+                  "LHTC",
+                  "Core Lab",
+                  "CC1",
+                  "CC2",
+                  "Rewa Residency",
+                  "NR2",
+                ]}
                 required
                 mb="md"
               />
