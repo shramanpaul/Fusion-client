@@ -18,6 +18,7 @@ import ActiveBookingsPage from "./Modules/Visitors_Hostel/activeBookings";
 import CompletedBookingsPage from "./Modules/Visitors_Hostel/completedBookings";
 import VHGuidelinesPage from "./Modules/Visitors_Hostel/vhGuidelines";
 import InventoryManagement from "./Modules/Visitors_Hostel/inventory";
+import RoomsAvailibility from "./Modules/Visitors_Hostel/roomsAvailability";
 
 export default function App() {
   const location = useLocation();
@@ -119,6 +120,7 @@ export default function App() {
           element={
             <Layout>
               <VisitorsContent />
+              <RoomsAvailibility />
             </Layout>
           }
         />
