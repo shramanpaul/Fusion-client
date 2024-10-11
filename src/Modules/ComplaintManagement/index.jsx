@@ -3,11 +3,9 @@ import { CaretCircleLeft, CaretCircleRight } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
 import classes from "./ComplaintModule.module.css";
-
 // Import all the components here
-
-import ComplaintForm from "./components/ComplaintForm.jsx";
 import Feedback from "./components/Feedback.jsx";
+import FormPage from "./components/FormPage.jsx";
 
 const link = document.createElement("link");
 link.href =
@@ -44,7 +42,7 @@ function ComplaintModuleLayout() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "0":
-        return <ComplaintForm />;
+        return <FormPage />;
       case "1":
         return <p>Complaint History Content</p>;
       case "2":
