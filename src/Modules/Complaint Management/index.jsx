@@ -6,6 +6,7 @@ import {
   Loader,
   Tabs,
   Text,
+  Paper,
 } from "@mantine/core";
 import { CaretCircleLeft, CaretCircleRight } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
@@ -15,6 +16,7 @@ import classes from "./ComplaintModule.module.css";
 // Import all the components here
 
 import ComplaintForm from "./components/ComplaintForm.jsx";
+import UnresolvedComplaints from "./components/UnresolvedComplaints.jsx";
 
 function ComplaintModuleLayout() {
   const [activeTab, setActiveTab] = useState("0");
@@ -47,13 +49,14 @@ function ComplaintModuleLayout() {
       case "0":
         return <ComplaintForm />;
       case "1":
-        return <p>Complaint History Content</p>;
+        return <p>Complaint History</p>;
       case "2":
         return <p>Feedback Content</p>;
       case "3":
         return <p>Resolved Complaints Content</p>;
       case "4":
-        return <p>Unresolved Complaints Content</p>;
+        // return <p>Unresolved Complaints</p>
+        return <UnresolvedComplaints />;
       case "5":
         return <p>Generate Report Content</p>;
       default:
@@ -118,9 +121,9 @@ function ComplaintModuleLayout() {
       {/* end */}
 
       {/* Main content */}
-      <Grid mt="xl">
-        <Container py="xl">{renderTabContent()}</Container>
-      </Grid>
+      <Flex direction="row" justify="start" align="start">
+        <div style={{marginLeft: "41px", marginTop: "10px"}}>{renderTabContent()}</div>
+      </Flex>
     </>
   );
 }
