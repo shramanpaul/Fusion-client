@@ -6,6 +6,8 @@ import classes from "./ComplaintModule.module.css";
 // Import all the components here
 import Feedback from "./components/Feedback.jsx";
 import FormPage from "./components/FormPage.jsx";
+import ComplaintHistory from "./components/ComplaintHistory.jsx";
+import GenerateReport from "./components/Generate_Report.jsx";
 
 const link = document.createElement("link");
 link.href =
@@ -38,13 +40,12 @@ function ComplaintModuleLayout() {
     });
   };
 
-  // Function to render content based on active tab
   const renderTabContent = () => {
     switch (activeTab) {
       case "0":
         return <FormPage />;
       case "1":
-        return <p>Complaint History Content</p>;
+        return <ComplaintHistory />;
       case "2":
         return <Feedback />;
       case "3":
@@ -52,7 +53,7 @@ function ComplaintModuleLayout() {
       case "4":
         return <p>Unresolved Complaints Content</p>;
       case "5":
-        return <p>Generate Report Content</p>;
+        return <GenerateReport />;
       default:
         return <Loader />;
     }
@@ -60,7 +61,6 @@ function ComplaintModuleLayout() {
 
   return (
     <>
-      {/* Navbar contents */}
       <CustomBreadcrumbs />
       <Flex justify="space-between" align="center" mt="lg">
         <Flex justify="flex-start" align="center" gap="1rem" mt="1.5rem">
