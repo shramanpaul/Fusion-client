@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Paper, Group, Badge } from "@mantine/core";
-import "../styles/ComplaintHistory.css"; // Import the updated CSS file
+import "../styles/ComplaintHistory.css";
 import detailIcon from "../../../assets/detail.png";
 import declinedIcon from "../../../assets/declined.png";
 import resolvedIcon from "../../../assets/resolved.png";

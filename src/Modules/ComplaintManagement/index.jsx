@@ -1,19 +1,19 @@
-import {
-  Button,
-  Container,
-  Flex,
-  Grid,
-  Loader,
-  Tabs,
-  Text,
-} from "@mantine/core";
+import { Button, Flex, Loader, Tabs, Text } from "@mantine/core";
 import { CaretCircleLeft, CaretCircleRight } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
-import ComplaintForm from "./components/ComplaintForm.jsx";
-import ComplaintHistory from "./components/ComplaintHistory.jsx"; // Import the new component
-import GenerateReport from "./components/Generate_Report.jsx"; // Import the new component
 import classes from "./ComplaintModule.module.css";
+// Import all the components here
+import Feedback from "./components/Feedback.jsx";
+import FormPage from "./components/FormPage.jsx";
+import ComplaintHistory from "./components/ComplaintHistory.jsx";
+import GenerateReport from "./components/Generate_Report.jsx";
+
+const link = document.createElement("link");
+link.href =
+  "https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap";
+link.rel = "stylesheet";
+document.head.appendChild(link);
 
 function ComplaintModuleLayout() {
   const [activeTab, setActiveTab] = useState("0");
@@ -43,11 +43,11 @@ function ComplaintModuleLayout() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "0":
-        return <ComplaintForm />;
+        return <FormPage />;
       case "1":
-        return <ComplaintHistory />; // Show Complaint History
+        return <ComplaintHistory />;
       case "2":
-        return <p>Feedback Content</p>;
+        return <Feedback />;
       case "3":
         return <p>Resolved Complaints Content</p>;
       case "4":
@@ -111,9 +111,13 @@ function ComplaintModuleLayout() {
           </Button>
         </Flex>
       </Flex>
-      <Grid mt="xl">
-        <Container py="xl">{renderTabContent()}</Container>
-      </Grid>
+
+      {/* end */}
+
+      {/* Main content */}
+      <Flex direction="row" justify="start" align="start">
+        <div>{renderTabContent()}</div>
+      </Flex>
     </>
   );
 }
