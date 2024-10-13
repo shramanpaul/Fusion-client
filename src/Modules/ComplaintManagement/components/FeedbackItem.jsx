@@ -1,17 +1,10 @@
 import React from "react";
-import { Button, Flex, Paper, Text, CheckIcon } from "@mantine/core";
+import { Button, Flex, Paper, Text, CheckIcon, Divider } from "@mantine/core";
 import PropTypes from "prop-types";
 
-function FeedbackItem({
-  ComplaintId,
-  ComplaintType,
-  ComplaintDate,
-  ComplaintLocation,
-  ComplaintDescription,
-  setSelectedComplaint,
-}) {
+function FeedbackItem({ complaint, setSelectedComplaint }) {
   const handleFeedbackButtonClick = () => {
-    setSelectedComplaint(ComplaintId);
+    setSelectedComplaint(complaint);
   };
 
   return (
@@ -34,7 +27,7 @@ function FeedbackItem({
             style={{ width: "100%" }}
           >
             <Text size="22px" style={{ fontWeight: "bold" }}>
-              Complaint Id: {ComplaintId}
+              Complaint Id: {complaint.Id}
             </Text>
             <Text
               size="14px"
@@ -44,7 +37,7 @@ function FeedbackItem({
                 backgroundColor: "#15ABFF",
               }}
             >
-              {ComplaintType}
+              {complaint.Type}
             </Text>
           </Flex>
           <CheckIcon
@@ -65,8 +58,10 @@ function FeedbackItem({
           style={{ width: "100%" }}
         >
           <Flex direction="column" gap="xs">
-            <Text size="18px">Date: {ComplaintDate}</Text>
-            <Text size="18px">Location: {ComplaintLocation}</Text>
+            <Text size="18px">Date: {complaint.Date}</Text>
+            <Text size="18px">
+              Location: {complaint.SpecificLocation}, {complaint.Location}
+            </Text>
           </Flex>
           <Button
             size="md"
@@ -78,15 +73,9 @@ function FeedbackItem({
           </Button>
         </Flex>
 
-        <div
-          style={{
-            border: "1px solid #000000",
-            width: "100%",
-            margin: "10px 0",
-          }}
-        />
+        <Divider my="md" size="sm" />
 
-        <Text size="18px">Description: {ComplaintDescription}</Text>
+        <Text size="18px">Description: {complaint.Description}</Text>
       </Flex>
     </Paper>
   );
@@ -95,10 +84,15 @@ function FeedbackItem({
 export default FeedbackItem;
 
 FeedbackItem.propTypes = {
-  ComplaintId: PropTypes.string.isRequired,
-  ComplaintType: PropTypes.string.isRequired,
-  ComplaintDate: PropTypes.string.isRequired,
-  ComplaintLocation: PropTypes.string.isRequired,
-  ComplaintDescription: PropTypes.string.isRequired,
+  complaint: PropTypes.shape({
+    Id: PropTypes.string.isRequired,
+    Type: PropTypes.string.isRequired,
+    Date: PropTypes.string.isRequired,
+    Finish: PropTypes.string.isRequired,
+    Location: PropTypes.string.isRequired,
+    SpecificLocation: PropTypes.string.isRequired,
+    Description: PropTypes.string.isRequired,
+    Comment: PropTypes.string.isRequired,
+  }),
   setSelectedComplaint: PropTypes.func.isRequired,
 };

@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import PropTypes from "prop-types";
 
-function FeedbackForm({ setSelectedComplaint }) {
+function FeedbackForm({ complaint, setSelectedComplaint }) {
   const handleBackButtonClick = () => {
     setSelectedComplaint(null);
   };
@@ -36,7 +36,7 @@ function FeedbackForm({ setSelectedComplaint }) {
   };
 
   return (
-    <Grid mt="xl">
+    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
       <Paper
         radius="md"
         px="lg"
@@ -62,7 +62,7 @@ function FeedbackForm({ setSelectedComplaint }) {
               Submit Feedback
             </Text>
             <Text size="22px" style={{ fontWeight: "bold" }}>
-              Complaint id: 500
+              Complaint id: {complaint.Id}
             </Text>
           </Flex>
 
@@ -73,7 +73,7 @@ function FeedbackForm({ setSelectedComplaint }) {
                   Register Date:
                 </Text>
                 <Text weight="300" size="18px">
-                  Sept. 3, 2024, 10:30 a.m.
+                  {complaint.Date}
                 </Text>
               </Flex>
             </Grid.Col>
@@ -82,7 +82,7 @@ function FeedbackForm({ setSelectedComplaint }) {
                 Finished Date:
               </Text>
               <Text weight="300" size="18px">
-                Sept. 2, 2024, 11:50 a.m.
+                {complaint.Finish}
               </Text>
             </Flex>
           </Grid>
@@ -94,7 +94,7 @@ function FeedbackForm({ setSelectedComplaint }) {
                   Location:
                 </Text>
                 <Text weight="300" size="18px">
-                  Panini Block B
+                  {complaint.Location}
                 </Text>
               </Flex>
             </Grid.Col>
@@ -103,7 +103,7 @@ function FeedbackForm({ setSelectedComplaint }) {
                 Specific Location:
               </Text>
               <Text weight="300" size="18px">
-                G111
+                {complaint.SpecificLocation}
               </Text>
             </Flex>
           </Grid>
@@ -113,7 +113,7 @@ function FeedbackForm({ setSelectedComplaint }) {
               Caretaker comment on your complaint:
             </Text>
             <Text weight="300" size="18px">
-              some comment
+              {complaint.Comment}
             </Text>
           </Flex>
 
@@ -196,5 +196,15 @@ function FeedbackForm({ setSelectedComplaint }) {
 export default FeedbackForm;
 
 FeedbackForm.propTypes = {
+  complaint: PropTypes.shape({
+    Id: PropTypes.string.isRequired,
+    Type: PropTypes.string.isRequired,
+    Date: PropTypes.string.isRequired,
+    Finish: PropTypes.string.isRequired,
+    Location: PropTypes.string.isRequired,
+    SpecificLocation: PropTypes.string.isRequired,
+    Description: PropTypes.string.isRequired,
+    Comment: PropTypes.string.isRequired,
+  }),
   setSelectedComplaint: PropTypes.string.isRequired,
 };
