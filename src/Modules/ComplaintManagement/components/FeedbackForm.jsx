@@ -14,14 +14,21 @@ import {
 import PropTypes from "prop-types";
 
 function FeedbackForm({ complaint, setSelectedComplaint }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [rating, setRating] = useState(null);
+
   const handleBackButtonClick = () => {
     setSelectedComplaint(null);
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-
   const handleSubmitButtonClick = () => {
+    if (!feedback || !rating) {
+      alert("Please provide feedback and a rating.");
+      return;
+    }
+
     setIsLoading(true);
     setIsSuccess(false);
 
@@ -126,6 +133,8 @@ function FeedbackForm({ complaint, setSelectedComplaint }) {
               required
               variant="filled"
               style={{ width: "100%" }}
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
               backgroundColor="gray"
               cols={50}
               rows={3}
@@ -140,6 +149,8 @@ function FeedbackForm({ complaint, setSelectedComplaint }) {
               placeholder="Rating"
               size="xs"
               required
+              value={rating}
+              onChange={setRating}
               data={[
                 { value: "1", label: "1" },
                 { value: "2", label: "2" },
@@ -205,6 +216,6 @@ FeedbackForm.propTypes = {
     SpecificLocation: PropTypes.string.isRequired,
     Description: PropTypes.string.isRequired,
     Comment: PropTypes.string.isRequired,
-  }),
-  setSelectedComplaint: PropTypes.string.isRequired,
+  }).isRequired,
+  setSelectedComplaint: PropTypes.func.isRequired,
 };
