@@ -13,15 +13,22 @@ import {
 } from "@mantine/core";
 import PropTypes from "prop-types";
 
-function FeedbackForm({ setSelectedComplaint }) {
+function FeedbackForm({ complaint, setSelectedComplaint }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [rating, setRating] = useState(null);
+
   const handleBackButtonClick = () => {
     setSelectedComplaint(null);
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-
   const handleSubmitButtonClick = () => {
+    if (!feedback || !rating) {
+      alert("Please provide feedback and a rating.");
+      return;
+    }
+
     setIsLoading(true);
     setIsSuccess(false);
 
@@ -36,7 +43,7 @@ function FeedbackForm({ setSelectedComplaint }) {
   };
 
   return (
-    <Grid mt="xl">
+    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
       <Paper
         radius="md"
         px="lg"
@@ -62,7 +69,7 @@ function FeedbackForm({ setSelectedComplaint }) {
               Submit Feedback
             </Text>
             <Text size="22px" style={{ fontWeight: "bold" }}>
-              Complaint id: 500
+              Complaint id: {complaint.Id}
             </Text>
           </Flex>
 
@@ -73,7 +80,7 @@ function FeedbackForm({ setSelectedComplaint }) {
                   Register Date:
                 </Text>
                 <Text weight="300" size="18px">
-                  Sept. 3, 2024, 10:30 a.m.
+                  {complaint.Date}
                 </Text>
               </Flex>
             </Grid.Col>
@@ -82,7 +89,7 @@ function FeedbackForm({ setSelectedComplaint }) {
                 Finished Date:
               </Text>
               <Text weight="300" size="18px">
-                Sept. 2, 2024, 11:50 a.m.
+                {complaint.Finish}
               </Text>
             </Flex>
           </Grid>
@@ -94,7 +101,7 @@ function FeedbackForm({ setSelectedComplaint }) {
                   Location:
                 </Text>
                 <Text weight="300" size="18px">
-                  Panini Block B
+                  {complaint.Location}
                 </Text>
               </Flex>
             </Grid.Col>
@@ -103,7 +110,7 @@ function FeedbackForm({ setSelectedComplaint }) {
                 Specific Location:
               </Text>
               <Text weight="300" size="18px">
-                G111
+                {complaint.SpecificLocation}
               </Text>
             </Flex>
           </Grid>
@@ -113,7 +120,7 @@ function FeedbackForm({ setSelectedComplaint }) {
               Caretaker comment on your complaint:
             </Text>
             <Text weight="300" size="18px">
-              some comment
+              {complaint.Comment}
             </Text>
           </Flex>
 
@@ -126,6 +133,8 @@ function FeedbackForm({ setSelectedComplaint }) {
               required
               variant="filled"
               style={{ width: "100%" }}
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
               backgroundColor="gray"
               cols={50}
               rows={3}
@@ -140,6 +149,8 @@ function FeedbackForm({ setSelectedComplaint }) {
               placeholder="Rating"
               size="xs"
               required
+              value={rating}
+              onChange={setRating}
               data={[
                 { value: "1", label: "1" },
                 { value: "2", label: "2" },
@@ -196,5 +207,15 @@ function FeedbackForm({ setSelectedComplaint }) {
 export default FeedbackForm;
 
 FeedbackForm.propTypes = {
-  setSelectedComplaint: PropTypes.string.isRequired,
+  complaint: PropTypes.shape({
+    Id: PropTypes.string.isRequired,
+    Type: PropTypes.string.isRequired,
+    Date: PropTypes.string.isRequired,
+    Finish: PropTypes.string.isRequired,
+    Location: PropTypes.string.isRequired,
+    SpecificLocation: PropTypes.string.isRequired,
+    Description: PropTypes.string.isRequired,
+    Comment: PropTypes.string.isRequired,
+  }).isRequired,
+  setSelectedComplaint: PropTypes.func.isRequired,
 };

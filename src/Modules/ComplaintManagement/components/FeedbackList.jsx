@@ -4,9 +4,9 @@ import PropTypes from "prop-types";
 
 import FeedbackItem from "./FeedbackItem";
 
-function FeedbackList({ setSelectedComplaint }) {
+function FeedbackList({ complaints, setSelectedComplaint }) {
   return (
-    <Grid mt="xl">
+    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
       <Paper
         radius="md"
         px="lg"
@@ -22,67 +22,21 @@ function FeedbackList({ setSelectedComplaint }) {
         maw="1240px"
         backgroundColor="white"
       >
-        {/* Inline CSS to hide scrollbars */}
         <div
           style={{
             height: "100%",
             width: "100%",
-            overflowY: "auto", // Enable vertical scrolling
+            overflowY: "auto",
             fontFamily: "Manrope",
-            scrollbarWidth: "none", // Hide scrollbar in Firefox
-            msOverflowStyle: "none", // Hide scrollbar in IE/Edge
           }}
         >
-          {/* Webkit-based browsers CSS to hide scrollbars */}
-          <style>
-            {`
-              div::-webkit-scrollbar {
-                display: none; /* Hide scrollbar in Chrome, Safari, and Opera */
-              }
-            `}
-          </style>
-
           <Flex direction="column" gap="md" style={{ width: "100%" }}>
-            <FeedbackItem
-              ComplaintId="500"
-              ComplaintType="Internet"
-              ComplaintDate="Sept. 3, 2024, 10:30 a.m."
-              ComplaintLocation="G111 Panini Block B"
-              ComplaintDescription="LAN port not working"
-              setSelectedComplaint={setSelectedComplaint}
-            />
-            <FeedbackItem
-              ComplaintId="501"
-              ComplaintType="Electrical"
-              ComplaintDate="Sept. 3, 2024, 10:30 a.m."
-              ComplaintLocation="G111 Panini Block B"
-              ComplaintDescription="Fan not working"
-              setSelectedComplaint={setSelectedComplaint}
-            />
-            <FeedbackItem
-              ComplaintId="502"
-              ComplaintType="Carpenter"
-              ComplaintDate="Sept. 3, 2024, 10:30 a.m."
-              ComplaintLocation="G111 Panini Block B"
-              ComplaintDescription="Door not closing properly"
-              setSelectedComplaint={setSelectedComplaint}
-            />
-            <FeedbackItem
-              ComplaintId="503"
-              ComplaintType="Plumber"
-              ComplaintDate="Sept. 3, 2024, 10:30 a.m."
-              ComplaintLocation="G111 Panini Block B"
-              ComplaintDescription="Tap not working"
-              setSelectedComplaint={setSelectedComplaint}
-            />
-            <FeedbackItem
-              ComplaintId="504"
-              ComplaintType="Garbage"
-              ComplaintDate="Sept. 3, 2024, 10:30 a.m."
-              ComplaintLocation="G111 Panini Block B"
-              ComplaintDescription="Garbage not collected"
-              setSelectedComplaint={setSelectedComplaint}
-            />
+            {complaints.map((complaint) => (
+              <FeedbackItem
+                complaint={complaint}
+                setSelectedComplaint={setSelectedComplaint}
+              />
+            ))}
           </Flex>
         </div>
       </Paper>
@@ -93,5 +47,17 @@ function FeedbackList({ setSelectedComplaint }) {
 export default FeedbackList;
 
 FeedbackList.propTypes = {
+  complaints: PropTypes.arrayOf(
+    PropTypes.shape({
+      Id: PropTypes.string.isRequired,
+      Type: PropTypes.string.isRequired,
+      Date: PropTypes.string.isRequired,
+      Finish: PropTypes.string.isRequired,
+      Location: PropTypes.string.isRequired,
+      SpecificLocation: PropTypes.string.isRequired,
+      Description: PropTypes.string.isRequired,
+      Comment: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
   setSelectedComplaint: PropTypes.func.isRequired,
 };
