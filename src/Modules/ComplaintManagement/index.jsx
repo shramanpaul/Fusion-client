@@ -8,6 +8,7 @@ import Feedback from "./components/Feedback.jsx";
 import FormPage from "./components/FormPage.jsx";
 import ComplaintHistory from "./components/ComplaintHistory.jsx";
 import GenerateReport from "./components/Generate_Report.jsx";
+import ResolvedComplaints from "./components/ResolvedComplaints.jsx";
 
 const link = document.createElement("link");
 link.href =
@@ -49,7 +50,7 @@ function ComplaintModuleLayout() {
       case "2":
         return <Feedback />;
       case "3":
-        return <p>Resolved Complaints Content</p>;
+        return <ResolvedComplaints />;
       case "4":
         return <p>Unresolved Complaints Content</p>;
       case "5":
