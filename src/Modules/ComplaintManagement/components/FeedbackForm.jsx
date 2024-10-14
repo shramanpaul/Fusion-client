@@ -62,7 +62,7 @@ function FeedbackForm({ complaint, setSelectedComplaint }) {
         <Flex
           direction="column"
           gap="lg"
-          style={{ textAlign: "left", width: "100%", fontFamily: "Manrope" }}
+          style={{ textAlign: "left", width: "100%" }}
         >
           <Flex direction="column">
             <Text size="22px" style={{ fontWeight: "bold" }}>

@@ -27,7 +27,6 @@ function FeedbackList({ complaints, setSelectedComplaint }) {
             height: "100%",
             width: "100%",
             overflowY: "auto",
-            fontFamily: "Manrope",
           }}
         >
           <Flex direction="column" gap="md" style={{ width: "100%" }}>
