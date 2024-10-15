@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Paper, Group, Badge } from "@mantine/core";
-import "../styles/ComplaintHistory.css";
+import "../styles/ComplaintHistory.css"; // Import the updated CSS file
 import detailIcon from "../../../assets/detail.png";
 import declinedIcon from "../../../assets/declined.png";
 import resolvedIcon from "../../../assets/resolved.png";
@@ -64,7 +64,7 @@ function ComplaintHistory() {
 
   return (
     <div className="full-width-container">
-      <div className="main-card-container">
+      <div className="main-card-container" id="main-card">
         {/* Tab Menu */}
         <Group className="tab-menu" spacing="sm">
           <button

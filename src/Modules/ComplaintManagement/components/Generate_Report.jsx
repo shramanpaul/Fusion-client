@@ -48,7 +48,7 @@ function GenerateReport() {
   return (
     <div className="full-width-container">
       {/* Main Complaint List Card */}
-      <div className="main-card-container">
+      <div className="main-card-container" id="main-card">
         <div className="inner-card-content">
           {complaintsData.map((complaint, index) => (
             <Paper
