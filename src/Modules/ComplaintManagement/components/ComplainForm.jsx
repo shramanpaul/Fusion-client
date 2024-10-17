@@ -46,7 +46,7 @@ function ComplaintForm() {
 
     const url = role.includes("supervisor")
       ? `${host}/complaint/supervisor/lodge/`
-      : role.includes("caretaker")
+      : role.includes("caretaker") || role.includes("convener")
         ? `${host}/complaint/caretaker/lodge/`
         : `${host}/complaint/user/`;
 
