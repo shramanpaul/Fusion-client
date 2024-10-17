@@ -1,6 +1,7 @@
 import React from "react";
 import { Tabs, Group, MantineProvider } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const TabsModules = [
   {
@@ -48,13 +49,22 @@ export default function BookingManagement() {
     }
   };
 
+  const role = useSelector((state) => state.user.role);
+
+  const filteredTabs = TabsModules.filter((tab) => {
+    if (role === "VhCaretaker" || role === "VhIncharge") {
+      return true;
+    }
+    return ["manage-bookings", "booking-form", "rules"].includes(tab.id);
+  });
+
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <div className="booking-management">
         <Group position="apart" noWrap>
           <Tabs onChange={handleTabChange} defaultValue="manage-bookings">
             <Tabs.List>
-              {TabsModules.map((tab) => (
+              {filteredTabs.map((tab) => (
                 <Tabs.Tab
                   key={tab.id}
                   value={tab.id}
