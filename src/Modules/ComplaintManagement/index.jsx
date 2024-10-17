@@ -62,7 +62,7 @@ function ComplaintModuleLayout() {
   };
 
   return (
-    <>
+    <div style={{ fontFamily: "Manrope" }}>
       <CustomBreadcrumbs />
       <Flex justify="space-between" align="center" mt="lg">
         <Flex justify="flex-start" align="center" gap="1rem" mt="1.5rem">
@@ -120,7 +120,7 @@ function ComplaintModuleLayout() {
       <Flex direction="row" justify="start" align="start">
         <div>{renderTabContent()}</div>
       </Flex>
-    </>
+    </div>
   );
 }
 
