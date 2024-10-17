@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Paper, Group, Badge } from "@mantine/core";
+import {
+  Paper,
+  Group,
+  Badge,
+  Button,
+  Flex,
+  Divider,
+  Text,
+} from "@mantine/core";
 import "../styles/ComplaintHistory.css"; // Import the updated CSS file
 import detailIcon from "../../../assets/detail.png";
 import declinedIcon from "../../../assets/declined.png";
@@ -96,66 +104,68 @@ function ComplaintHistory() {
               px="lg"
               pt="sm"
               pb="xl"
-              className="complaint-subcard"
+              style={{
+                width: "100%", // Ensure full width
+                marginBottom: "20px", // Add some space between cards
+              }}
               withBorder
             >
-              {/* Complaint Header */}
-              <div className="complaint-header">
-                <span>{complaint.type}</span>
-                <Badge className="complaint-type-badge">{complaint.type}</Badge>
+              <Flex align="center" justify="space-between" mb="sm">
+                <Text size="sm" style={{ fontWeight: "bold" }}>
+                  {complaint.type}
+                </Text>
+                <Badge
+                  color="blue"
+                  radius="xl"
+                  variant="filled"
+                  size="lg"
+                  style={{
+                    fontWeight: "normal",
+                    textAlign: "left",
+                  }}
+                >
+                  {complaint.type}
+                </Badge>
 
                 {/* Status Icon based on Tab */}
                 {activeTab === "pending" && (
-                  <button
-                    className="status-icon-button"
+                  <Button
+                    variant="outline"
+                    size="xs"
                     onClick={() => console.log("Navigate to details page")}
                     aria-label="Details"
-                    style={{ background: "none", border: "none", padding: 0 }} // Remove button styles
+                    style={{ background: "none", border: "none" }} // Remove button styles
                   >
                     <img
                       src={detailIcon}
                       alt="Details"
-                      className="status-icon"
+                      style={{ width: "20px", height: "20px" }}
                     />
-                  </button>
+                  </Button>
                 )}
 
                 {activeTab === "resolved" && (
                   <img
                     src={resolvedIcon}
                     alt="Resolved"
-                    className="status-icon"
+                    style={{ width: "20px", height: "20px" }}
                   />
                 )}
                 {activeTab === "declined" && (
                   <img
                     src={declinedIcon}
                     alt="Declined"
-                    className="status-icon"
+                    style={{ width: "20px", height: "20px" }}
                   />
                 )}
-              </div>
+              </Flex>
 
-              {/* Complaint Details */}
-              <div className="complaint-detail">
-                <b>Date: </b>
-                <span id="content">{complaint.date}</span>
-              </div>
-              <div className="complaint-detail">
-                <b>Location: </b> <span id="content">{complaint.location}</span>
-              </div>
-              <div className="complaint-detail">
-                <b>Complaint: </b>
-                <span id="content">{complaint.details.split(".")[0]}</span>
-              </div>
+              <Text size="sm">Date: {complaint.date}</Text>
+              <Text size="sm">Location: {complaint.location}</Text>
 
-              {/* Horizontal rule */}
-              <div id="hr">
-                <hr />
-              </div>
+              <Divider my="md" size="sm" />
 
-              {/* Full complaint description */}
-              <div className="complaint-detail">{complaint.details}</div>
+              <Text size="sm">{complaint.details}</Text>
             </Paper>
           ))}
         </div>
