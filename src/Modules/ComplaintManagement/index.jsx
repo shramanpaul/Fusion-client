@@ -10,6 +10,7 @@ import ComplaintHistory from "./components/ComplaintHistory.jsx";
 import GenerateReport from "./components/Generate_Report.jsx";
 import ResolvedComplaints from "./components/ResolvedComplaints.jsx";
 import UnresolvedComplaints from "./components/UnresolvedComplaints.jsx";
+import RedirectedComplaints from "./components/RedirectedComplaints.jsx";
 
 const link = document.createElement("link");
 link.href =
@@ -27,6 +28,7 @@ function ComplaintModuleLayout() {
     { title: "Feedback" },
     { title: "Resolved Complaints" },
     { title: "Unresolved Complaints" },
+    { title: "Redirected Complaints" },
     { title: "Generate Report" },
   ];
 
@@ -55,6 +57,8 @@ function ComplaintModuleLayout() {
       case "4":
         return <UnresolvedComplaints />;
       case "5":
+        return <RedirectedComplaints />;
+      case "6":
         return <GenerateReport />;
       default:
         return <Loader />;
