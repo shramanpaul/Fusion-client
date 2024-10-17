@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   MantineProvider,
   Table,
@@ -7,49 +8,11 @@ import {
   Text,
   Box,
 } from "@mantine/core";
+import PropTypes from "prop-types";
 import BookingForm from "./bookingForm";
+import { host } from "../../routes/globalRoutes";
 
-const bookings = [
-  {
-    id: 1,
-    intender: "Prof. Atul Gupta",
-    email: "atul@iiitdmj.ac.in",
-    bookingFrom: "Sept 4, 2024",
-    bookingTo: "Sept 5, 2024",
-    category: "A",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    intender: "KESHAV SONI",
-    email: "22BCS135@iiitdmj.ac.in",
-    bookingFrom: "Sept 16, 2024",
-    bookingTo: "Sept 18, 2024",
-    category: "B",
-    status: "Confirmed",
-  },
-
-  {
-    id: 3,
-    intender: "SINDHU VUKKURTHY",
-    email: "22BCS233@iiitdmj.ac.in",
-    bookingFrom: "Sept 3, 2024",
-    bookingTo: "Sept 4, 2024",
-    category: "A",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    intender: "S.V. RISHITHA",
-    email: "22BCS216@iiitdmj.ac.in",
-    bookingFrom: "Sept 15, 2024",
-    bookingTo: "Sept 16, 2024",
-    category: "B",
-    status: "Confirmed",
-  },
-];
-
-function BookingsRequestTable() {
+function BookingsRequestTable({ bookings }) {
   const [showForm, setShowForm] = useState(false); // Manage form visibility
 
   const handleButtonClick = () => {
@@ -176,8 +139,51 @@ function BookingsRequestTable() {
     </Box>
   );
 }
+// Define prop types for BookingsRequestTable
+BookingsRequestTable.propTypes = {
+  bookings: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      intender: PropTypes.string.isRequired,
+      email: PropTypes.string.isRequired,
+      bookingFrom: PropTypes.string.isRequired,
+      bookingTo: PropTypes.string.isRequired,
+      category: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+};
 
 function Bookings() {
+  const [bookings, setBookings] = useState([]);
+  // test
+  useEffect(() => {
+    const fetchBookings = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        return console.error("No authentication token found!");
+      }
+
+      try {
+        const { data } = await axios.get(
+          `${host}/visitorhostel/get-booking-requests/`,
+          {
+            headers: { Authorization: `Token ${token}` },
+          },
+        );
+        // Handle the fetched data here, e.g.:
+        setBookings(data.pending_bookings);
+        // setBookings(data);
+        // setLoading(false);
+      } catch (error) {
+        console.error("Error fetching booking requests:", error);
+        // setLoading(false);
+      }
+    };
+
+    fetchBookings(); // Call the async function
+  }, []); // Empty dependency array ensures it runs only once
+
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <Box
@@ -190,7 +196,7 @@ function Bookings() {
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Optional shadow
         }}
       >
-        <BookingsRequestTable />
+        <BookingsRequestTable bookings={bookings} />
       </Box>
     </MantineProvider>
   );
