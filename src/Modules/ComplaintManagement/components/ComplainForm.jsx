@@ -80,16 +80,14 @@ function ComplaintForm({ onSubmit }) {
                 value={location}
                 onChange={setLocation}
                 data={[
-                  "H1",
-                  "H3",
-                  "H4",
-                  "PA",
-                  "PB",
-                  "PC",
-                  "Nagarjuna",
-                  "Maa Saraswati",
+                  "Hall-1",
+                  "Hall-3",
+                  "Hall-4",
+                  "Nagarjun Hostel",
+                  "Maa Saraswati Hostel",
+                  "Panini Hostel",
                   "LHTC",
-                  "Core Lab",
+                  "CORE LAB",
                   "CC1",
                   "CC2",
                   "Rewa Residency",
