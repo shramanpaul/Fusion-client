@@ -1,10 +1,14 @@
 import React from "react";
-import { Flex } from "@mantine/core";
+import { Flex, Text } from "@mantine/core";
 import PropTypes from "prop-types";
-
 import FeedbackItem from "./FeedbackItem";
 
 function FeedbackList({ complaints, setSelectedComplaint }) {
+  // Filter complaints to only include those with status 2
+  const filteredComplaints = complaints.filter(
+    (complaint) => complaint.status === 2,
+  );
+
   return (
     <div
       style={{
@@ -14,15 +18,19 @@ function FeedbackList({ complaints, setSelectedComplaint }) {
       }}
     >
       <Flex direction="column" gap="md" style={{ width: "100%" }}>
-        {complaints
-          .filter((complaint) => complaint.status === 2) // Only show complaints with status 2
-          .map((complaint) => (
+        {filteredComplaints.length === 0 ? (
+          <Text align="center" color="gray">
+            No resolved complaints available.
+          </Text>
+        ) : (
+          filteredComplaints.map((complaint) => (
             <FeedbackItem
               key={complaint.id}
               complaint={complaint}
               setSelectedComplaint={setSelectedComplaint}
             />
-          ))}
+          ))
+        )}
       </Flex>
     </div>
   );

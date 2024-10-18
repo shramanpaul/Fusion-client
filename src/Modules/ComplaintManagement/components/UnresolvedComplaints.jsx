@@ -8,6 +8,8 @@ import {
   Badge,
   Paper,
   Card,
+  Loader,
+  Center,
 } from "@mantine/core";
 import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
 import UnresCompDetails from "./UnresComp_Details.jsx";
@@ -19,6 +21,8 @@ function UnresolvedComplaints() {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaints, setComplaints] = useState([]);
   const [redirectedComplaints, setRedirectedComplaints] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const role = useSelector((state) => state.user.role); // Get user role from Redux store
   const host = "http://127.0.0.1:8000"; // Replace with your backend host if necessary
@@ -32,22 +36,32 @@ function UnresolvedComplaints() {
 
   // Fetch unresolved complaints from the API based on role
   useEffect(() => {
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${localStorage.getItem("authToken")}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchComplaints = async () => {
+      setIsLoading(true);
+      setIsError(false); // Reset error state before fetching
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${localStorage.getItem("authToken")}`,
+          },
+        });
+        const data = await response.json();
+
         // Filter complaints that are unresolved (status !== 2 for unresolved complaints)
         const unresolvedComplaints = data.filter(
           (complaint) => complaint.status !== 2,
         );
         setComplaints(unresolvedComplaints);
-      })
-      .catch((error) => console.error("Error fetching complaints:", error));
+      } catch (error) {
+        console.error("Error fetching complaints:", error);
+        setIsError(true);
+      }
+      setIsLoading(false);
+    };
+
+    fetchComplaints();
   }, [url]); // Re-fetch data when `url` changes
 
   const handleButtonClick = (component, complaint) => {
@@ -85,8 +99,22 @@ function UnresolvedComplaints() {
         maw="1240px"
         backgroundColor="white"
       >
-        <Grid style={{ flexGrow: 1 }}>
-          {activeComponent === "details" ? (
+        <Grid style={{ flexGrow: 1, minHeight: "45vh" }}>
+          {isLoading ? (
+            <Center style={{ flexGrow: 1 }}>
+              <Loader size="xl" variant="bars" />
+            </Center>
+          ) : isError ? (
+            <Center style={{ flexGrow: 1 }}>
+              <Text color="red">
+                Failed to fetch complaints. Please try again.
+              </Text>
+            </Center>
+          ) : complaints.length === 0 ? (
+            <Center style={{ flexGrow: 1 }}>
+              <Text>No unresolved complaints available.</Text>
+            </Center>
+          ) : activeComponent === "details" ? (
             <UnresCompDetails
               complaint={selectedComplaint}
               onBack={handleBack}
@@ -164,9 +192,10 @@ function UnresolvedComplaints() {
                       Change Status
                     </Button>
 
-                    {redirectedComplaints.includes(complaint.id) ? (
+                    {redirectedComplaints.includes(complaint.id) ||
+                    complaint.status === 1 ? (
                       <Button variant="outline" size="xs" disabled>
-                        Redirected
+                        {complaint.status === 1 ? "Redirected" : "Redirected"}
                       </Button>
                     ) : (
                       <Button

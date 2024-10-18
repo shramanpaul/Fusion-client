@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Textarea, Text, Button, Flex, Grid, Select } from "@mantine/core";
 import { useState } from "react";
 import PropTypes from "prop-types";
@@ -5,6 +6,8 @@ import PropTypes from "prop-types";
 function UnresComp_ChangeStatus({ complaint, onBack }) {
   const [status, setStatus] = useState("");
   const [comments, setComments] = useState("");
+  const host = "http://127.0.0.1:8000";
+  const token = localStorage.getItem("authToken");
 
   if (!complaint) return null;
 
@@ -16,14 +19,48 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
     setComments(event.currentTarget.value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!status) {
       alert("Please select an option before submitting.");
       return;
     }
 
-    alert("Thank you for resolving the complaint");
-    onBack();
+    try {
+      const response = await axios.post(
+        `${host}/complaint/caretaker/pending/${complaint.id}/`,
+        {
+          yesorno: status,
+          comment: comments,
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        },
+      );
+
+      if (response.data.success) {
+        alert("Thank you for resolving the complaint.");
+        onBack();
+      }
+    } catch (error) {
+      console.error(
+        "Error resolving the complaint:",
+        error.response ? error.response.data : error.message,
+      );
+      alert("There was an issue submitting your response. Please try again.");
+    }
+  };
+
+  const formatDateTime = (datetimeStr) => {
+    const date = new Date(datetimeStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
   };
 
   return (
@@ -33,16 +70,16 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
       </Text>
 
       <Text size="sm" mt="1rem">
-        <strong>Student ID:</strong> {complaint.studentId}
+        <strong>Student ID:</strong> {complaint.complainer}
       </Text>
       <Text size="sm">
-        <strong>Date:</strong> {complaint.date}
+        <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}
       </Text>
       <Text size="sm">
         <strong>Location:</strong> {complaint.location}
       </Text>
       <Text size="sm">
-        <strong>Issue:</strong> {complaint.issue}
+        <strong>Issue:</strong> {complaint.details}
       </Text>
 
       <Text mt="1rem">Has the issue been resolved?</Text>
@@ -55,8 +92,8 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
         label="Please select an option"
         placeholder="Choose an option"
         data={[
-          { value: "yes", label: "Yes" },
-          { value: "no", label: "No" },
+          { value: "Yes", label: "Yes" },
+          { value: "No", label: "No" },
         ]}
         value={status}
         onChange={handleStatusChange}
@@ -89,10 +126,17 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
 
 UnresComp_ChangeStatus.propTypes = {
   complaint: PropTypes.shape({
-    studentId: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
+    complaint_type: PropTypes.string.isRequired,
+    complaint_date: PropTypes.string.isRequired,
+    complaint_finish: PropTypes.string,
     location: PropTypes.string.isRequired,
-    issue: PropTypes.string.isRequired,
+    specific_location: PropTypes.string.isRequired,
+    details: PropTypes.string.isRequired,
+    status: PropTypes.number.isRequired,
+    feedback: PropTypes.string,
+    comment: PropTypes.string,
+    complainer: PropTypes.string,
   }),
   onBack: PropTypes.func.isRequired,
 };

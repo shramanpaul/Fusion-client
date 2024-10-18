@@ -3,12 +3,22 @@ import PropTypes from "prop-types"; // Import PropTypes for validation
 import { Text, Button, Flex, Grid } from "@mantine/core";
 
 function RedirectedComplaintsDetails({ complaint, onBack }) {
-  if (!complaint) return null; // Return null if no complaint is provided
+  if (!complaint) return null;
+
+  const formatDateTime = (datetimeStr) => {
+    const date = new Date(datetimeStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
+  };
 
   return (
     <Grid.Col style={{ height: "100%" }}>
       {" "}
-      {/* Ensure the column takes full height */}
       <Flex
         direction="column"
         justify="space-between"
@@ -17,35 +27,29 @@ function RedirectedComplaintsDetails({ complaint, onBack }) {
         <Flex direction="column" style={{ flexGrow: 1 }}>
           <Text size="lg" weight="bold">
             {" "}
-            {/* Use the Mantine `weight` prop */}
             Complaint Details
           </Text>
-          <Text size="sm" mt="1rem">
-            {" "}
-            {/* Use Mantine's `mt` for margin-top */}
-            <strong>Complainer:</strong> Student Name
-          </Text>
           <Text size="sm">
-            <strong>Complainer ID:</strong> {complaint.studentId}
+            <strong>Complainer ID:</strong> {complaint.complainer}
           </Text>
           <Text size="sm">
             <strong>Complaint ID:</strong> 007
           </Text>
           <Text size="sm">
-            <strong>Date:</strong> {complaint.date}
+            <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}
           </Text>
           <Text size="sm">
-            <strong>Location:</strong> {complaint.location}
+            <strong>Location:</strong> {complaint.location} (
+            {complaint.specific_location})
           </Text>
           <Text size="sm">
-            <strong>Issue:</strong> {complaint.issue}
+            <strong>Issue:</strong> {complaint.details}
           </Text>
         </Flex>
 
         {/* Flex container for the buttons, anchored at the bottom */}
         <Flex justify="flex-end" mt="xl">
           {" "}
-          {/* Margin top to space from content */}
           <Button variant="outline" size="md" onClick={onBack}>
             BACK
           </Button>
@@ -58,12 +62,19 @@ function RedirectedComplaintsDetails({ complaint, onBack }) {
 // Prop type validation for the component
 RedirectedComplaintsDetails.propTypes = {
   complaint: PropTypes.shape({
-    studentId: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
+    complaint_type: PropTypes.string.isRequired,
+    complaint_date: PropTypes.string.isRequired,
+    complaint_finish: PropTypes.string,
     location: PropTypes.string.isRequired,
-    issue: PropTypes.string.isRequired,
+    specific_location: PropTypes.string.isRequired,
+    details: PropTypes.string.isRequired,
+    status: PropTypes.number.isRequired,
+    feedback: PropTypes.string,
+    comment: PropTypes.string,
+    complainer: PropTypes.string,
   }),
-  onBack: PropTypes.func.isRequired, // Validation for the onBack function
+  onBack: PropTypes.func.isRequired,
 };
 
 export default RedirectedComplaintsDetails;

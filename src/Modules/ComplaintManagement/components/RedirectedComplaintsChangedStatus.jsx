@@ -1,6 +1,7 @@
 import { Textarea, Text, Button, Flex, Grid, Select } from "@mantine/core";
 import { useState } from "react";
 import PropTypes from "prop-types";
+import axios from "axios";
 
 function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
   const [status, setStatus] = useState("");
@@ -22,8 +23,44 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
       return;
     }
 
-    alert("Thank you for resolving the complaint");
-    onBack();
+    const newStatus = status === "yes" ? "Yes" : "No";
+    const comment = comments;
+
+    const requestData = {
+      yesorno: newStatus,
+      comment,
+    };
+
+    axios
+      .post(
+        `http://127.0.0.1:8000/complaint/supervisor/pending/${complaint.id}/`,
+        requestData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${localStorage.getItem("authToken")}`,
+          },
+        },
+      )
+      .then(() => {
+        alert("Thank you for resolving the complaint");
+        onBack(); // Call back to refresh the complaints list
+      })
+      .catch((error) => {
+        console.error("Error updating complaint status:", error);
+        alert("There was an error updating the complaint status.");
+      });
+  };
+
+  const formatDateTime = (datetimeStr) => {
+    const date = new Date(datetimeStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
   };
 
   return (
@@ -33,16 +70,17 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
       </Text>
 
       <Text size="sm" mt="1rem">
-        <strong>Student ID:</strong> {complaint.studentId}
+        <strong>Complainer id:</strong> {complaint.complainer}
       </Text>
       <Text size="sm">
-        <strong>Date:</strong> {complaint.date}
+        <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}
       </Text>
       <Text size="sm">
-        <strong>Location:</strong> {complaint.location}
+        <strong>Location:</strong> Location: {complaint.location} (
+        {complaint.specific_location})
       </Text>
       <Text size="sm">
-        <strong>Issue:</strong> {complaint.issue}
+        <strong>Issue:</strong> {complaint.details}
       </Text>
 
       <Text mt="1rem">Has the issue been resolved?</Text>
@@ -65,21 +103,19 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
 
       <Text mt="1rem">Any Comments</Text>
       <Textarea
-        placeholder="Write your comments here"
-        label="Comments"
+        placeholder="Please leave your comments here"
+        value={comments}
+        onChange={handleCommentsChange}
         autosize
         minRows={2}
         maxRows={4}
-        value={comments}
-        onChange={handleCommentsChange}
-        mt="1rem"
       />
 
-      <Flex justify="space-between" mt="xl">
-        <Button variant="outline" size="md" onClick={onBack}>
-          BACK
+      <Flex justify="flex-end" gap="sm" mt="md">
+        <Button variant="outline" onClick={onBack}>
+          Back
         </Button>
-        <Button variant="filled" size="md" onClick={handleSubmit}>
+        <Button variant="outline" onClick={handleSubmit}>
           Submit
         </Button>
       </Flex>
@@ -89,10 +125,17 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
 
 RedirectedComplaintsChangeStatus.propTypes = {
   complaint: PropTypes.shape({
-    studentId: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
+    complaint_type: PropTypes.string.isRequired,
+    complaint_date: PropTypes.string.isRequired,
+    complaint_finish: PropTypes.string,
     location: PropTypes.string.isRequired,
-    issue: PropTypes.string.isRequired,
+    specific_location: PropTypes.string.isRequired,
+    details: PropTypes.string.isRequired,
+    status: PropTypes.number.isRequired,
+    feedback: PropTypes.string,
+    comment: PropTypes.string,
+    complainer: PropTypes.string,
   }),
   onBack: PropTypes.func.isRequired,
 };
