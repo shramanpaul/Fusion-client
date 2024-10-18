@@ -25,25 +25,12 @@ function ComplaintModuleLayout() {
   const tabsListRef = useRef(null);
   const role = useSelector((state) => state.user.role); // Getting role from Redux
 
-  // Define tabs based on user role
+  // Define tabs based on user role using regex to find caretaker or supervisor
   let tabItems = [];
 
-  if (["student", ""].includes(role)) {
-    tabItems = [
-      { title: "Lodge a Complaint" },
-      { title: "Complaint History" },
-      { title: "Feedback" },
-    ];
-  } else if (["a", "b"].includes(role)) {
-    tabItems = [
-      { title: "Lodge a Complaint" },
-      { title: "Complaint History" },
-      { title: "Feedback" },
-      { title: "Resolved Complaints" },
-      { title: "Unresolved Complaints" },
-      { title: "Generate Report" },
-    ];
-  } else if (["internetsupervisor", "hall1caretaker"].includes(role)) {
+  const user_role = /(caretaker|supervisor)/i; // case-insensitive match for caretaker or supervisor
+
+  if (user_role.test(role)) {
     tabItems = [
       { title: "Lodge a Complaint" },
       { title: "Complaint History" },
@@ -52,6 +39,12 @@ function ComplaintModuleLayout() {
       { title: "Unresolved Complaints" },
       { title: "Redirected Complaints" },
       { title: "Generate Report" },
+    ];
+  } else if (role.includes("student")) {
+    tabItems = [
+      { title: "Lodge a Complaint" },
+      { title: "Complaint History" },
+      { title: "Feedback" },
     ];
   }
 
