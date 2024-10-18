@@ -1,8 +1,10 @@
 import { Button, Flex, Loader, Tabs, Text } from "@mantine/core";
 import { CaretCircleLeft, CaretCircleRight } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
+import { useSelector } from "react-redux"; // Assuming role is stored in Redux state
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
 import classes from "./ComplaintModule.module.css";
+
 // Import all the components here
 import Feedback from "./components/Feedback.jsx";
 import FormPage from "./components/FormPage.jsx";
@@ -10,7 +12,6 @@ import ComplaintHistory from "./components/ComplaintHistory.jsx";
 import GenerateReport from "./components/Generate_Report.jsx";
 import ResolvedComplaints from "./components/ResolvedComplaints.jsx";
 import UnresolvedComplaints from "./components/UnresolvedComplaints.jsx";
-
 import RedirectedComplaints from "./components/RedirectedComplaints.jsx";
 
 const link = document.createElement("link");
@@ -22,16 +23,37 @@ document.head.appendChild(link);
 function ComplaintModuleLayout() {
   const [activeTab, setActiveTab] = useState("0");
   const tabsListRef = useRef(null);
+  const role = useSelector((state) => state.user.role); // Getting role from Redux
 
-  const tabItems = [
-    { title: "Lodge a Complaint" },
-    { title: "Complaint History" },
-    { title: "Feedback" },
-    { title: "Resolved Complaints" },
-    { title: "Unresolved Complaints" },
-    { title: "Redirected Complaints" },
-    { title: "Generate Report" },
-  ];
+  // Define tabs based on user role
+  let tabItems = [];
+
+  if (["student", "y"].includes(role)) {
+    tabItems = [
+      { title: "Lodge a Complaint" },
+      { title: "Complaint History" },
+      { title: "Feedback" },
+    ];
+  } else if (["a", "b"].includes(role)) {
+    tabItems = [
+      { title: "Lodge a Complaint" },
+      { title: "Complaint History" },
+      { title: "Feedback" },
+      { title: "Resolved Complaints" },
+      { title: "Unresolved Complaints" },
+      { title: "Generate Report" },
+    ];
+  } else if (["internetsupervisor", "d"].includes(role)) {
+    tabItems = [
+      { title: "Lodge a Complaint" },
+      { title: "Complaint History" },
+      { title: "Feedback" },
+      { title: "Resolved Complaints" },
+      { title: "Unresolved Complaints" },
+      { title: "Redirected Complaints" },
+      { title: "Generate Report" },
+    ];
+  }
 
   const handleTabChange = (direction) => {
     const newIndex =
@@ -51,7 +73,6 @@ function ComplaintModuleLayout() {
         return <FormPage />;
       case "1":
         return <ComplaintHistory />;
-
       case "2":
         return <Feedback />;
       case "3":
@@ -119,8 +140,6 @@ function ComplaintModuleLayout() {
           </Button>
         </Flex>
       </Flex>
-
-      {/* end */}
 
       {/* Main content */}
       <Flex direction="row" justify="start" align="start">
