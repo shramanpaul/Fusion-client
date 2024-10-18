@@ -70,7 +70,7 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
       </Text>
 
       <Text size="sm" mt="1rem">
-        <strong>Student ID:</strong> {complaint.complainer}
+        <strong>Complainer id:</strong> {complaint.complainer}
       </Text>
       <Text size="sm">
         <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}

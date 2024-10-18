@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Paper, Group, Badge, Title, Text, Button, Grid } from "@mantine/core";
+import {
+  Paper,
+  Group,
+  Badge,
+  Title,
+  Text,
+  Button,
+  Grid,
+  Center,
+  Loader,
+} from "@mantine/core";
 import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
 import "../styles/ComplaintHistory.css";
 import detailIcon from "../../../assets/detail.png";
@@ -13,6 +23,8 @@ function ComplaintHistory() {
     resolved: [],
     declined: [],
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const role = useSelector((state) => state.user.role); // Get the user role from Redux
   const host = "http://127.0.0.1:8000"; // Replace with your backend host if necessary
@@ -26,6 +38,8 @@ function ComplaintHistory() {
 
   useEffect(() => {
     // Fetch complaints from the API
+    setIsLoading(true);
+    setIsError(false); // Reset error state before fetching
     fetch(url, {
       method: "GET",
       headers: {
@@ -40,9 +54,6 @@ function ComplaintHistory() {
         return response.json();
       })
       .then((data) => {
-        // Log the fetched data to inspect its structure
-        console.log("Fetched complaints data:", data);
-
         // Check if the data returned is an array, then filter by status
         if (Array.isArray(data)) {
           const pending = data.filter((c) => c.status === 0);
@@ -56,7 +67,13 @@ function ComplaintHistory() {
           setComplaints({ pending: [], resolved: [], declined: [] });
         }
       })
-      .catch((error) => console.error("Error fetching complaints:", error));
+      .catch((error) => {
+        console.error("Error fetching complaints:", error);
+        setIsError(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [url]); // Re-fetch complaints when the `url` changes
 
   const getComplaints = () => complaints[activeTab];
@@ -102,69 +119,85 @@ function ComplaintHistory() {
 
         {/* Complaint List */}
         <div className="inner-card-content">
-          {getComplaints().map((complaint, index) => (
-            <Paper
-              key={index}
-              radius="md"
-              px="lg"
-              pt="sm"
-              pb="xl"
-              style={{
-                borderLeft: "0.4rem solid #15ABFF",
-                marginBottom: "1rem",
-              }}
-              withBorder
-            >
-              <div className="complaint-header">
-                <Title order={5}>{complaint.complaint_type}</Title>
-                <Badge color="blue" size="lg">
-                  {complaint.complaint_type}
-                </Badge>
-
-                {activeTab === "pending" && (
-                  <Button
-                    variant="outline"
-                    size="xs"
-                    onClick={() => console.log("Navigate to details page")}
-                    leftIcon={<img src={detailIcon} alt="Details" />}
-                  >
-                    Details
-                  </Button>
-                )}
-                {activeTab === "resolved" && (
-                  <img
-                    src={resolvedIcon}
-                    alt="Resolved"
-                    className="status-icon"
-                  />
-                )}
-                {activeTab === "declined" && (
-                  <img
-                    src={declinedIcon}
-                    alt="Declined"
-                    className="status-icon"
-                  />
-                )}
-              </div>
-
-              <Text>
-                <b>Date:</b>{" "}
-                {new Date(complaint.complaint_date).toLocaleDateString()}
+          {isLoading ? (
+            <Center style={{ minHeight: "45vh" }}>
+              <Loader size="xl" variant="bars" />
+            </Center>
+          ) : isError ? (
+            <Center style={{ minHeight: "45vh" }}>
+              <Text color="red">
+                Failed to fetch complaints. Please try again.
               </Text>
-              <Text>
-                <b>Location:</b> {complaint.location}
-              </Text>
-              <Text>
-                <b>Details:</b> {complaint.details}
-              </Text>
+            </Center>
+          ) : getComplaints().length === 0 ? (
+            <Center style={{ minHeight: "45vh" }}>
+              <Text>No {activeTab} complaints available.</Text>
+            </Center>
+          ) : (
+            getComplaints().map((complaint, index) => (
+              <Paper
+                key={index}
+                radius="md"
+                px="lg"
+                pt="sm"
+                pb="xl"
+                style={{
+                  borderLeft: "0.4rem solid #15ABFF",
+                  marginBottom: "1rem",
+                }}
+                withBorder
+              >
+                <div className="complaint-header">
+                  <Title order={5}>{complaint.complaint_type}</Title>
+                  <Badge color="blue" size="lg">
+                    {complaint.complaint_type}
+                  </Badge>
 
-              <hr />
+                  {activeTab === "pending" && (
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      onClick={() => console.log("Navigate to details page")}
+                      leftIcon={<img src={detailIcon} alt="Details" />}
+                    >
+                      Details
+                    </Button>
+                  )}
+                  {activeTab === "resolved" && (
+                    <img
+                      src={resolvedIcon}
+                      alt="Resolved"
+                      className="status-icon"
+                    />
+                  )}
+                  {activeTab === "declined" && (
+                    <img
+                      src={declinedIcon}
+                      alt="Declined"
+                      className="status-icon"
+                    />
+                  )}
+                </div>
 
-              <Text>
-                <b>Remarks:</b> {complaint.remarks}
-              </Text>
-            </Paper>
-          ))}
+                <Text>
+                  <b>Date:</b>{" "}
+                  {new Date(complaint.complaint_date).toLocaleDateString()}
+                </Text>
+                <Text>
+                  <b>Location:</b> {complaint.location}
+                </Text>
+                <Text>
+                  <b>Details:</b> {complaint.details}
+                </Text>
+
+                <hr />
+
+                <Text>
+                  <b>Remarks:</b> {complaint.remarks}
+                </Text>
+              </Paper>
+            ))
+          )}
         </div>
       </Paper>
     </Grid>

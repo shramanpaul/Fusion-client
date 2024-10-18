@@ -43,7 +43,7 @@ function ComplaintModuleLayout() {
       { title: "Unresolved Complaints" },
       { title: "Generate Report" },
     ];
-  } else if (["internetsupervisor", "d"].includes(role)) {
+  } else if (["internetsupervisor", "hall1caretaker"].includes(role)) {
     tabItems = [
       { title: "Lodge a Complaint" },
       { title: "Complaint History" },

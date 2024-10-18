@@ -124,7 +124,8 @@ function ResolvedComplaints() {
                     {formatDateTime(complaint.complaint_date)}
                   </Text>
                   <Text>
-                    <strong>Location:</strong> {complaint.location}
+                    <strong>Location:</strong> {complaint.location} (
+                    {complaint.specific_location})
                   </Text>
                   <Text mt="md">{complaint.description}</Text>
                   <Divider my="sm" />
