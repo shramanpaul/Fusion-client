@@ -84,7 +84,7 @@ function Feedback() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "70vw",
+          width: "60vw",
           minHeight: "45vh",
           maxHeight: "70vh",
         }}

@@ -64,8 +64,10 @@ function RedirectedComplaints() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "70vw",
-          maxHeight: "60vh",
+          width: "60vw",
+          minHeight: "45vh",
+          maxHeight: "70vh",
+          backgroundColor: "white",
           display: "flex",
           flexDirection: "column",
           overflow: "auto",

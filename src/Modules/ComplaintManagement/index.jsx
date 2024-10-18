@@ -28,7 +28,7 @@ function ComplaintModuleLayout() {
   // Define tabs based on user role
   let tabItems = [];
 
-  if (["student", "y"].includes(role)) {
+  if (["student", ""].includes(role)) {
     tabItems = [
       { title: "Lodge a Complaint" },
       { title: "Complaint History" },
@@ -143,9 +143,7 @@ function ComplaintModuleLayout() {
 
       {/* Main content */}
       <Flex direction="row" justify="start" align="start">
-        <div style={{ marginLeft: "41px", marginTop: "10px" }}>
-          {renderTabContent()}
-        </div>
+        <div>{renderTabContent()}</div>
       </Flex>
     </div>
   );

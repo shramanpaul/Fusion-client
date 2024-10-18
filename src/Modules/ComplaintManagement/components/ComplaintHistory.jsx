@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Paper, Group, Badge } from "@mantine/core";
+import { Paper, Group, Badge, Title, Text, Button, Grid } from "@mantine/core";
 import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
 import "../styles/ComplaintHistory.css";
 import detailIcon from "../../../assets/detail.png";
@@ -62,18 +62,41 @@ function ComplaintHistory() {
   const getComplaints = () => complaints[activeTab];
 
   return (
-    <div className="full-width-container">
-      <div className="main-card-container" id="main-card">
+    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
+      <Paper
+        radius="md"
+        px="lg"
+        pt="sm"
+        pb="xl"
+        style={{
+          borderLeft: "0.6rem solid #15ABFF",
+          width: "60vw",
+          backgroundColor: "white",
+          minHeight: "45vh",
+          maxHeight: "70vh",
+        }}
+        withBorder
+        maw="1240px"
+      >
+        <Title order={3} mb="md">
+          Complaint History
+        </Title>
+
         {/* Tab Menu */}
-        <Group className="tab-menu" spacing="sm">
+        <Group spacing="sm" mb="md">
           {["pending", "resolved", "declined"].map((tab) => (
-            <button
+            <Button
               key={tab}
-              className={`tab-item ${activeTab === tab ? "active-tab" : ""}`}
+              variant={activeTab === tab ? "filled" : "outline"}
               onClick={() => setActiveTab(tab)}
+              style={{
+                width: "150px",
+                backgroundColor: activeTab === tab ? "#15ABFF" : "white",
+                color: activeTab === tab ? "white" : "black",
+              }}
             >
               {`${tab.charAt(0).toUpperCase() + tab.slice(1)} Complaints`}
-            </button>
+            </Button>
           ))}
         </Group>
 
@@ -86,28 +109,27 @@ function ComplaintHistory() {
               px="lg"
               pt="sm"
               pb="xl"
-              className="complaint-subcard"
+              style={{
+                borderLeft: "0.4rem solid #15ABFF",
+                marginBottom: "1rem",
+              }}
               withBorder
             >
               <div className="complaint-header">
-                <span>{complaint.complaint_type}</span>
-                <Badge className="complaint-type-badge">
+                <Title order={5}>{complaint.complaint_type}</Title>
+                <Badge color="blue" size="lg">
                   {complaint.complaint_type}
                 </Badge>
 
                 {activeTab === "pending" && (
-                  <button
-                    className="status-icon-button"
+                  <Button
+                    variant="outline"
+                    size="xs"
                     onClick={() => console.log("Navigate to details page")}
-                    aria-label="Details"
-                    style={{ background: "none", border: "none", padding: 0 }}
+                    leftIcon={<img src={detailIcon} alt="Details" />}
                   >
-                    <img
-                      src={detailIcon}
-                      alt="Details"
-                      className="status-icon"
-                    />
-                  </button>
+                    Details
+                  </Button>
                 )}
                 {activeTab === "resolved" && (
                   <img
@@ -125,33 +147,27 @@ function ComplaintHistory() {
                 )}
               </div>
 
-              <div className="complaint-detail">
-                <b>Date: </b>
-                <span id="content">
-                  {new Date(complaint.complaint_date).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="complaint-detail">
-                <b>Location: </b> <span id="content">{complaint.location}</span>
-              </div>
-              <div className="complaint-detail">
-                <b>Details: </b>
-                <span id="content">{complaint.details}</span>
-              </div>
+              <Text>
+                <b>Date:</b>{" "}
+                {new Date(complaint.complaint_date).toLocaleDateString()}
+              </Text>
+              <Text>
+                <b>Location:</b> {complaint.location}
+              </Text>
+              <Text>
+                <b>Details:</b> {complaint.details}
+              </Text>
 
-              <div id="hr">
-                <hr />
-              </div>
+              <hr />
 
-              <div className="complaint-detail">
-                <b>Remarks: </b>
-                <span id="content">{complaint.remarks}</span>
-              </div>
+              <Text>
+                <b>Remarks:</b> {complaint.remarks}
+              </Text>
             </Paper>
           ))}
         </div>
-      </div>
-    </div>
+      </Paper>
+    </Grid>
   );
 }
 
