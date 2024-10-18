@@ -13,30 +13,6 @@ import {
 } from "@mantine/core";
 import PropTypes from "prop-types";
 
-// Sample data for resolved complaints
-/* const resolvedComplaints = [
-  {
-    id: 1,
-    studentId: "22BCS106",
-    date: "XXX/XX/20XX",
-    location: "C-111",
-    type: "Network Issue",
-    description:
-      "Not able to connect to internet because of Fault in Lan port.",
-    feedback: "Resolved quickly, thanks!",
-  },
-  {
-    id: 2,
-    studentId: "22BCS107",
-    date: "XXX/XX/20XX",
-    location: "C-112",
-    type: "Electricity Issue",
-    description: "Light bulb not working in room.",
-    feedback: "Issue fixed, great service!",
-  },
-  // Add more hardcoded complaints here
-]; */
-
 function ResolvedComplaints() {
   const token = localStorage.getItem("authToken");
   const host = "http://127.0.0.1:8000";
@@ -223,7 +199,8 @@ function ComplaintDetails({ complaint, onBack }) {
             Complaint Details:
           </Text>
           <Text>Complaint ID: {complaint.id}</Text>
-          <Text color="red">Complaint Details: {complaint.complaint_type}</Text>
+          <Text>Complaint Type: {complaint.complaint_type}</Text>
+          <Text>Complaint Details: {complaint.details}</Text>
           <Divider my="sm" />
           <Text>View Attachment: No Attachment available</Text>
           <Group position="right" mt="lg">
