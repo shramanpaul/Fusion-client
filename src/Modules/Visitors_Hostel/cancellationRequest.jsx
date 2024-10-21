@@ -1,46 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types"; // Import PropTypes
 import { MantineProvider, Table, Badge, Text, Box } from "@mantine/core";
+import axios from "axios"; // Import axios for API calls
+import { host } from "../../routes/globalRoutes"; // Import the host URL
 
-const bookings = [
-  {
-    id: 1,
-    intender: "SINDHU VUKKURTHY",
-    email: "22BCS233@iiitdmj.ac.in",
-    bookingFrom: "Sept 3, 2024",
-    bookingTo: "Sept 4, 2024",
-    category: "A",
-    status: "Pending",
-  },
-  {
-    id: 2,
-    intender: "Prof. Atul Gupta",
-    email: "atul@iiitdmj.ac.in",
-    bookingFrom: "Sept 4, 2024",
-    bookingTo: "Sept 5, 2024",
-    category: "A",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    intender: "S.V. RISHITHA",
-    email: "22BCS216@iiitdmj.ac.in",
-    bookingFrom: "Sept 15, 2024",
-    bookingTo: "Sept 16, 2024",
-    category: "B",
-    status: "Cancelled",
-  },
-  {
-    id: 4,
-    intender: "KESHAV SONI",
-    email: "22BCS135@iiitdmj.ac.in",
-    bookingFrom: "Sept 16, 2024",
-    bookingTo: "Sept 18, 2024",
-    category: "B",
-    status: "Cancelled",
-  },
-];
-
-function CancellationRequestTable() {
+function CancellationRequestTable({ bookings }) {
   return (
     <Box p="md" style={{ margin: 10 }}>
       <Box
@@ -54,10 +18,6 @@ function CancellationRequestTable() {
         <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
           Cancellation Request
         </Text>
-
-        {/* <Button variant="outline" color="red">
-          Place Request
-        </Button> */}
       </Box>
       <Table
         style={{
@@ -87,13 +47,7 @@ function CancellationRequestTable() {
         </thead>
         <tbody>
           {bookings.map((booking) => (
-            <tr
-              key={booking.id}
-              // style={{
-              //   backgroundColor:
-              //     booking.id % 2 === 0 ? "#E6F3FF" : "transparent",
-              // }}
-            >
+            <tr key={booking.id}>
               <td
                 style={{
                   padding: "12px",
@@ -162,7 +116,47 @@ function CancellationRequestTable() {
   );
 }
 
+// PropTypes validation for CancellationRequestTable
+CancellationRequestTable.propTypes = {
+  bookings: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      intender: PropTypes.string.isRequired,
+      email: PropTypes.string.isRequired,
+      bookingFrom: PropTypes.string.isRequired,
+      bookingTo: PropTypes.string.isRequired,
+      category: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+};
+
 function CancellationRequest() {
+  const [bookings, setBookings] = useState([]);
+
+  useEffect(() => {
+    const fetchCancelledBookings = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        return console.error("No authentication token found!");
+      }
+
+      try {
+        const { data } = await axios.get(
+          `${host}/visitorhostel/get-inactive-bookings/`,
+          {
+            headers: { Authorization: `Token ${token}` },
+          },
+        );
+        setBookings(data.cancelled_bookings);
+      } catch (error) {
+        console.error("Error fetching cancelled bookings:", error);
+      }
+    };
+
+    fetchCancelledBookings(); // Fetch cancelled bookings on component mount
+  }, []);
+
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <Box
@@ -175,7 +169,7 @@ function CancellationRequest() {
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Optional shadow
         }}
       >
-        <CancellationRequestTable />
+        <CancellationRequestTable bookings={bookings} />
       </Box>
     </MantineProvider>
   );
