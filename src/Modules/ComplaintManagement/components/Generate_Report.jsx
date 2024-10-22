@@ -72,7 +72,6 @@ function GenerateReport() {
     }
   };
 
-  // Move applyFilters function here
   const applyFilters = () => {
     let filtered = [...complaintsData];
 
@@ -118,12 +117,15 @@ function GenerateReport() {
     if (filters.sortBy) {
       if (filters.sortBy === "status") {
         filtered.sort((a, b) => {
-          // Directly compare the status values
-          return a.status - b.status; // Sorting in ascending order
+          return a.status - b.status;
         });
-      } else {
-        filtered.sort((a, b) =>
-          a[filters.sortBy].localeCompare(b[filters.sortBy]),
+      } else if (filters.sortBy === "mostRecent") {
+        filtered.sort(
+          (a, b) => new Date(b.complaint_date) - new Date(a.complaint_date),
+        );
+      } else if (filters.sortBy === "mostOlder") {
+        filtered.sort(
+          (a, b) => new Date(a.complaint_date) - new Date(b.complaint_date),
         );
       }
     }
@@ -147,13 +149,11 @@ function GenerateReport() {
     }));
   };
 
-  // Format date to display only day, month, and year
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString(); // Format: MM/DD/YYYY or DD/MM/YYYY based on locale
+    return date.toLocaleDateString();
   };
 
-  // Status mapping should be outside of JSX
   const statusMapping = {
     0: "Pending",
     2: "Resolved",
@@ -166,9 +166,8 @@ function GenerateReport() {
         <div className="inner-card-content">
           {filteredData.length > 0 ? (
             filteredData.map((complaint, index) => {
-              // Determine the displayed status
               const displayedStatus =
-                complaint.status in statusMapping ? complaint.status : 0; // Default to "Pending" for unknown statuses
+                complaint.status in statusMapping ? complaint.status : 0;
 
               return (
                 <Paper
@@ -222,7 +221,7 @@ function GenerateReport() {
                                 ? resolvedIcon
                                 : statusMapping[displayedStatus] === "Declined"
                                   ? declinedIcon
-                                  : detailIcon // This line will not be reached because of the check
+                                  : detailIcon
                             }
                             alt={statusMapping[displayedStatus]}
                             className="status-icon"
@@ -249,12 +248,10 @@ function GenerateReport() {
                     <span id="content">{complaint.details.split(".")[0]}</span>
                   </div>
 
-                  {/* Horizontal rule */}
                   <div id="hr">
                     <hr />
                   </div>
 
-                  {/* Full complaint description */}
                   <div className="complaint-detail">{complaint.details}</div>
                 </Paper>
               );
@@ -304,8 +301,9 @@ function GenerateReport() {
 
         <div className="filter-label">Sort By</div>
         <select name="sortBy" onChange={handleFilterChange}>
-          <option value="">Sort by</option>
-          <option value="complaint_date">Date</option>
+          <option value="">Sort By</option>
+          <option value="mostRecent">Most Recent</option>
+          <option value="mostOlder">Most Older</option>
           <option value="status">Status</option>
         </select>
       </div>
