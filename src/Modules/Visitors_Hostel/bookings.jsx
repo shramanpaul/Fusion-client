@@ -200,13 +200,27 @@ function BookingsRequestTable({ bookings }) {
                   </>
                 ) : (
                   <Badge
-                    color={booking.status === "Pending" ? "gray" : "pink"}
+                    color={
+                      booking.status === "Pending"
+                        ? "gray"
+                        : booking.status === "Confirmed"
+                          ? "green"
+                          : "red"
+                    }
                     variant="light"
                     style={{
                       backgroundColor:
-                        booking.status === "Pending" ? "#E0E0E0" : "#dffbe0",
+                        booking.status === "Pending"
+                          ? "#E0E0E0"
+                          : booking.status === "Confirmed"
+                            ? "#dffbe0"
+                            : "#f8d7da",
                       color:
-                        booking.status === "Pending" ? "#757575" : "#84b28c",
+                        booking.status === "Pending"
+                          ? "#757575"
+                          : booking.status === "Confirmed"
+                            ? "#84b28c"
+                            : "#721c24",
                       padding: "4px 8px",
                       borderRadius: "4px",
                     }}

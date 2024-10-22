@@ -46,6 +46,7 @@ function BookingTable({ activeBooking, onCancel }) {
           </tr>
         </thead>
         <tbody>
+          {console.log(activeBooking)}
           {activeBooking.map((booking) => (
             <tr key={booking.id}>
               <td
