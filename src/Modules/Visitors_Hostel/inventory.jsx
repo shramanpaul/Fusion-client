@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import { Box, Table, MantineProvider, Tabs, Text, Button } from "@mantine/core";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Table,
+  MantineProvider,
+  Tabs,
+  Text,
+  Button,
+  Loader,
+} from "@mantine/core";
+import AddItems from "./addItems";
 
-// Sample data
-const inventoryData = [
-  { id: 1, item: "Soap", availableQuantity: 4, consumable: true },
-  { id: 2, item: "Paste", availableQuantity: 89, consumable: true },
-  { id: 3, item: "Towel", availableQuantity: 8, consumable: false },
-];
-
-// Tabs data
 const TabsModules = [
   { label: "Consumable Inventory", id: "consumable-inventory" },
   { label: "Non-Consumable Inventory", id: "non-consumable-inventory" },
@@ -16,20 +17,74 @@ const TabsModules = [
 
 function InventoryManagement() {
   const [activeTab, setActiveTab] = useState("consumable-inventory");
+  const [showAddItemsForm, setShowAddItemsForm] = useState(false);
+  const [inventoryData, setInventoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
   };
 
+  const handleAddItemsClick = () => {
+    setShowAddItemsForm(true);
+  };
+
+  useEffect(() => {
+    const fetchInventoryData = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(
+          "http://127.0.0.1:8000/visitorhostel/api/inventory_list/",
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch inventory data");
+        }
+
+        const data = await response.json();
+        setInventoryData(data);
+        setLoading(false);
+      } catch (errr) {
+        setError(errr.message);
+        setLoading(false);
+      }
+    };
+
+    fetchInventoryData();
+  }, []);
+
   // Render table based on the active tab
   const renderTable = (data) => {
+    if (loading) {
+      return <Loader style={{ marginTop: "20px" }} />;
+    }
+
+    if (error) {
+      return (
+        <Text color="red" style={{ marginTop: "20px" }}>
+          {error}
+        </Text>
+      );
+    }
+
+    if (data.length === 0) {
+      return <Text style={{ marginTop: "20px" }}>No items found.</Text>;
+    }
+
     return (
       <Table
         style={{
-          borderRadius: "8px", // Border radius for table
-          overflow: "hidden", // Overflow hidden to round table corners
-          border: "1px solid #E0E0E0", // Optional border for visibility
-          marginTop: "20px", // Added margin for better spacing
+          borderRadius: "8px",
+          overflow: "hidden",
+          border: "1px solid #E0E0E0",
+          marginTop: "20px",
         }}
       >
         <thead>
@@ -52,7 +107,7 @@ function InventoryManagement() {
                   textAlign: "center",
                 }}
               >
-                <Text weight={500}>{item.item}</Text>
+                <Text weight={500}>{item.item_name}</Text>
               </td>
               <td
                 style={{
@@ -61,7 +116,7 @@ function InventoryManagement() {
                   textAlign: "center",
                 }}
               >
-                {item.availableQuantity}
+                {item.quantity}
               </td>
             </tr>
           ))}
@@ -100,6 +155,7 @@ function InventoryManagement() {
                 marginTop: "15px",
                 marginBottom: "15px",
               }}
+              onClick={handleAddItemsClick}
             >
               Add Items
             </Button>
@@ -114,12 +170,14 @@ function InventoryManagement() {
                 marginTop: "15px",
                 marginBottom: "15px",
               }}
+              onClick={handleAddItemsClick}
             >
               Add Items
             </Button>
             {renderTable(nonConsumableData)}
           </Tabs.Panel>
         </Tabs>
+        {showAddItemsForm && <AddItems />}
       </Box>
     </MantineProvider>
   );
