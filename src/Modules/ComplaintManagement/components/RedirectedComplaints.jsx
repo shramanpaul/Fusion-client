@@ -11,7 +11,7 @@ import {
   Loader,
   Center,
 } from "@mantine/core";
-import RedirectedComplaintsDetails from "./RedirectedComplaintsDetails.jsx";
+import ComplaintDetails from "./ComplaintDetails.jsx";
 import RedirectedComplaintsChangeStatus from "./RedirectedComplaintsChangedStatus.jsx";
 
 function RedirectedComplaints() {
@@ -115,8 +115,8 @@ function RedirectedComplaints() {
               <Text>No redirected complaints available.</Text>
             </Center>
           ) : activeComponent === "details" ? (
-            <RedirectedComplaintsDetails
-              complaint={selectedComplaint}
+            <ComplaintDetails
+              complaintId={selectedComplaint.id}
               onBack={handleBack}
             />
           ) : activeComponent === "changeStatus" ? (

@@ -7,12 +7,11 @@ import {
   Divider,
   Badge,
   Paper,
-  Card,
   Loader,
   Center,
 } from "@mantine/core";
 import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
-import UnresCompDetails from "./UnresComp_Details.jsx";
+import ComplaintDetails from "./ComplaintDetails.jsx";
 import UnresCompChangeStatus from "./UnresComp_ChangeStatus.jsx";
 import UnresCompRedirect from "./UnresComp_Redirect.jsx";
 
@@ -25,7 +24,7 @@ function UnresolvedComplaints() {
   const [isError, setIsError] = useState(false);
 
   const role = useSelector((state) => state.user.role); // Get user role from Redux store
-  const host = "http://127.0.0.1:8000"; // Replace with your backend host if necessary
+  const host = "http://127.0.0.1:8000";
 
   // Determine the API URL based on user role
   const url = role.includes("supervisor")
@@ -38,7 +37,7 @@ function UnresolvedComplaints() {
   useEffect(() => {
     const fetchComplaints = async () => {
       setIsLoading(true);
-      setIsError(false); // Reset error state before fetching
+      setIsError(false);
       try {
         const response = await fetch(url, {
           method: "GET",
@@ -62,11 +61,11 @@ function UnresolvedComplaints() {
     };
 
     fetchComplaints();
-  }, [url]); // Re-fetch data when `url` changes
+  }, [url]);
 
   const handleButtonClick = (component, complaint) => {
-    setActiveComponent(component);
     setSelectedComplaint(complaint);
+    setActiveComponent(component);
   };
 
   const handleBack = () => {
@@ -76,6 +75,17 @@ function UnresolvedComplaints() {
 
   const markComplaintAsRedirected = (complaintId) => {
     setRedirectedComplaints((prev) => [...prev, complaintId]);
+  };
+
+  const formatDateTime = (datetimeStr) => {
+    const date = new Date(datetimeStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
   };
 
   return (
@@ -99,7 +109,7 @@ function UnresolvedComplaints() {
         maw="1240px"
         backgroundColor="white"
       >
-        <Grid style={{ flexGrow: 1, minHeight: "45vh" }}>
+        <Flex direction="column">
           {isLoading ? (
             <Center style={{ flexGrow: 1 }}>
               <Loader size="xl" variant="bars" />
@@ -115,8 +125,8 @@ function UnresolvedComplaints() {
               <Text>No unresolved complaints available.</Text>
             </Center>
           ) : activeComponent === "details" ? (
-            <UnresCompDetails
-              complaint={selectedComplaint}
+            <ComplaintDetails
+              complaintId={selectedComplaint.id}
               onBack={handleBack}
             />
           ) : activeComponent === "changeStatus" ? (
@@ -132,49 +142,57 @@ function UnresolvedComplaints() {
             />
           ) : (
             complaints.map((complaint) => (
-              <Grid.Col span={12} key={complaint.id}>
-                <Card
-                  shadow="sm"
-                  p="lg"
-                  radius="md"
-                  withBorder
-                  style={{ width: "80%" }}
-                >
-                  <Flex align="center" mb="sm">
-                    <Text size="sm" style={{ fontWeight: "bold" }}>
-                      Complaint
-                    </Text>
+              <Paper
+                key={complaint.id}
+                radius="md"
+                px="lg"
+                pt="sm"
+                pb="xl"
+                style={{
+                  border: "1.5px solid #000000",
+                  margin: "10px 0",
+                }}
+                withBorder
+              >
+                <Flex direction="column" style={{ width: "100%" }}>
+                  <Flex direction="row" justify="space-between" align="center">
+                    <Flex direction="row" gap="xs" align="center">
+                      <Text size="19px" style={{ fontWeight: "bold" }}>
+                        Complaint Id: {complaint.id}
+                      </Text>
+                      <Text
+                        size="14px"
+                        style={{
+                          borderRadius: "50px",
+                          padding: "10px 20px",
+                          backgroundColor: "#14ABFF",
+                          color: "white",
+                        }}
+                      >
+                        {complaint.complaint_type}
+                      </Text>
+                    </Flex>
                     <Badge
-                      color="blue"
-                      radius="xl"
+                      color={complaint.status === 1 ? "green" : "red"}
                       variant="filled"
-                      mx="md"
                       size="lg"
-                      style={{
-                        cursor: "default",
-                        fontWeight: "normal",
-                        textAlign: "left",
-                      }}
                     >
-                      {complaint.complaint_type}
+                      {complaint.status === 1 ? "Redirected" : "Unresolved"}
                     </Badge>
                   </Flex>
 
-                  <Text size="sm">Student: {complaint.complainer}</Text>
-                  <Text size="sm">
-                    Date:{" "}
-                    {new Date(complaint.complaint_date).toLocaleDateString()}
-                  </Text>
-                  <Text size="sm">
-                    Location: {complaint.location} (
-                    {complaint.specific_location})
-                  </Text>
-
+                  <Flex direction="column" gap="xs" mt="md">
+                    <Text size="15px">
+                      Date: {formatDateTime(complaint.complaint_date)}
+                    </Text>
+                    <Text size="15px">
+                      Location: {complaint.specific_location},{" "}
+                      {complaint.location}
+                    </Text>
+                  </Flex>
                   <Divider my="md" size="sm" />
-
-                  <Text size="sm">{complaint.details}</Text>
-
-                  <Flex justify="flex-end" gap="sm" mt="md">
+                  <Text size="15px">Description: {complaint.details}</Text>
+                  <Flex gap="sm" mt="md">
                     <Button
                       variant="outline"
                       size="xs"
@@ -195,7 +213,7 @@ function UnresolvedComplaints() {
                     {redirectedComplaints.includes(complaint.id) ||
                     complaint.status === 1 ? (
                       <Button variant="outline" size="xs" disabled>
-                        {complaint.status === 1 ? "Redirected" : "Redirected"}
+                        Redirected
                       </Button>
                     ) : (
                       <Button
@@ -207,11 +225,11 @@ function UnresolvedComplaints() {
                       </Button>
                     )}
                   </Flex>
-                </Card>
-              </Grid.Col>
+                </Flex>
+              </Paper>
             ))
           )}
-        </Grid>
+        </Flex>
       </Paper>
     </Grid>
   );
