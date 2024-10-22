@@ -151,12 +151,37 @@ function ActiveBookingsPage() {
   }, []);
 
   // Handle cancel booking
-  const handleCancel = (bookingId) => {
-    const updatedBookings = activeBooking.filter(
-      (booking) => booking.id !== bookingId,
-    );
-    setBookings(updatedBookings);
-    console.log("Cancelled booking with ID:", bookingId);
+  const handleCancel = async (bookingId) => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      return console.error("No authentication token found!");
+    }
+
+    try {
+      // Data to be sent in the POST request (you can modify the remark and charges as needed)
+      const data = {
+        "booking-id": bookingId,
+        remark: "User canceled the booking.", // Example remark, you can make this dynamic if needed
+        charges: 0, // Example charges, set this dynamically based on your UI
+      };
+
+      // Send POST request to cancel the booking
+      await axios.post(`${host}/visitorhostel/cancel-booking/`, data, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      // Update the UI by removing the canceled booking from the table
+      const updatedBookings = activeBooking.filter(
+        (booking) => booking.id !== bookingId,
+      );
+      setBookings(updatedBookings);
+      console.log("Cancelled booking with ID:", bookingId);
+    } catch (error) {
+      console.error("Error canceling the booking:", error);
+    }
   };
 
   return (
