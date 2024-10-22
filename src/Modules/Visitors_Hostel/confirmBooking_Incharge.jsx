@@ -123,10 +123,11 @@ function ConfirmBookingIn({
       modified_category: formData.modifiedCategory,
       rooms: formData.rooms,
       remarks: formData.remarks,
-      action, // Add action to the request data
+      action, // "accept" or "reject" as action
     };
 
     try {
+      // Send the POST request to the confirm_booking_new endpoint
       const response = await axios.post(
         `${host}/visitorhostel/confirm-booking-new/`,
         requestData,
@@ -138,11 +139,11 @@ function ConfirmBookingIn({
           },
         },
       );
-      console.log("Form submitted", response.data);
-      onClose();
-      // navigate("/visitors_hostel");
+
+      console.log(`Booking ${action}ed`, response.data);
+      onClose(); // Close the modal after action
     } catch (error) {
-      console.error("Error submitting form", error);
+      console.error(`Error ${action}ing booking:`, error);
     } finally {
       setLoading(false);
     }
@@ -345,31 +346,10 @@ function ConfirmBookingIn({
 ConfirmBookingIn.propTypes = {
   forwardmodalOpened: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  bookingId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-    .isRequired,
+  bookingId: PropTypes.string.isRequired,
   bookingf: PropTypes.shape({
-    intenderUsername: PropTypes.string,
-    intenderEmail: PropTypes.string,
-    bookingFrom: PropTypes.string,
-    bookingTo: PropTypes.string,
-    visitorCategory: PropTypes.string,
     modifiedCategory: PropTypes.string,
-    personCount: PropTypes.number,
-    numberOfRooms: PropTypes.number,
     rooms: PropTypes.arrayOf(PropTypes.string),
-    purpose: PropTypes.string,
-    billToBeSettledBy: PropTypes.string,
-    remarks: PropTypes.string,
-    visitorName: PropTypes.string,
-    visitorEmail: PropTypes.string,
-    visitorPhone: PropTypes.string,
-    visitorOrganization: PropTypes.string,
-    visitorAddress: PropTypes.string,
-    availableRooms: PropTypes.arrayOf(
-      PropTypes.shape({
-        room_number: PropTypes.string,
-      }),
-    ),
   }).isRequired,
 };
 

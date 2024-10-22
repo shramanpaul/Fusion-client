@@ -1,56 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types"; // Import PropTypes
 import { MantineProvider, Table, Text, Box } from "@mantine/core";
+import axios from "axios";
+import { host } from "../../routes/globalRoutes"; // Adjust the import as needed
 
-// Initial completed bookings array
-const completedBookings = [
-  {
-    id: 1,
-    intender: "SINDHU VUKKURTHY",
-    email: "22BCS233@iiitdmj.ac.in",
-    bookingFrom: "Sept 3, 2024",
-    checkIn: "Sept 4, 2024 10:30PM",
-    checkOut: "Sept 7, 2024 11:00AM",
-    category: "A",
-  },
-  {
-    id: 2,
-    intender: "Prof. Atul Gupta",
-    email: "atul@iiitdmj.ac.in",
-    bookingFrom: "Sept 4, 2024",
-    checkIn: "Sept 5, 2024 11:20AM",
-    checkOut: "Sept 8, 2024 11:00AM",
-    category: "A",
-  },
-  {
-    id: 3,
-    intender: "S.V. RISHITHA",
-    email: "22BCS216@iiitdmj.ac.in",
-    bookingFrom: "Sept 15, 2024",
-    checkIn: "Sept 16, 2024 05:30AM",
-    checkOut: "Sept 20, 2024 11:00AM",
-    category: "B",
-  },
-  {
-    id: 4,
-    intender: "KESHAV SONI",
-    email: "22BCS135@iiitdmj.ac.in",
-    bookingFrom: "Sept 16, 2024",
-    checkIn: "Sept 18, 2024 09:30PM",
-    checkOut: "Sept 21, 2024 11:00AM",
-    category: "B",
-  },
-  {
-    id: 5,
-    intender: "Prof. Atul Gupta",
-    email: "atul@iiitdmj.ac.in",
-    bookingFrom: "Sept 20, 2024",
-    checkIn: "Sept 21, 2024 08:10AM",
-    checkOut: "Sept 28, 2024 11:00AM",
-    category: "A",
-  },
-];
-
-function BookingTable() {
+function BookingTable({ bookings }) {
   return (
     <Box p="md" style={{ margin: 10 }}>
       <Box
@@ -67,9 +21,9 @@ function BookingTable() {
       </Box>
       <Table
         style={{
-          borderRadius: "8px", // Border radius for table
-          overflow: "hidden", // Overflow hidden to round table corners
-          border: "1px solid #E0E0E0", // Optional border for visibility
+          borderRadius: "8px",
+          overflow: "hidden",
+          border: "1px solid #E0E0E0",
         }}
       >
         <thead>
@@ -92,7 +46,7 @@ function BookingTable() {
           </tr>
         </thead>
         <tbody>
-          {completedBookings.map((booking) => (
+          {bookings.map((booking) => (
             <tr key={booking.id}>
               <td
                 style={{
@@ -150,8 +104,46 @@ function BookingTable() {
   );
 }
 
+// Define prop types for BookingTable
+BookingTable.propTypes = {
+  bookings: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      intender: PropTypes.string.isRequired,
+      email: PropTypes.string.isRequired,
+      bookingFrom: PropTypes.string.isRequired,
+      checkIn: PropTypes.string.isRequired,
+      checkOut: PropTypes.string.isRequired,
+      category: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+};
+
 function CompletedBookingsPage() {
-  const [bookings] = useState(completedBookings);
+  const [bookings, setBookings] = useState([]);
+
+  useEffect(() => {
+    const fetchCompletedBookings = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        return console.error("No authentication token found!");
+      }
+
+      try {
+        const { data } = await axios.get(
+          `${host}/visitorhostel/get-completed-bookings/`,
+          {
+            headers: { Authorization: `Token ${token}` },
+          },
+        );
+        setBookings(data.completed_bookings);
+      } catch (error) {
+        console.error("Error fetching completed bookings:", error);
+      }
+    };
+
+    fetchCompletedBookings();
+  }, []);
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
@@ -160,9 +152,9 @@ function CompletedBookingsPage() {
           maxWidth: "1200px",
           margin: "0 auto",
           backgroundColor: "white",
-          borderRadius: "12px", // Add border radius to outer Box
-          padding: "16px", // Optional padding
-          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Optional shadow
+          borderRadius: "12px",
+          padding: "16px",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
         }}
       >
         <BookingTable bookings={bookings} />
