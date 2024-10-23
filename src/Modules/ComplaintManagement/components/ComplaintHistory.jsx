@@ -9,9 +9,11 @@ import {
   Grid,
   Center,
   Loader,
+  Flex,
+  Divider,
 } from "@mantine/core";
-import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
-import "../styles/ComplaintHistory.css";
+import { useSelector } from "react-redux";
+import ComplaintDetails from "./ComplaintDetails"; // Import the ComplaintDetails component
 import detailIcon from "../../../assets/detail.png";
 import declinedIcon from "../../../assets/declined.png";
 import resolvedIcon from "../../../assets/resolved.png";
@@ -25,11 +27,11 @@ function ComplaintHistory() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [selectedComplaintId, setSelectedComplaintId] = useState(null); // State for selected complaint ID
+  const [showDetails, setShowDetails] = useState(false); // State for showing details
 
-  const role = useSelector((state) => state.user.role); // Get the user role from Redux
-  const host = "http://127.0.0.1:8000"; // Replace with your backend host if necessary
-
-  // Determine the API URL based on the user's role
+  const role = useSelector((state) => state.user.role);
+  const host = "http://127.0.0.1:8000";
   const url = role.includes("supervisor")
     ? `${host}/complaint/supervisor/`
     : role.includes("caretaker") || role.includes("convener")
@@ -37,14 +39,13 @@ function ComplaintHistory() {
       : `${host}/complaint/user/`;
 
   useEffect(() => {
-    // Fetch complaints from the API
     setIsLoading(true);
-    setIsError(false); // Reset error state before fetching
+    setIsError(false);
     fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Token ${localStorage.getItem("authToken")}`, // Ensure the correct token is passed
+        Authorization: `Token ${localStorage.getItem("authToken")}`,
       },
     })
       .then((response) => {
@@ -54,7 +55,6 @@ function ComplaintHistory() {
         return response.json();
       })
       .then((data) => {
-        // Check if the data returned is an array, then filter by status
         if (Array.isArray(data)) {
           const pending = data.filter((c) => c.status === 0);
           const resolved = data.filter((c) => c.status === 2);
@@ -62,19 +62,16 @@ function ComplaintHistory() {
 
           setComplaints({ pending, resolved, declined });
         } else {
-          console.error("Unexpected response format:", data);
-          // If the response is not an array, set empty complaints
           setComplaints({ pending: [], resolved: [], declined: [] });
         }
       })
-      .catch((error) => {
-        console.error("Error fetching complaints:", error);
+      .catch(() => {
         setIsError(true);
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, [url]); // Re-fetch complaints when the `url` changes
+  }, [url]);
 
   const getComplaints = () => complaints[activeTab];
 
@@ -91,114 +88,171 @@ function ComplaintHistory() {
           backgroundColor: "white",
           minHeight: "45vh",
           maxHeight: "70vh",
+          overflow: "hidden", // Prevent overflow of Paper
         }}
         withBorder
         maw="1240px"
       >
-        <Title order={3} mb="md">
-          Complaint History
-        </Title>
+        {showDetails ? (
+          <ComplaintDetails
+            complaintId={selectedComplaintId} // Pass the selected complaint ID
+            onBack={() => setShowDetails(false)} // Function to go back
+          />
+        ) : (
+          <>
+            <Title order={3} mb="md">
+              Complaint History
+            </Title>
 
-        {/* Tab Menu */}
-        <Group spacing="sm" mb="md">
-          {["pending", "resolved", "declined"].map((tab) => (
-            <Button
-              key={tab}
-              variant={activeTab === tab ? "filled" : "outline"}
-              onClick={() => setActiveTab(tab)}
+            {/* Tab Menu */}
+            <Group spacing="sm" mb="md">
+              {["pending", "resolved", "declined"].map((tab) => (
+                <Button
+                  key={tab}
+                  variant={activeTab === tab ? "filled" : "outline"}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    width: "150px",
+                    backgroundColor: activeTab === tab ? "#15ABFF" : "white",
+                    color: activeTab === tab ? "white" : "black",
+                  }}
+                >
+                  {`${tab.charAt(0).toUpperCase() + tab.slice(1)} Complaints`}
+                </Button>
+              ))}
+            </Group>
+
+            {/* Complaint List */}
+            <div
+              className="inner-card-content"
               style={{
-                width: "150px",
-                backgroundColor: activeTab === tab ? "#15ABFF" : "white",
-                color: activeTab === tab ? "white" : "black",
+                maxHeight: "60vh", // Limit the maximum height of the complaint list
+                overflowY: "auto", // Enable vertical scrolling
               }}
             >
-              {`${tab.charAt(0).toUpperCase() + tab.slice(1)} Complaints`}
-            </Button>
-          ))}
-        </Group>
+              {isLoading ? (
+                <Center style={{ minHeight: "45vh" }}>
+                  <Loader size="xl" variant="bars" />
+                </Center>
+              ) : isError ? (
+                <Center style={{ minHeight: "45vh" }}>
+                  <Text color="red">
+                    Failed to fetch complaints. Please try again.
+                  </Text>
+                </Center>
+              ) : getComplaints().length === 0 ? (
+                <Center style={{ minHeight: "45vh" }}>
+                  <Text>No {activeTab} complaints available.</Text>
+                </Center>
+              ) : (
+                getComplaints().map((complaint, index) => (
+                  <Paper
+                    key={index}
+                    radius="md"
+                    px="lg"
+                    pt="sm"
+                    pb="xl"
+                    style={{
+                      width: "100%",
+                      border: "1.5px solid #000000",
+                      margin: "10px 0",
+                    }}
+                    withBorder
+                  >
+                    <Flex direction="column" style={{ width: "100%" }}>
+                      {/* Header Section */}
+                      <Flex direction="row" justify="space-between">
+                        <Flex direction="row" gap="xs" align="center">
+                          <Text size="19px" style={{ fontWeight: "Bold" }}>
+                            Complaint Id: {complaint.id}
+                          </Text>
+                          <Badge
+                            size="lg"
+                            color={activeTab === "resolved" ? "green" : "blue"}
+                          >
+                            {complaint.complaint_type}
+                          </Badge>
+                        </Flex>
 
-        {/* Complaint List */}
-        <div className="inner-card-content">
-          {isLoading ? (
-            <Center style={{ minHeight: "45vh" }}>
-              <Loader size="xl" variant="bars" />
-            </Center>
-          ) : isError ? (
-            <Center style={{ minHeight: "45vh" }}>
-              <Text color="red">
-                Failed to fetch complaints. Please try again.
-              </Text>
-            </Center>
-          ) : getComplaints().length === 0 ? (
-            <Center style={{ minHeight: "45vh" }}>
-              <Text>No {activeTab} complaints available.</Text>
-            </Center>
-          ) : (
-            getComplaints().map((complaint, index) => (
-              <Paper
-                key={index}
-                radius="md"
-                px="lg"
-                pt="sm"
-                pb="xl"
-                style={{
-                  borderLeft: "0.4rem solid #15ABFF",
-                  marginBottom: "1rem",
-                }}
-                withBorder
-              >
-                <div className="complaint-header">
-                  <Title order={5}>{complaint.complaint_type}</Title>
-                  <Badge color="blue" size="lg">
-                    {complaint.complaint_type}
-                  </Badge>
+                        {activeTab === "resolved" ? (
+                          <img
+                            src={resolvedIcon}
+                            alt="Resolved"
+                            style={{
+                              width: "35px",
+                              borderRadius: "50%",
+                              backgroundColor: "#2BB673",
+                              padding: "10px",
+                            }}
+                          />
+                        ) : activeTab === "declined" ? (
+                          <img
+                            src={declinedIcon}
+                            alt="Declined"
+                            style={{
+                              width: "35px",
+                              borderRadius: "50%",
+                              backgroundColor: "#FF6B6B",
+                              padding: "10px",
+                            }}
+                          />
+                        ) : (
+                          <img
+                            src={detailIcon}
+                            alt="Pending"
+                            style={{
+                              width: "35px",
+                              borderRadius: "50%",
+                              backgroundColor: "#FF6B6B",
+                              padding: "10px",
+                            }}
+                          />
+                        )}
+                      </Flex>
 
-                  {activeTab === "pending" && (
-                    <Button
-                      variant="outline"
-                      size="xs"
-                      onClick={() => console.log("Navigate to details page")}
-                      leftIcon={<img src={detailIcon} alt="Details" />}
-                    >
-                      Details
-                    </Button>
-                  )}
-                  {activeTab === "resolved" && (
-                    <img
-                      src={resolvedIcon}
-                      alt="Resolved"
-                      className="status-icon"
-                    />
-                  )}
-                  {activeTab === "declined" && (
-                    <img
-                      src={declinedIcon}
-                      alt="Declined"
-                      className="status-icon"
-                    />
-                  )}
-                </div>
+                      {/* Complaint Info */}
+                      <Flex
+                        direction="row"
+                        justify="space-between"
+                        align="center"
+                      >
+                        <Flex direction="column" gap="xs">
+                          <Text size="15px">
+                            <b>Date:</b>{" "}
+                            {new Date(
+                              complaint.complaint_date,
+                            ).toLocaleDateString()}
+                          </Text>
+                          <Text size="15px">
+                            <b>Location:</b> {complaint.location}
+                          </Text>
+                          <Text size="15px">
+                            <b>Description:</b> {complaint.details}
+                          </Text>
+                        </Flex>
+                      </Flex>
 
-                <Text>
-                  <b>Date:</b>{" "}
-                  {new Date(complaint.complaint_date).toLocaleDateString()}
-                </Text>
-                <Text>
-                  <b>Location:</b> {complaint.location}
-                </Text>
-                <Text>
-                  <b>Details:</b> {complaint.details}
-                </Text>
+                      <Divider my="md" size="sm" />
 
-                <hr />
-
-                <Text>
-                  <b>Remarks:</b> {complaint.remarks}
-                </Text>
-              </Paper>
-            ))
-          )}
-        </div>
+                      <Flex direction="row-reverse">
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => {
+                            setSelectedComplaintId(complaint.id);
+                            setShowDetails(true);
+                          }}
+                        >
+                          Details
+                        </Button>
+                      </Flex>
+                    </Flex>
+                  </Paper>
+                ))
+              )}
+            </div>
+          </>
+        )}
       </Paper>
     </Grid>
   );
