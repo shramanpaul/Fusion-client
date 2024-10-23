@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import {
   Select,
-  Card,
-  Title,
   TextInput,
   Button,
   Switch,
   Group,
+  Modal,
+  MantineProvider,
 } from "@mantine/core";
 
 function AddItems() {
@@ -15,6 +15,7 @@ function AddItems() {
   const [quantity, setQuantity] = useState("");
   const [cost, setCost] = useState("");
   const [consumable, setConsumable] = useState(false);
+  const [modalOpened, setModalOpened] = useState(false); // State to control modal visibility
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,6 +49,7 @@ function AddItems() {
         const responseData = await response.json();
         console.log("Item added successfully:", responseData);
         // Reset form or show success message
+        setModalOpened(false); // Close the modal on successful submission
       } else {
         const errorData = await response.json(); // Get error details from the response
         console.error("Failed to add item:", errorData);
@@ -59,73 +61,80 @@ function AddItems() {
   };
 
   return (
-    <Card className="w-full max-w-3xl mx-auto" padding="lg">
-      <Title order={2}>Add Items</Title>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <TextInput
-            id="itemName" // Unique ID for accessibility
-            label="Item Name*"
-            placeholder="Enter item name"
-            value={itemName}
-            onChange={(e) => setItemName(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <Select
-            label="Bill Id*"
-            id="billId" // Unique ID for accessibility
-            value={billId}
-            onChange={setBillId}
-            placeholder="Select Bill Id"
-            data={[
-              { value: "1", label: "Option 1" }, // Use the ID as the value
-              { value: "2", label: "Option 2" },
-              { value: "3", label: "Option 3" },
-            ]}
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <MantineProvider withGlobalStyles withNormalizeCSS>
+      <Button onClick={() => setModalOpened(true)}>Add Item</Button>
+      <Modal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        title="Add Items"
+        size="lg"
+      >
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <TextInput
-              id="quantity"
-              label="Quantity"
-              placeholder="Enter quantity"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
+              id="itemName" // Unique ID for accessibility
+              label="Item Name*"
+              placeholder="Enter item name"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
               required
             />
           </div>
+
           <div>
-            <TextInput
-              id="cost"
-              label="Cost"
-              placeholder="Enter cost"
-              value={cost}
-              onChange={(e) => setCost(e.target.value)}
+            <Select
+              label="Bill Id*"
+              id="billId" // Unique ID for accessibility
+              value={billId}
+              onChange={setBillId}
+              placeholder="Select Bill Id"
+              data={[
+                { value: "1", label: "1" }, // Use the ID as the value
+                { value: "2", label: "2" },
+                { value: "3", label: "3" },
+              ]}
               required
             />
           </div>
-        </div>
 
-        <Group align="center" spacing="xs">
-          <span>Consumable</span>
-          <Switch
-            id="consumable"
-            checked={consumable}
-            onChange={(e) => setConsumable(e.currentTarget.checked)}
-          />
-        </Group>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <TextInput
+                id="quantity"
+                label="Quantity"
+                placeholder="Enter quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <TextInput
+                id="cost"
+                label="Cost"
+                placeholder="Enter cost"
+                value={cost}
+                onChange={(e) => setCost(e.target.value)}
+                required
+              />
+            </div>
+          </div>
 
-        <Button type="submit" className="w-full">
-          Submit
-        </Button>
-      </form>
-    </Card>
+          <Group align="center" spacing="xs">
+            <span>Consumable</span>
+            <Switch
+              id="consumable"
+              checked={consumable}
+              onChange={(e) => setConsumable(e.currentTarget.checked)}
+            />
+          </Group>
+
+          <Button type="submit" className="w-full">
+            Submit
+          </Button>
+        </form>
+      </Modal>
+    </MantineProvider>
   );
 }
 

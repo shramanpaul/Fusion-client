@@ -7,8 +7,12 @@ import {
   Text,
   Button,
   Loader,
+  Modal,
+  TextInput,
+  Select,
+  Switch,
+  Group,
 } from "@mantine/core";
-import AddItems from "./addItems";
 
 const TabsModules = [
   { label: "Consumable Inventory", id: "consumable-inventory" },
@@ -17,17 +21,62 @@ const TabsModules = [
 
 function InventoryManagement() {
   const [activeTab, setActiveTab] = useState("consumable-inventory");
-  const [showAddItemsForm, setShowAddItemsForm] = useState(false);
+  const [modalOpened, setModalOpened] = useState(false);
   const [inventoryData, setInventoryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [billId, setBillId] = useState("");
+  const [itemName, setItemName] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [cost, setCost] = useState("");
+  const [consumable, setConsumable] = useState(false);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
   };
 
   const handleAddItemsClick = () => {
-    setShowAddItemsForm(true);
+    setModalOpened(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("authToken");
+
+    const data = {
+      item_name: itemName,
+      bill_number: billId,
+      quantity: parseInt(quantity, 10),
+      cost: parseInt(cost, 10),
+      consumable,
+    };
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/visitorhostel/api/inventory_add/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        },
+      );
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("Item added successfully:", responseData);
+        setModalOpened(false);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to add item:", errorData);
+      }
+    } catch (err) {
+      console.error("An error occurred:", error);
+    }
   };
 
   useEffect(() => {
@@ -60,7 +109,6 @@ function InventoryManagement() {
     fetchInventoryData();
   }, []);
 
-  // Render table based on the active tab
   const renderTable = (data) => {
     if (loading) {
       return <Loader style={{ marginTop: "20px" }} />;
@@ -134,7 +182,16 @@ function InventoryManagement() {
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
-      <Box>
+      <Box
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          backgroundColor: "white",
+          borderRadius: "12px",
+          padding: "16px",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+        }}
+      >
         <Tabs value={activeTab}>
           <Tabs.List>
             {TabsModules.map((tab) => (
@@ -177,7 +234,77 @@ function InventoryManagement() {
             {renderTable(nonConsumableData)}
           </Tabs.Panel>
         </Tabs>
-        {showAddItemsForm && <AddItems />}
+        <Modal
+          opened={modalOpened}
+          onClose={() => setModalOpened(false)}
+          title="Add Items"
+          size="lg"
+        >
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <TextInput
+                id="itemName"
+                label="Item Name*"
+                placeholder="Enter item name"
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <Select
+                label="Bill Id*"
+                id="billId"
+                value={billId}
+                onChange={setBillId}
+                placeholder="Select Bill Id"
+                data={[
+                  { value: "1", label: "1" },
+                  { value: "2", label: "2" },
+                  { value: "3", label: "3" },
+                ]}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <TextInput
+                  id="quantity"
+                  label="Quantity"
+                  placeholder="Enter quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <TextInput
+                  id="cost"
+                  label="Cost"
+                  placeholder="Enter cost"
+                  value={cost}
+                  onChange={(e) => setCost(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <Group align="center" spacing="xs">
+              <span>Consumable</span>
+              <Switch
+                id="consumable"
+                checked={consumable}
+                onChange={(e) => setConsumable(e.currentTarget.checked)}
+              />
+            </Group>
+
+            <Button type="submit" className="w-full">
+              Submit
+            </Button>
+          </form>
+        </Modal>
       </Box>
     </MantineProvider>
   );
