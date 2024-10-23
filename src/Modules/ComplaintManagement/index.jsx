@@ -1,7 +1,7 @@
 import { Button, Flex, Loader, Tabs, Text } from "@mantine/core";
 import { CaretCircleLeft, CaretCircleRight } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
-import { useSelector } from "react-redux"; // Assuming role is stored in Redux state
+import { useSelector } from "react-redux";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
 import classes from "./ComplaintModule.module.css";
 
@@ -23,24 +23,28 @@ document.head.appendChild(link);
 function ComplaintModuleLayout() {
   const [activeTab, setActiveTab] = useState("0");
   const tabsListRef = useRef(null);
-  const role = useSelector((state) => state.user.role); // Getting role from Redux
+  const role = useSelector((state) => state.user.role);
 
-  // Define tabs based on user role using regex to find caretaker or supervisor
+  // Define tabs based on user role
   let tabItems = [];
 
-  const user_role = /(caretaker|supervisor)/i; // case-insensitive match for caretaker or supervisor
-
-  if (user_role.test(role)) {
+  if (role.includes("warden")) {
+    tabItems = [{ title: "Generate Report" }];
+  } else if (role.includes("supervisor")) {
+    tabItems = [
+      { title: "Redirected Complaints" },
+      { title: "Generate Report" },
+    ];
+  } else if (role.includes("caretaker")) {
     tabItems = [
       { title: "Lodge a Complaint" },
       { title: "Complaint History" },
       { title: "Feedback" },
       { title: "Resolved Complaints" },
       { title: "Unresolved Complaints" },
-      { title: "Redirected Complaints" },
       { title: "Generate Report" },
     ];
-  } else if (role.includes("student")) {
+  } else {
     tabItems = [
       { title: "Lodge a Complaint" },
       { title: "Complaint History" },
@@ -61,6 +65,41 @@ function ComplaintModuleLayout() {
   };
 
   const renderTabContent = () => {
+    if (role.includes("warden")) {
+      return <GenerateReport />;
+    }
+
+    if (role.includes("supervisor")) {
+      switch (activeTab) {
+        case "0":
+          return <RedirectedComplaints />;
+        case "1":
+          return <GenerateReport />;
+        default:
+          return <Loader />;
+      }
+    }
+
+    if (role.includes("caretaker")) {
+      switch (activeTab) {
+        case "0":
+          return <FormPage />;
+        case "1":
+          return <ComplaintHistory />;
+        case "2":
+          return <Feedback />;
+        case "3":
+          return <ResolvedComplaints />;
+        case "4":
+          return <UnresolvedComplaints />;
+        case "5":
+          return <GenerateReport />;
+        default:
+          return <Loader />;
+      }
+    }
+
+    // Default case for all other roles
     switch (activeTab) {
       case "0":
         return <FormPage />;
@@ -68,14 +107,6 @@ function ComplaintModuleLayout() {
         return <ComplaintHistory />;
       case "2":
         return <Feedback />;
-      case "3":
-        return <ResolvedComplaints />;
-      case "4":
-        return <UnresolvedComplaints />;
-      case "5":
-        return <RedirectedComplaints />;
-      case "6":
-        return <GenerateReport />;
       default:
         return <Loader />;
     }
