@@ -82,10 +82,10 @@ function FeedbackForm({ complaint, setSelectedComplaint }) {
       style={{ textAlign: "left", width: "100%" }}
     >
       <Flex direction="column">
-        <Text size="22px" style={{ fontWeight: "bold" }}>
+        <Text size="18px" style={{ fontWeight: "bold" }}>
           Submit Feedback
         </Text>
-        <Text size="22px" style={{ fontWeight: "bold" }}>
+        <Text size="18px" style={{ fontWeight: "bold" }}>
           Complaint id: {complaint.id}
         </Text>
       </Flex>
@@ -93,19 +93,19 @@ function FeedbackForm({ complaint, setSelectedComplaint }) {
       <Grid columns="2" style={{ width: "100%" }}>
         <Grid.Col span={1}>
           <Flex direction="column" gap="xs">
-            <Text size="18px" style={{ fontWeight: "bold" }}>
+            <Text size="14px" style={{ fontWeight: "bold" }}>
               Register Date:
             </Text>
-            <Text weight="300" size="18px">
+            <Text weight="300" size="14px">
               {formatDateTime(complaint.complaint_date)}
             </Text>
           </Flex>
         </Grid.Col>
         <Flex direction="column" gap="xs">
-          <Text size="18px" style={{ fontWeight: "bold" }}>
+          <Text size="14px" style={{ fontWeight: "bold" }}>
             Finished Date:
           </Text>
-          <Text weight="300" size="18px">
+          <Text weight="300" size="14px">
             {formatDateTime(complaint.complaint_finish)}
           </Text>
         </Flex>
@@ -114,35 +114,35 @@ function FeedbackForm({ complaint, setSelectedComplaint }) {
       <Grid columns="2" style={{ width: "100%" }}>
         <Grid.Col span={1}>
           <Flex direction="column" gap="xs">
-            <Text size="18px" style={{ fontWeight: "bold" }}>
+            <Text size="14px" style={{ fontWeight: "bold" }}>
               Location:
             </Text>
-            <Text weight="300" size="18px">
+            <Text weight="300" size="14px">
               {complaint.location}
             </Text>
           </Flex>
         </Grid.Col>
         <Flex direction="column" gap="xs">
-          <Text size="18px" style={{ fontWeight: "bold" }}>
+          <Text size="14px" style={{ fontWeight: "bold" }}>
             Specific Location:
           </Text>
-          <Text weight="300" size="18px">
+          <Text weight="300" size="14px">
             {complaint.specific_location}
           </Text>
         </Flex>
       </Grid>
 
       <Flex direction="column" gap="xs">
-        <Text size="18px" style={{ fontWeight: "bold" }}>
+        <Text size="14px" style={{ fontWeight: "bold" }}>
           Caretaker comment on your complaint:
         </Text>
-        <Text weight="300" size="18px">
+        <Text weight="300" size="14px">
           {complaint.comment || "No comment"}
         </Text>
       </Flex>
 
       <Flex direction="column" gap="xs">
-        <Text size="18px" style={{ fontWeight: "bold" }}>
+        <Text size="14px" style={{ fontWeight: "bold" }}>
           Please fill feedback*
         </Text>
         <Textarea
@@ -158,8 +158,8 @@ function FeedbackForm({ complaint, setSelectedComplaint }) {
         />
       </Flex>
 
-      <Flex direction="row" gap="xs">
-        <Text size="18px" style={{ fontWeight: "bold" }}>
+      <Flex direction="row" gap="xs" align="center">
+        <Text size="14px" style={{ fontWeight: "bold" }}>
           Give some rating:
         </Text>
         <Select
