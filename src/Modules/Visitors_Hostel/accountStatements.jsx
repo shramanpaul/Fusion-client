@@ -104,7 +104,15 @@ function FinancialManagement() {
         })),
       ];
       setAllTransactionsData(combinedData);
-      const total = combinedData.reduce((sum, item) => sum + item.amount, 0);
+      console.log("UserUser User: ", combinedData);
+      const total = combinedData.reduce((sum, item) => {
+        if (item.heads.includes("Spent")) {
+          return sum - item.amount;
+        }
+        return sum + item.amount;
+      }, 0);
+
+      console.log("Total: ", total);
       setTotalBalance(total);
       setLoadingAllTransactions(false);
     };
@@ -168,7 +176,9 @@ function FinancialManagement() {
                     borderBottom: "1px solid #E0E0E0",
                   }}
                 >
-                  {item.amount}
+                  {item.heads.includes("Spent")
+                    ? `-${item.amount}`
+                    : item.amount}
                 </td>
               </tr>
             ))}
