@@ -34,7 +34,10 @@ function ResolvedComplaints() {
         });
 
         console.log("Complaints fetched:", response.data);
-        setResolvedComplaints(response.data);
+        const filteredComplaints = response.data.filter(
+          (complaint) => complaint.status === 2,
+        );
+        setResolvedComplaints(filteredComplaints);
         setIsError(false);
       } catch (error) {
         console.error("Error fetching complaints:", error);
@@ -85,7 +88,7 @@ function ResolvedComplaints() {
             width: "70vw",
             minHeight: "45vh",
             maxHeight: "70vh",
-            overflow: "hidden",
+            overflow: "auto",
           }}
           withBorder
           maw="1240px"
@@ -104,7 +107,7 @@ function ResolvedComplaints() {
                   </Text>
                 </Center>
               ) : (
-                <div style={{ maxHeight: "50vh", overflowY: "auto" }}>
+                <div style={{ overflowY: "auto" }}>
                   {resolvedComplaints.map((complaint) => (
                     <Paper
                       radius="md"
@@ -211,8 +214,6 @@ function FeedbackDetails({ complaint, onBack }) {
         Feedback Details
       </Text>
 
-      <Divider my="sm" />
-
       <Grid columns="2" style={{ width: "100%" }}>
         <Grid.Col span={1}>
           <Flex direction="column" gap="xs">
@@ -277,8 +278,6 @@ function FeedbackDetails({ complaint, onBack }) {
           {complaint.feedback || "No feedback provided"}
         </Text>
       </Flex>
-
-      <Divider my="sm" />
 
       <Flex direction="row-reverse" gap="xs">
         <Button variant="filled" color="blue" onClick={onBack}>

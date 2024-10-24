@@ -50,7 +50,7 @@ body, html {
     border: 1px solid #e8e8e8;
     padding: 20px;
     margin-top: 30px;
-    height: 620px;
+    max-height: fit-content;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -186,6 +186,7 @@ body, html {
   /* Responsive Design */
   @media (max-width: 768px) {
     .full-width-container {
+      padding-left: 49px;
       flex-direction: column;
     }
   

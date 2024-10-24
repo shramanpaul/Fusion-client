@@ -35,11 +35,11 @@ function ComplaintModuleLayout() {
       { title: "Redirected Complaints" },
       { title: "Generate Report" },
     ];
-  } else if (role.includes("caretaker")) {
+  } else if (role.includes("caretaker") || role.includes("convener")) {
     tabItems = [
-      { title: "Lodge a Complaint" },
-      { title: "Complaint History" },
-      { title: "Feedback" },
+      // { title: "Lodge a Complaint" },
+      // { title: "Complaint History" },
+      // { title: "Feedback" },
       { title: "Resolved Complaints" },
       { title: "Unresolved Complaints" },
       { title: "Generate Report" },
@@ -80,19 +80,19 @@ function ComplaintModuleLayout() {
       }
     }
 
-    if (role.includes("caretaker")) {
+    if (role.includes("caretaker") || role.includes("convener")) {
       switch (activeTab) {
+        // case "0":
+        //   return <FormPage />;
+        // case "1":
+        //   return <ComplaintHistory />;
+        // case "2":
+        //   return <Feedback />;
         case "0":
-          return <FormPage />;
-        case "1":
-          return <ComplaintHistory />;
-        case "2":
-          return <Feedback />;
-        case "3":
           return <ResolvedComplaints />;
-        case "4":
+        case "1":
           return <UnresolvedComplaints />;
-        case "5":
+        case "2":
           return <GenerateReport />;
         default:
           return <Loader />;
