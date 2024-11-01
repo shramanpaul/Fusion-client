@@ -9,11 +9,11 @@ const TabsModules = [
     id: "manage-bookings",
     url: "/visitors_hostel",
   },
-  {
-    label: "Booking Form",
-    id: "booking-form",
-    url: "/visitors_hostel/booking-form",
-  },
+  // {
+  //   label: "Booking Form",
+  //   id: "booking-form",
+  //   url: "/visitors_hostel/booking-form",
+  // },
   {
     label: "Room Availability",
     id: "room-availability",

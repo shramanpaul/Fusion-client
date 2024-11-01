@@ -46,6 +46,7 @@ function BookingTable({ activeBooking, onCancel }) {
           </tr>
         </thead>
         <tbody>
+          {console.log(activeBooking)}
           {activeBooking.map((booking) => (
             <tr key={booking.id}>
               <td
@@ -109,6 +110,20 @@ function BookingTable({ activeBooking, onCancel }) {
     </Box>
   );
 }
+// Define prop types for BookingTable
+BookingTable.propTypes = {
+  activeBooking: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      intender: PropTypes.string.isRequired,
+      email: PropTypes.string.isRequired,
+      bookingFrom: PropTypes.string.isRequired,
+      bookingTo: PropTypes.string.isRequired,
+      category: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
 // Define prop types for BookingTable
 BookingTable.propTypes = {
   activeBooking: PropTypes.arrayOf(

@@ -105,6 +105,7 @@ function CombinedBookingForm({ modalOpened, onClose }) {
       );
       console.log("Form submitted", response.data);
       onClose(); // Close the modal on successful submission
+      window.location.reload(); // Reload the page
       // Optionally navigate to a success page
       // navigate("/success-page");
     } catch (error) {
@@ -250,12 +251,11 @@ function CombinedBookingForm({ modalOpened, onClose }) {
 
             {/* Category, Purpose, Remarks, Bills By */}
             <Grid.Col span={6}>
-              <TextInput
+              <Select
                 label="Category"
                 value={formData.category}
-                onChange={(event) =>
-                  handleInputChange("category", event.currentTarget.value)
-                }
+                onChange={(value) => handleInputChange("category", value)}
+                data={["A", "B", "C", "D"]}
                 required
               />
             </Grid.Col>

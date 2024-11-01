@@ -12,6 +12,8 @@ import RoomsDetails from "./roomsAvailibilityDetails.jsx";
 
 function BookingsRequestTable() {
   const [showForm, setShowForm] = useState(false); // Manage form visibility
+  const [bookingFrom, setBookingFrom] = useState(""); // State for booking from date
+  const [bookingTo, setBookingTo] = useState(""); // State for booking to date
 
   const handleButtonClick = () => {
     setShowForm(true); // Show the BookingForm when button is clicked
@@ -28,7 +30,7 @@ function BookingsRequestTable() {
         }}
       >
         <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
-          Rooms Availibility
+          Rooms Availability
         </Text>
 
         <Button variant="outline" color="green" onClick={handleButtonClick}>
@@ -57,26 +59,48 @@ function BookingsRequestTable() {
             <td style={{ padding: "12px" }}>
               <Grid>
                 <Grid.Col span={12}>
-                  <TextInput placeholder="From" type="date" required />
+                  <TextInput
+                    placeholder="From"
+                    type="date"
+                    required
+                    value={bookingFrom}
+                    onChange={(event) =>
+                      setBookingFrom(event.currentTarget.value)
+                    }
+                  />
                 </Grid.Col>
               </Grid>
             </td>
             <td style={{ padding: "12px" }}>
               <Grid>
                 <Grid.Col span={12}>
-                  <TextInput placeholder="To" type="date" required />
+                  <TextInput
+                    placeholder="To"
+                    type="date"
+                    required
+                    value={bookingTo}
+                    onChange={(event) =>
+                      setBookingTo(event.currentTarget.value)
+                    }
+                  />
                 </Grid.Col>
               </Grid>
             </td>
           </tr>
         </thead>
       </Table>
-      {showForm && <RoomsDetails onClose={() => setShowForm(false)} />}
+      {showForm && (
+        <RoomsDetails
+          bookingFrom={bookingFrom}
+          bookingTo={bookingTo}
+          onClose={() => setShowForm(false)}
+        />
+      )}
     </Box>
   );
 }
 
-function RoomsAvailibility() {
+function RoomsAvailability() {
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <Box
@@ -95,4 +119,4 @@ function RoomsAvailibility() {
   );
 }
 
-export default RoomsAvailibility;
+export default RoomsAvailability;
