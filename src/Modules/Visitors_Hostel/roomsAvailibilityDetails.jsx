@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { MantineProvider, Grid, Button, Box } from "@mantine/core";
+import { MantineProvider, Grid, Button, Box, Text } from "@mantine/core";
 import axios from "axios";
 import PropTypes from "prop-types";
 
 function RoomsDetails({ bookingFrom, bookingTo }) {
   const [availableRooms, setAvailableRooms] = useState([]);
+  const [partialBookingData, setPartialBookingData] = useState([]);
 
   const roomData = {
     G: ["G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10"],
@@ -53,10 +54,41 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
       }
     };
 
+    const fetchPartialBookingData = async () => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        return console.error("No authentication token found!");
+      }
+
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:8000/visitorhostel/check-partial-booking/",
+          {
+            start_date: bookingFrom,
+            end_date: bookingTo,
+          },
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        setPartialBookingData(response.data);
+      } catch (error) {
+        console.error("Error fetching partial booking data:", error);
+      }
+    };
+
     if (bookingFrom && bookingTo) {
       fetchAvailableRooms();
+      fetchPartialBookingData();
     }
   }, [bookingFrom, bookingTo]);
+
+  const filteredPartialBookingData = partialBookingData.filter(
+    (data) => data.available_ranges && data.available_ranges.length > 0,
+  );
 
   return (
     <MantineProvider theme={{ fontFamily: "Arial, sans-serif" }}>
@@ -80,9 +112,31 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
           </Grid>
         ))}
       </Box>
+      <Box>
+        <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
+          Partial Booking Availability
+        </Text>
+        {filteredPartialBookingData.length > 0 ? (
+          filteredPartialBookingData.map((data) => (
+            <Box key={data.room_id} style={{ marginBottom: "10px" }}>
+              <Text>
+                Room {data.room_number} has the following partial availability:
+              </Text>
+              {data.available_ranges.map((range, index) => (
+                <Text key={index}>
+                  From {range.from} to {range.to}
+                </Text>
+              ))}
+            </Box>
+          ))
+        ) : (
+          <Text>No partial bookings available.</Text>
+        )}
+      </Box>
     </MantineProvider>
   );
 }
+
 RoomsDetails.propTypes = {
   bookingFrom: PropTypes.string.isRequired,
   bookingTo: PropTypes.string.isRequired,
