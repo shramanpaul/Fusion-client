@@ -15,7 +15,7 @@ import CombinedBookingForm from "./bookingForm";
 import ForwardBookingForm from "./forwardBooking";
 import ConfirmBookingIn from "./confirmBooking_Incharge";
 
-function BookingsRequestTable({ bookings }) {
+function BookingsRequestTable({ bookings, onBookingForward }) {
   const [modalOpened, setModalOpened] = useState(false); // State to control modal
   const [forwardModalOpened, setForwardModalOpened] = useState(null); // State to control forward modal for each booking
 
@@ -25,6 +25,7 @@ function BookingsRequestTable({ bookings }) {
 
   const handleForwardCloseModal = () => {
     setForwardModalOpened(null); // Close modal
+    onBookingForward(); // Call the fetch function to refresh bookings when closing the modal
   };
 
   const handleButtonClick = () => {
@@ -176,6 +177,7 @@ function BookingsRequestTable({ bookings }) {
                       <ForwardBookingForm
                         forwardmodalOpened={forwardModalOpened === booking.id}
                         onClose={handleForwardCloseModal}
+                        onBookingForward={onBookingForward} // Pass the function down
                         bookingId={booking.id}
                       />
                     )}
@@ -237,6 +239,7 @@ function BookingsRequestTable({ bookings }) {
   );
 }
 // Define prop types for BookingsRequestTable
+// Define prop types for BookingsRequestTable
 BookingsRequestTable.propTypes = {
   bookings: PropTypes.arrayOf(
     PropTypes.shape({
@@ -249,39 +252,35 @@ BookingsRequestTable.propTypes = {
       status: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  onBookingForward: PropTypes.func.isRequired, // Add this line for validation
 };
 
 function Bookings() {
   const [bookings, setBookings] = useState([]);
-  // test
+
+  const fetchBookings = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      return console.error("No authentication token found!");
+    }
+
+    try {
+      const { data } = await axios.get(
+        `${host}/visitorhostel/get-booking-requests/`,
+        {
+          headers: { Authorization: `Token ${token}` },
+        },
+      );
+      setBookings(data.pending_bookings);
+    } catch (error) {
+      console.error("Error fetching booking requests:", error);
+    }
+  };
+
+  // Use useEffect to fetch bookings on mount
   useEffect(() => {
-    const fetchBookings = async () => {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        return console.error("No authentication token found!");
-      }
-
-      try {
-        const { data } = await axios.get(
-          `${host}/visitorhostel/get-booking-requests/`,
-          {
-            headers: { Authorization: `Token ${token}` },
-          },
-        );
-        // Handle the fetched data here, e.g.:
-        console.log("Token :", token);
-        console.log("Fetched booking requests data:", data); // Log
-        setBookings(data.pending_bookings);
-        // setBookings(data);
-        // setLoading(false);
-      } catch (error) {
-        console.error("Error fetching booking requests:", error);
-        // setLoading(false);
-      }
-    };
-
-    fetchBookings(); // Call the async function
-  }, []); // Empty dependency array ensures it runs only once
+    fetchBookings();
+  }, []);
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
@@ -290,12 +289,15 @@ function Bookings() {
           maxWidth: "1200px",
           margin: "0 auto",
           backgroundColor: "white",
-          borderRadius: "12px", // Add border radius to outer Box
-          padding: "16px", // Optional padding
-          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Optional shadow
+          borderRadius: "12px",
+          padding: "16px",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <BookingsRequestTable bookings={bookings} />
+        <BookingsRequestTable
+          bookings={bookings}
+          onBookingForward={fetchBookings} // Pass the fetch function as a prop
+        />
       </Box>
     </MantineProvider>
   );

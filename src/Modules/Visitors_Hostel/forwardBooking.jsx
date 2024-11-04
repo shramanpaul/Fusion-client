@@ -16,7 +16,12 @@ import {
 import axios from "axios";
 import { host } from "../../routes/globalRoutes";
 
-function ForwardBookingForm({ forwardmodalOpened, onClose, bookingId }) {
+function ForwardBookingForm({
+  forwardmodalOpened,
+  onClose,
+  onBookingForward,
+  bookingId,
+}) {
   console.log("BOOKING ID: ", bookingId); // Log booking ID for debugging
   const [formData, setFormData] = useState({
     intenderUsername: "",
@@ -135,7 +140,6 @@ function ForwardBookingForm({ forwardmodalOpened, onClose, bookingId }) {
       modified_category: formData.modifiedCategory,
       rooms: formData.rooms,
       remarks: formData.remarks,
-      // csrfmiddlewaretoken: csrfToken,
     };
 
     try {
@@ -151,8 +155,8 @@ function ForwardBookingForm({ forwardmodalOpened, onClose, bookingId }) {
         },
       );
       console.log("Form submitted", response.data);
-      onClose();
-      //   navigate("/visitors_hostel");
+      onBookingForward(); // Call the fetch function to refresh bookings
+      onClose(); // Close the modal after the operation
     } catch (error) {
       console.error("Error submitting form", error);
     } finally {
@@ -344,6 +348,7 @@ ForwardBookingForm.propTypes = {
   onClose: PropTypes.func.isRequired,
   bookingId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     .isRequired,
+  onBookingForward: PropTypes.func.isRequired, // Add this prop type
 };
 
 export default ForwardBookingForm;

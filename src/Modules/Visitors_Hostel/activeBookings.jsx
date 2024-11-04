@@ -46,7 +46,6 @@ function BookingTable({ activeBooking, onCancel }) {
           </tr>
         </thead>
         <tbody>
-          {console.log(activeBooking)}
           {activeBooking.map((booking) => (
             <tr key={booking.id}>
               <td
@@ -110,6 +109,7 @@ function BookingTable({ activeBooking, onCancel }) {
     </Box>
   );
 }
+
 // Define prop types for BookingTable
 BookingTable.propTypes = {
   activeBooking: PropTypes.arrayOf(
@@ -128,27 +128,28 @@ BookingTable.propTypes = {
 function ActiveBookingsPage() {
   const [activeBooking, setBookings] = useState([]);
 
+  // Function to fetch active bookings
+  const fetchActiveBookings = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      return console.error("No authentication token found!");
+    }
+
+    try {
+      const { data } = await axios.get(
+        `${host}/visitorhostel/get-active-bookings/`,
+        {
+          headers: { Authorization: `Token ${token}` },
+        },
+      );
+      setBookings(data.active_bookings);
+    } catch (error) {
+      console.error("Error fetching active bookings:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchactiveBookings = async () => {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        return console.error("No authentication token found!");
-      }
-
-      try {
-        const { data } = await axios.get(
-          `${host}/visitorhostel/get-active-bookings/`,
-          {
-            headers: { Authorization: `Token ${token}` },
-          },
-        );
-        setBookings(data.active_bookings);
-      } catch (error) {
-        console.error("Error fetching booking requests:", error);
-      }
-    };
-
-    fetchactiveBookings(); // Call the async function
+    fetchActiveBookings(); // Call the async function
   }, []);
 
   // Handle cancel booking
@@ -159,11 +160,11 @@ function ActiveBookingsPage() {
     }
 
     try {
-      // Data to be sent in the POST request (you can modify the remark and charges as needed)
+      // Data to be sent in the POST request
       const data = {
         "booking-id": bookingId,
-        remark: "User canceled the booking.", // Example remark, you can make this dynamic if needed
-        charges: 0, // Example charges, set this dynamically based on your UI
+        remark: "User canceled the booking.", // Example remark
+        charges: 0, // Example charges
       };
 
       // Send POST request to cancel the booking
@@ -174,12 +175,10 @@ function ActiveBookingsPage() {
         },
       });
 
-      // Update the UI by removing the canceled booking from the table
-      const updatedBookings = activeBooking.filter(
-        (booking) => booking.id !== bookingId,
-      );
-      setBookings(updatedBookings);
-      console.log("Cancelled booking with ID:", bookingId);
+      console.log("Successfully canceled booking with ID:", bookingId);
+
+      // Fetch the updated list of active bookings after cancellation
+      fetchActiveBookings();
     } catch (error) {
       console.error("Error canceling the booking:", error);
     }
