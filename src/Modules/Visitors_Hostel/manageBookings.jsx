@@ -10,7 +10,7 @@ const TabsModules = [
     url: "/visitors_hostel/",
   },
   {
-    label: "Cancellation Request",
+    label: "Cancelled Requests",
     id: "cancel-request",
     url: "/visitors_hostel/cancel_request",
   },

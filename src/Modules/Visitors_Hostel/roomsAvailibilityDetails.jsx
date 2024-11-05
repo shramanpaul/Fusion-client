@@ -112,25 +112,64 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
           </Grid>
         ))}
       </Box>
-      <Box>
-        <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
+
+      <Box mt="xl">
+        <Text size="xl" weight={700} mb="md" style={{ fontWeight: "bold" }}>
           Partial Booking Availability
         </Text>
         {filteredPartialBookingData.length > 0 ? (
-          filteredPartialBookingData.map((data) => (
-            <Box key={data.room_id} style={{ marginBottom: "10px" }}>
-              <Text>
-                Room {data.room_number} has the following partial availability:
-              </Text>
-              {data.available_ranges.map((range, index) => (
-                <Text key={index}>
-                  From {range.from} to {range.to}
-                </Text>
-              ))}
-            </Box>
-          ))
+          <Grid>
+            {filteredPartialBookingData.map((data) => (
+              <Grid.Col key={data.room_id} span={12} sm={6} md={4}>
+                <Box
+                  p="md"
+                  style={{
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    backgroundColor: "#f8f9fa",
+                  }}
+                >
+                  <Text weight={600} mb="xs" style={{ fontWeight: "bold" }}>
+                    Room {data.room_number}
+                  </Text>
+                  <Text size="sm" color="dimmed" mb="xs">
+                    Partial availability:
+                  </Text>
+                  {data.available_ranges.map((range, index) => (
+                    <Box
+                      key={index}
+                      py="xs"
+                      style={{
+                        borderTop: index === 0 ? "none" : "1px solid #e0e0e0",
+                      }}
+                    >
+                      <Button
+                        variant="light"
+                        color="blue"
+                        style={{ marginTop: "5px", backgroundColor: "#E6F3FF" }}
+                      >
+                        From {new Date(range.from).toLocaleDateString()} to{" "}
+                        {new Date(range.to).toLocaleDateString()}
+                      </Button>
+                    </Box>
+                  ))}
+                </Box>
+              </Grid.Col>
+            ))}
+          </Grid>
         ) : (
-          <Text>No partial bookings available.</Text>
+          <Box
+            p="md"
+            style={{
+              border: "1px solid #e0e0e0",
+              borderRadius: "8px",
+              backgroundColor: "#f8f9fa",
+            }}
+          >
+            <Text align="center" color="dimmed">
+              No partial bookings available.
+            </Text>
+          </Box>
         )}
       </Box>
     </MantineProvider>
