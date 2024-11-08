@@ -5,6 +5,11 @@ import axios from "axios"; // Import axios for API calls
 import { host } from "../../routes/globalRoutes"; // Import the host URL
 
 function CancellationRequestTable({ bookings }) {
+  // Sort bookings by "booking from" date in ascending order
+  const sortedBookings = bookings.sort(
+    (a, b) => new Date(a.bookingFrom) - new Date(b.bookingFrom),
+  );
+
   return (
     <Box p="md" style={{ margin: 10 }}>
       <Box
@@ -46,7 +51,7 @@ function CancellationRequestTable({ bookings }) {
           </tr>
         </thead>
         <tbody>
-          {bookings.map((booking) => (
+          {sortedBookings.map((booking) => (
             <tr key={booking.id}>
               <td
                 style={{

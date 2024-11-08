@@ -11,6 +11,7 @@ import {
   Modal,
   LoadingOverlay,
   MultiSelect,
+  Select,
 } from "@mantine/core";
 import axios from "axios";
 import { host } from "../../routes/globalRoutes";
@@ -208,15 +209,13 @@ function ConfirmBookingIn({
 
             <Grid.Col span={6}>
               {console.log("FORMDATA :", formData)}
-              <TextInput
+              <Select
                 label="Modified Category"
                 value={formData.modifiedCategory}
-                onChange={(event) =>
-                  handleInputChange(
-                    "modifiedCategory",
-                    event.currentTarget.value,
-                  )
+                onChange={(value) =>
+                  handleInputChange("modifiedCategory", value)
                 }
+                data={["A", "B", "C", "D"]}
                 required
               />
             </Grid.Col>

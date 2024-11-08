@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Box, Table, MantineProvider, Tabs, Text } from "@mantine/core";
+import {
+  Box,
+  Table,
+  MantineProvider,
+  Tabs,
+  Text,
+  Select,
+  Button,
+} from "@mantine/core";
+import * as XLSX from "xlsx";
 
 // Tabs data
 const TabsModules = [
@@ -19,6 +28,11 @@ function FinancialManagement() {
   const [loadingAllTransactions, setLoadingAllTransactions] = useState(true); // Loading state for all transactions
   const [error, setError] = useState(null);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const currentDate = new Date();
+    const currentMonthYear = `${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+    return currentMonthYear;
+  });
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -122,6 +136,18 @@ function FinancialManagement() {
     }
   }, [expenditureData, incomeData, loadingExpenditure, loadingIncome]);
 
+  // Group data by month and year
+  const groupByMonth = (data) => {
+    return data.reduce((acc, item) => {
+      const monthYear = `${new Date(item.bill_date).getMonth() + 1}-${new Date(item.bill_date).getFullYear()}`;
+      if (!acc[monthYear]) {
+        acc[monthYear] = [];
+      }
+      acc[monthYear].push(item);
+      return acc;
+    }, {});
+  };
+
   // Render "All Transactions" table
   const renderAllTransactionsTable = (data) => {
     return (
@@ -187,102 +213,151 @@ function FinancialManagement() {
     );
   };
 
-  // // income
+  // Render "Income" table
   const renderIncomeTable = (data) => {
+    const sortedData = data.sort(
+      (a, b) => new Date(a.bill_date) - new Date(b.bill_date),
+    );
+    const groupedData = groupByMonth(sortedData);
+
+    const handleMonthChange = (value) => {
+      setSelectedMonth(value);
+    };
+
+    const monthOptions = Object.keys(groupedData).map((monthYear) => ({
+      value: monthYear,
+      label: monthYear,
+    }));
+
+    const exportToExcel = () => {
+      const worksheet = XLSX.utils.json_to_sheet(groupedData[selectedMonth]);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Income Data");
+      XLSX.writeFile(workbook, `Income_Data_${selectedMonth}.xlsx`);
+    };
+
     return (
-      <Table
-        style={{
-          borderRadius: "8px",
-          overflow: "hidden",
-          border: "1px solid #E0E0E0",
-          marginTop: "20px",
-        }}
-      >
-        <thead>
-          <tr>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Intender
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Booking From
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Booking To
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Total Bill
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Bill ID
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Bill Date
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {data
-            .filter((item) => item.bill_id !== null) // Filter out items with null bill_id
-            .map((item) => (
-              <tr key={item.bill_id}>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  <Text weight={500}>{item.intender_name}</Text>
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  {item.booking_from}
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  {item.booking_to}
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  {item.total_bill}
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  {item.bill_id}
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  {item.bill_date}
-                </td>
+      <Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between", // Ensures items are spaced apart
+            alignItems: "center", // Vertically center the items
+            marginBottom: "10px", // Add space at the bottom
+          }}
+        >
+          <Box sx={{ flexGrow: 1 }}>
+            <Select
+              placeholder="Select Month"
+              data={monthOptions}
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              size="xs" // Smaller size for a more professional look
+              style={{ maxWidth: "150px" }} // Control the width
+            />
+          </Box>
+
+          <Button onClick={exportToExcel} size="xs">
+            Export to Excel
+          </Button>
+        </Box>
+
+        {selectedMonth && groupedData[selectedMonth] ? (
+          <Table
+            style={{
+              borderRadius: "8px",
+              overflow: "hidden",
+              border: "1px solid #E0E0E0",
+              marginTop: "20px",
+            }}
+          >
+            <thead>
+              <tr>
+                <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                  Intender
+                </th>
+                <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                  Booking From
+                </th>
+                <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                  Booking To
+                </th>
+                <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                  Total Bill
+                </th>
+                <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                  Bill ID
+                </th>
+                <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                  Bill Date
+                </th>
               </tr>
-            ))}
-        </tbody>
-      </Table>
+            </thead>
+            <tbody>
+              {groupedData[selectedMonth].map((item) => (
+                <tr key={item.bill_id}>
+                  <td
+                    style={{
+                      padding: "12px",
+                      borderBottom: "1px solid #E0E0E0",
+                      textAlign: "center",
+                    }}
+                  >
+                    <Text weight={500}>{item.intender_name}</Text>
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px",
+                      borderBottom: "1px solid #E0E0E0",
+                      textAlign: "center",
+                    }}
+                  >
+                    {item.booking_from}
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px",
+                      borderBottom: "1px solid #E0E0E0",
+                      textAlign: "center",
+                    }}
+                  >
+                    {item.booking_to}
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px",
+                      borderBottom: "1px solid #E0E0E0",
+                      textAlign: "center",
+                    }}
+                  >
+                    {item.total_bill}
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px",
+                      borderBottom: "1px solid #E0E0E0",
+                      textAlign: "center",
+                    }}
+                  >
+                    {item.bill_id}
+                  </td>
+                  <td
+                    style={{
+                      padding: "12px",
+                      borderBottom: "1px solid #E0E0E0",
+                      textAlign: "center",
+                    }}
+                  >
+                    {item.bill_date}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          <Text>Select a month to view data</Text>
+        )}
+      </Box>
     );
   };
 

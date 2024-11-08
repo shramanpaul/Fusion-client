@@ -5,6 +5,11 @@ import axios from "axios";
 import { host } from "../../routes/globalRoutes"; // Adjust the import as needed
 
 function BookingTable({ bookings }) {
+  // Sort bookings by "check_in" date in ascending order
+  const sortedBookings = bookings.sort(
+    (a, b) => new Date(a.checkIn) - new Date(b.checkIn),
+  );
+
   return (
     <Box p="md" style={{ margin: 10 }}>
       <Box
@@ -46,7 +51,7 @@ function BookingTable({ bookings }) {
           </tr>
         </thead>
         <tbody>
-          {bookings.map((booking) => (
+          {sortedBookings.map((booking) => (
             <tr key={booking.id}>
               <td
                 style={{

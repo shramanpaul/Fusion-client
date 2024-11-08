@@ -47,6 +47,11 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
     return booking.status !== "Forward";
   });
 
+  // Sort bookings by "booking from" date in ascending order
+  const sortedBookings = filteredBookings.sort(
+    (a, b) => new Date(a.bookingFrom) - new Date(b.bookingFrom),
+  );
+
   return (
     <Box p="md" style={{ margin: 10 }}>
       {bookings.status}
@@ -104,7 +109,7 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
           </tr>
         </thead>
         <tbody>
-          {filteredBookings.map((booking) => (
+          {sortedBookings.map((booking) => (
             <tr key={booking.id}>
               <td
                 style={{
@@ -238,7 +243,7 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
     </Box>
   );
 }
-// Define prop types for BookingsRequestTable
+
 // Define prop types for BookingsRequestTable
 BookingsRequestTable.propTypes = {
   bookings: PropTypes.arrayOf(
