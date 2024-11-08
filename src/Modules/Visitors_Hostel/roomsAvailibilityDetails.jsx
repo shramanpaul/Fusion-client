@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { MantineProvider, Grid, Button, Box, Text } from "@mantine/core";
+import {
+  MantineProvider,
+  Grid,
+  Button,
+  Box,
+  Text,
+  Card,
+  Group,
+  Badge,
+} from "@mantine/core";
 import axios from "axios";
 import PropTypes from "prop-types";
 
@@ -37,10 +46,7 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/visitorhostel/room_availabity_new/",
-          {
-            start_date: bookingFrom,
-            end_date: bookingTo,
-          },
+          { start_date: bookingFrom, end_date: bookingTo },
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -63,10 +69,7 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/visitorhostel/check-partial-booking/",
-          {
-            start_date: bookingFrom,
-            end_date: bookingTo,
-          },
+          { start_date: bookingFrom, end_date: bookingTo },
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -90,20 +93,39 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
     (data) => data.available_ranges && data.available_ranges.length > 0,
   );
 
+  const getButtonColor = (room) => {
+    if (availableRooms.includes(room)) {
+      return "green";
+    }
+    const partialRoom = filteredPartialBookingData.find(
+      (data) => data.room_number === room,
+    );
+    if (partialRoom) {
+      return "yellow";
+    }
+    return "red";
+  };
+
   return (
     <MantineProvider theme={{ fontFamily: "Arial, sans-serif" }}>
       <Box>
         {Object.keys(roomData).map((section) => (
           <Grid
             key={section}
+            justify="center"
+            gutter="xs"
             style={{ marginBottom: "10px", marginTop: "10px" }}
           >
             {roomData[section].map((room) => (
-              <Grid.Col span="auto" key={room} style={{ textAlign: "center" }}>
+              <Grid.Col
+                span={1}
+                key={room}
+                style={{ textAlign: "center", padding: "5px" }}
+              >
                 <Button
                   variant="filled"
-                  color={availableRooms.includes(room) ? "green" : "red"}
-                  style={{ width: "64px" }}
+                  color={getButtonColor(room)}
+                  style={{ width: "64px", height: "40px" }}
                 >
                   {room}
                 </Button>
@@ -120,56 +142,65 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
         {filteredPartialBookingData.length > 0 ? (
           <Grid>
             {filteredPartialBookingData.map((data) => (
-              <Grid.Col key={data.room_id} span={12} sm={6} md={4}>
-                <Box
-                  p="md"
-                  style={{
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    backgroundColor: "#f8f9fa",
-                  }}
+              <Grid.Col key={data.room_id} span={6}>
+                <Card
+                  shadow="sm"
+                  padding="lg"
+                  radius="md"
+                  withBorder
+                  style={{ backgroundColor: "#f8f9fa" }}
                 >
-                  <Text weight={600} mb="xs" style={{ fontWeight: "bold" }}>
-                    Room {data.room_number}
-                  </Text>
+                  <Group position="apart" mb="xs">
+                    <Text weight={600} style={{ fontWeight: "bold" }}>
+                      Room {data.room_number}
+                    </Text>
+                    <Badge color="yellow" variant="light">
+                      Partial
+                    </Badge>
+                  </Group>
                   <Text size="sm" color="dimmed" mb="xs">
                     Partial availability:
                   </Text>
-                  {data.available_ranges.map((range, index) => (
-                    <Box
-                      key={index}
-                      py="xs"
-                      style={{
-                        borderTop: index === 0 ? "none" : "1px solid #e0e0e0",
-                      }}
-                    >
+                  <Box
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "8px",
+                    }}
+                  >
+                    {data.available_ranges.map((range, index) => (
                       <Button
+                        key={index}
                         variant="light"
                         color="blue"
-                        style={{ marginTop: "5px", backgroundColor: "#E6F3FF" }}
+                        style={{
+                          backgroundColor: "#E6F3FF",
+                          fontSize: "12px",
+                          flex: "1 1 45%",
+                          marginTop: "5px",
+                        }}
                       >
                         From {new Date(range.from).toLocaleDateString()} to{" "}
                         {new Date(range.to).toLocaleDateString()}
                       </Button>
-                    </Box>
-                  ))}
-                </Box>
+                    ))}
+                  </Box>
+                </Card>
               </Grid.Col>
             ))}
           </Grid>
         ) : (
-          <Box
-            p="md"
-            style={{
-              border: "1px solid #e0e0e0",
-              borderRadius: "8px",
-              backgroundColor: "#f8f9fa",
-            }}
+          <Card
+            shadow="sm"
+            padding="lg"
+            radius="md"
+            withBorder
+            style={{ backgroundColor: "#f8f9fa" }}
           >
             <Text align="center" color="dimmed">
               No partial bookings available.
             </Text>
-          </Box>
+          </Card>
         )}
       </Box>
     </MantineProvider>
