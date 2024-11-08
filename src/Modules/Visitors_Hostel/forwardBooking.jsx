@@ -47,6 +47,31 @@ function ForwardBookingForm({
   const [availableRooms, setAvailableRooms] = useState([]);
 
   useEffect(() => {
+    const fetchAvailableRooms = async (startDate, endDate) => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        return console.error("No authentication token found!");
+      }
+
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:8000/visitorhostel/room_availabity_new/",
+          {
+            start_date: startDate,
+            end_date: endDate,
+          },
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        setAvailableRooms(response.data.available_rooms);
+      } catch (error) {
+        console.error("Error fetching available rooms:", error);
+      }
+    };
     const fetchBookingData = async () => {
       try {
         const response = await axios.get(
@@ -72,10 +97,7 @@ function ForwardBookingForm({
           visitorOrganization: booking.visitorOrganization,
           visitorAddress: booking.visitorAddress,
         });
-        setAvailableRooms(
-          booking.availableRooms.map((room) => room.room_number),
-        );
-        console.log("Rooms Available are: ", booking.availableRooms);
+        fetchAvailableRooms(booking.bookingFrom, booking.bookingTo);
       } catch (error) {
         console.error("Error fetching booking data", error);
       }

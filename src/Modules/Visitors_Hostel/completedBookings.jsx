@@ -57,7 +57,7 @@ function BookingTable({ bookings }) {
               >
                 <Text weight={500}>{booking.intender}</Text>
                 <Text size="sm" color="dimmed">
-                  {booking.email}
+                  {booking.intender}
                 </Text>
               </td>
               <td
@@ -67,7 +67,7 @@ function BookingTable({ bookings }) {
                   textAlign: "center",
                 }}
               >
-                {booking.bookingFrom}
+                {booking.bookingDate}
               </td>
               <td
                 style={{
@@ -110,8 +110,7 @@ BookingTable.propTypes = {
     PropTypes.shape({
       id: PropTypes.number.isRequired,
       intender: PropTypes.string.isRequired,
-      email: PropTypes.string.isRequired,
-      bookingFrom: PropTypes.string.isRequired,
+      bookingDate: PropTypes.string.isRequired,
       checkIn: PropTypes.string.isRequired,
       checkOut: PropTypes.string.isRequired,
       category: PropTypes.string.isRequired,
@@ -131,7 +130,7 @@ function CompletedBookingsPage() {
 
       try {
         const { data } = await axios.get(
-          `${host}/visitorhostel/get-completed-bookings/`,
+          `${host}/visitorhostel/completed-bookings/`,
           {
             headers: { Authorization: `Token ${token}` },
           },

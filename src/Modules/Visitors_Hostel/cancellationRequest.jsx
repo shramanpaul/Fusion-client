@@ -16,7 +16,7 @@ function CancellationRequestTable({ bookings }) {
         }}
       >
         <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
-          Cancellation Request
+          Cancelled Requests
         </Text>
       </Box>
       <Table
