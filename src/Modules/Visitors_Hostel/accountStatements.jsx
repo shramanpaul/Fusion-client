@@ -32,7 +32,7 @@ function FinancialManagement() {
     const currentDate = new Date();
     const currentMonthYear = `${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
     return currentMonthYear;
-  });
+  }); // Default to "All"
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -110,11 +110,13 @@ function FinancialManagement() {
           heads: `Spent on ${item.item_name}`,
           bill: item.id, // Assuming quantity is the amount
           amount: item.quantity, // Adjust if necessary
+          bill_date: item.bill_date, // Assuming bill_date is available
         })),
         ...incomeData.map((item) => ({
           heads: `Booking from ${item.intender_name}`,
           bill: item.bill_id, // Assuming total_bill is the amount
           amount: item.total_bill, // Adjust if necessary
+          bill_date: item.bill_date, // Assuming bill_date is available
         })),
       ];
       setAllTransactionsData(combinedData);
@@ -170,6 +172,9 @@ function FinancialManagement() {
             <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
               Amount
             </th>
+            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+              Bill Date
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -206,6 +211,15 @@ function FinancialManagement() {
                     ? `-${item.amount}`
                     : item.amount}
                 </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    textAlign: "center",
+                    borderBottom: "1px solid #E0E0E0",
+                  }}
+                >
+                  {item.bill_date}
+                </td>
               </tr>
             ))}
         </tbody>
@@ -224,17 +238,31 @@ function FinancialManagement() {
       setSelectedMonth(value);
     };
 
-    const monthOptions = Object.keys(groupedData).map((monthYear) => ({
-      value: monthYear,
-      label: monthYear,
-    }));
+    const monthOptions = [
+      { value: "All", label: "All" },
+      ...Object.keys(groupedData).map((monthYear) => ({
+        value: monthYear,
+        label: monthYear,
+      })),
+    ];
 
     const exportToExcel = () => {
-      const worksheet = XLSX.utils.json_to_sheet(groupedData[selectedMonth]);
+      const dataToExport =
+        selectedMonth === "All" ? data : groupedData[selectedMonth];
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Income Data");
       XLSX.writeFile(workbook, `Income_Data_${selectedMonth}.xlsx`);
     };
+
+    // Calculate total income for the selected month
+    const totalIncomeForSelectedMonth =
+      selectedMonth === "All"
+        ? data.reduce((sum, item) => sum + item.total_bill, 0)
+        : groupedData[selectedMonth].reduce(
+            (sum, item) => sum + item.total_bill,
+            0,
+          );
 
     return (
       <Box>
@@ -262,7 +290,21 @@ function FinancialManagement() {
           </Button>
         </Box>
 
-        {selectedMonth && groupedData[selectedMonth] ? (
+        <Text
+          style={{
+            textAlign: "right", // Aligns the text to the right
+            marginRight: "10px", // Adds some space from the right edge
+            fontWeight: "bold", // Makes the text bold
+            fontSize: "18px", // Adjust the font size as needed
+            color: "#333", // Customize the color if necessary
+            paddingTop: "10px",
+          }}
+        >
+          Total Income: ₹{totalIncomeForSelectedMonth}
+        </Text>
+
+        {selectedMonth &&
+        (selectedMonth === "All" || groupedData[selectedMonth]) ? (
           <Table
             style={{
               borderRadius: "8px",
@@ -294,7 +336,10 @@ function FinancialManagement() {
               </tr>
             </thead>
             <tbody>
-              {groupedData[selectedMonth].map((item) => (
+              {(selectedMonth === "All"
+                ? sortedData
+                : groupedData[selectedMonth]
+              ).map((item) => (
                 <tr key={item.bill_id}>
                   <td
                     style={{

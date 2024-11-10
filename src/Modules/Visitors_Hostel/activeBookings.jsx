@@ -1,14 +1,36 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types"; // Import PropTypes
-import { MantineProvider, Table, Text, Box, Button } from "@mantine/core";
+import PropTypes from "prop-types";
+import {
+  MantineProvider,
+  Table,
+  Text,
+  Box,
+  Button,
+  TextInput,
+  Select,
+} from "@mantine/core";
 import axios from "axios";
 import { host } from "../../routes/globalRoutes";
 
 function BookingTable({ activeBooking, onCancel }) {
-  // Sort bookings by "booking from" date in ascending order
-  const sortedBookings = activeBooking.sort(
-    (a, b) => new Date(a.bookingFrom) - new Date(b.bookingFrom),
-  );
+  const [searchTerm, setSearchTerm] = useState(""); // State to store the search term
+  const [sortField, setSortField] = useState("bookingFrom"); // State to store the selected sorting field
+
+  // Sort bookings by the selected field in ascending order
+  const sortedBookings = activeBooking
+    .sort((a, b) => {
+      const valueA = a[sortField].toLowerCase();
+      const valueB = b[sortField].toLowerCase();
+      return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+    })
+    .filter((booking) => {
+      return (
+        booking.intender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.bookingFrom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.bookingTo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        booking.category.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
 
   return (
     <Box p="md" style={{ margin: 10 }}>
@@ -23,6 +45,23 @@ function BookingTable({ activeBooking, onCancel }) {
         <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
           Active Bookings
         </Text>
+        <TextInput
+          placeholder="Search by Intender, Booking From, Booking To "
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.currentTarget.value)}
+          style={{ width: "300px", marginRight: "10px" }}
+        />
+        <Select
+          placeholder="Sort by"
+          data={[
+            { value: "intender", label: "Intender" },
+            { value: "bookingFrom", label: "Booking From" },
+            { value: "bookingTo", label: "Booking To" },
+          ]}
+          value={sortField}
+          onChange={(value) => setSortField(value)}
+          style={{ width: "150px" }}
+        />
       </Box>
       <Table
         style={{
@@ -133,7 +172,6 @@ BookingTable.propTypes = {
 function ActiveBookingsPage() {
   const [activeBooking, setBookings] = useState([]);
 
-  // Function to fetch active bookings
   const fetchActiveBookings = async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -154,10 +192,9 @@ function ActiveBookingsPage() {
   };
 
   useEffect(() => {
-    fetchActiveBookings(); // Call the async function
+    fetchActiveBookings();
   }, []);
 
-  // Handle cancel booking
   const handleCancel = async (bookingId) => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -165,14 +202,12 @@ function ActiveBookingsPage() {
     }
 
     try {
-      // Data to be sent in the POST request
       const data = {
         "booking-id": bookingId,
-        remark: "User canceled the booking.", // Example remark
-        charges: 0, // Example charges
+        remark: "User canceled the booking.",
+        charges: 0,
       };
 
-      // Send POST request to cancel the booking
       await axios.post(`${host}/visitorhostel/cancel-booking/`, data, {
         headers: {
           Authorization: `Token ${token}`,
@@ -181,8 +216,6 @@ function ActiveBookingsPage() {
       });
 
       console.log("Successfully canceled booking with ID:", bookingId);
-
-      // Fetch the updated list of active bookings after cancellation
       fetchActiveBookings();
     } catch (error) {
       console.error("Error canceling the booking:", error);
@@ -196,9 +229,9 @@ function ActiveBookingsPage() {
           maxWidth: "1200px",
           margin: "0 auto",
           backgroundColor: "white",
-          borderRadius: "12px", // Add border radius to outer Box
-          padding: "16px", // Optional padding
-          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Optional shadow
+          borderRadius: "12px",
+          padding: "16px",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
         }}
       >
         <BookingTable activeBooking={activeBooking} onCancel={handleCancel} />

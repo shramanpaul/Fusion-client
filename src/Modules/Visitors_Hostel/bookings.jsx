@@ -10,14 +10,17 @@ import {
 } from "@mantine/core";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
+import { FaEye } from "react-icons/fa"; // Import the eye icon
 import { host } from "../../routes/globalRoutes";
 import CombinedBookingForm from "./bookingForm";
 import ForwardBookingForm from "./forwardBooking";
 import ConfirmBookingIn from "./confirmBooking_Incharge";
+import ViewBooking from "./viewBooking"; // Import the new ViewBooking component
 
 function BookingsRequestTable({ bookings, onBookingForward }) {
   const [modalOpened, setModalOpened] = useState(false); // State to control modal
   const [forwardModalOpened, setForwardModalOpened] = useState(null); // State to control forward modal for each booking
+  const [viewModalOpened, setViewModalOpened] = useState(null); // State to control view modal for each booking
 
   const handleForwardButtonClick = (bookingId) => {
     setForwardModalOpened(bookingId); // Open modal for the specific booking
@@ -36,13 +39,23 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
     setModalOpened(false); // Close modal
   };
 
+  const handleViewBooking = (bookingId) => {
+    setViewModalOpened(bookingId); // Open modal for the specific booking
+  };
+
+  const handleViewCloseModal = () => {
+    setViewModalOpened(null); // Close modal
+  };
+
   const role = useSelector((state) => state.user.role);
 
   // Filter bookings based on role and status
   const filteredBookings = bookings.filter((booking) => {
-    console.log("BOOKING STATUS: ", bookings.status);
     if (role === "VhIncharge") {
       return booking.status === "Forward";
+    }
+    if (role === "VhCaretaker") {
+      return booking.status === "Pending";
     }
     return booking.status !== "Forward";
   });
@@ -105,6 +118,9 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
             )}
             <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
               Status
+            </th>
+            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+              Actions
             </th>
           </tr>
         </thead>
@@ -169,7 +185,7 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
                   textAlign: "center",
                 }}
               >
-                {role === "VhCaretaker" ? (
+                {role === "VhCaretaker" && booking.status === "Pending" ? (
                   <>
                     <Button
                       variant="outline"
@@ -234,6 +250,29 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
                   >
                     {booking.status}
                   </Badge>
+                )}
+              </td>
+              <td
+                style={{
+                  padding: "12px",
+                  borderBottom: "1px solid #E0E0E0",
+                  textAlign: "center",
+                }}
+              >
+                <Button
+                  variant="outline"
+                  color="blue"
+                  onClick={() => handleViewBooking(booking.id)}
+                >
+                  <FaEye />
+                </Button>
+                {viewModalOpened === booking.id && (
+                  <ViewBooking
+                    modalOpened={viewModalOpened === booking.id}
+                    onClose={handleViewCloseModal}
+                    bookingId={booking.id}
+                    bookingf={booking}
+                  />
                 )}
               </td>
             </tr>
