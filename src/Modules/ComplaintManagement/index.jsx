@@ -1,115 +1,148 @@
+import { lazy, Suspense, useRef, useState, useMemo } from "react";
+import { useSelector } from "react-redux";
 import { Button, Flex, Loader, Tabs, Text } from "@mantine/core";
 import { CaretCircleLeft, CaretCircleRight } from "@phosphor-icons/react";
-import { useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
+import PropTypes from "prop-types";
+import CustomBreadcrumbs from "../../components/Breadcrumbs";
 import classes from "./ComplaintModule.module.css";
 
-// Import all the components here
-import Feedback from "./components/Feedback.jsx";
-import FormPage from "./components/FormPage.jsx";
-import ComplaintHistory from "./components/ComplaintHistory.jsx";
-import GenerateReport from "./components/Generate_Report.jsx";
-import ResolvedComplaints from "./components/ResolvedComplaints.jsx";
-import UnresolvedComplaints from "./components/UnresolvedComplaints.jsx";
-import RedirectedComplaints from "./components/RedirectedComplaints.jsx";
+// Lazy load components
+const Feedback = lazy(() => import("./components/Feedback"));
+const FormPage = lazy(() => import("./components/FormPage"));
+const ComplaintHistory = lazy(() => import("./components/ComplaintHistory"));
+const GenerateReport = lazy(() => import("./components/Generate_Report"));
+const ResolvedComplaints = lazy(
+  () => import("./components/ResolvedComplaints"),
+);
+const UnresolvedComplaints = lazy(
+  () => import("./components/UnresolvedComplaints"),
+);
+const RedirectedComplaints = lazy(
+  () => import("./components/RedirectedComplaints"),
+);
 
-const link = document.createElement("link");
-link.href =
-  "https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap";
-link.rel = "stylesheet";
-document.head.appendChild(link);
+// Initialize font
+(() => {
+  const link = document.createElement("link");
+  link.href =
+    "https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap";
+  link.rel = "stylesheet";
+  document.head.appendChild(link);
+})();
+
+const TAB_CONFIGS = {
+  warden: [{ title: "Generate Report" }],
+  supervisor: [
+    { title: "Redirected Complaints" },
+    { title: "Generate Report" },
+  ],
+  caretaker: [
+    { title: "Resolved Complaints" },
+    { title: "Unresolved Complaints" },
+    { title: "Generate Report" },
+  ],
+  default: [
+    { title: "Lodge a Complaint" },
+    { title: "Complaint History" },
+    { title: "Feedback" },
+  ],
+};
+
+function NavigationButton({ direction, onClick }) {
+  return (
+    <Button
+      onClick={onClick}
+      variant="default"
+      p={0}
+      style={{ border: "none" }}
+    >
+      {direction === "prev" ? (
+        <CaretCircleLeft
+          className={classes.fusionCaretCircleIcon}
+          weight="light"
+          aria-label="Previous"
+        />
+      ) : (
+        <CaretCircleRight
+          className={classes.fusionCaretCircleIcon}
+          weight="light"
+          aria-label="Next"
+        />
+      )}
+    </Button>
+  );
+}
+
+NavigationButton.propTypes = {
+  direction: PropTypes.oneOf(["prev", "next"]).isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 
 function ComplaintModuleLayout() {
   const [activeTab, setActiveTab] = useState("0");
   const tabsListRef = useRef(null);
   const role = useSelector((state) => state.user.role);
 
-  // Define tabs based on user role
-  let tabItems = [];
-
-  if (role.includes("warden")) {
-    tabItems = [{ title: "Generate Report" }];
-  } else if (role.includes("supervisor")) {
-    tabItems = [
-      { title: "Redirected Complaints" },
-      { title: "Generate Report" },
-    ];
-  } else if (role.includes("caretaker") || role.includes("convener")) {
-    tabItems = [
-      // { title: "Lodge a Complaint" },
-      // { title: "Complaint History" },
-      // { title: "Feedback" },
-      { title: "Resolved Complaints" },
-      { title: "Unresolved Complaints" },
-      { title: "Generate Report" },
-    ];
-  } else {
-    tabItems = [
-      { title: "Lodge a Complaint" },
-      { title: "Complaint History" },
-      { title: "Feedback" },
-    ];
-  }
+  const tabItems = useMemo(() => {
+    if (role.includes("warden")) return TAB_CONFIGS.warden;
+    if (role.includes("supervisor")) return TAB_CONFIGS.supervisor;
+    if (role.includes("caretaker") || role.includes("convener"))
+      return TAB_CONFIGS.caretaker;
+    return TAB_CONFIGS.default;
+  }, [role]);
 
   const handleTabChange = (direction) => {
     const newIndex =
       direction === "next"
-        ? Math.min(+activeTab + 1, tabItems.length - 1)
-        : Math.max(+activeTab - 1, 0);
+        ? Math.min(Number(activeTab) + 1, tabItems.length - 1)
+        : Math.max(Number(activeTab) - 1, 0);
     setActiveTab(String(newIndex));
-    tabsListRef.current.scrollBy({
-      left: direction === "next" ? 50 : -50,
-      behavior: "smooth",
-    });
+
+    if (tabsListRef.current) {
+      tabsListRef.current.scrollBy({
+        left: direction === "next" ? 50 : -50,
+        behavior: "smooth",
+      });
+    }
   };
 
-  const renderTabContent = () => {
+  const tabContentMap = useMemo(
+    () => ({
+      warden: {
+        0: <GenerateReport />,
+      },
+      supervisor: {
+        0: <RedirectedComplaints />,
+        1: <GenerateReport />,
+      },
+      caretaker: {
+        0: <ResolvedComplaints />,
+        1: <UnresolvedComplaints />,
+        2: <GenerateReport />,
+      },
+      default: {
+        0: <FormPage />,
+        1: <ComplaintHistory />,
+        2: <Feedback />,
+      },
+    }),
+    [],
+  );
+
+  const getTabContent = () => {
+    let content;
+
     if (role.includes("warden")) {
-      return <GenerateReport />;
+      content = tabContentMap.warden[activeTab];
+    } else if (role.includes("supervisor")) {
+      content = tabContentMap.supervisor[activeTab];
+    } else if (role.includes("caretaker") || role.includes("convener")) {
+      content = tabContentMap.caretaker[activeTab];
+    } else {
+      content = tabContentMap.default[activeTab];
     }
 
-    if (role.includes("supervisor")) {
-      switch (activeTab) {
-        case "0":
-          return <RedirectedComplaints />;
-        case "1":
-          return <GenerateReport />;
-        default:
-          return <Loader />;
-      }
-    }
-
-    if (role.includes("caretaker") || role.includes("convener")) {
-      switch (activeTab) {
-        // case "0":
-        //   return <FormPage />;
-        // case "1":
-        //   return <ComplaintHistory />;
-        // case "2":
-        //   return <Feedback />;
-        case "0":
-          return <ResolvedComplaints />;
-        case "1":
-          return <UnresolvedComplaints />;
-        case "2":
-          return <GenerateReport />;
-        default:
-          return <Loader />;
-      }
-    }
-
-    // Default case for all other roles
-    switch (activeTab) {
-      case "0":
-        return <FormPage />;
-      case "1":
-        return <ComplaintHistory />;
-      case "2":
-        return <Feedback />;
-      default:
-        return <Loader />;
-    }
+    return content || <Loader />;
   };
 
   return (
@@ -117,57 +150,40 @@ function ComplaintModuleLayout() {
       <CustomBreadcrumbs />
       <Flex justify="space-between" align="center" mt="lg">
         <Flex justify="flex-start" align="center" gap="1rem" mt="1.5rem">
-          <Button
+          <NavigationButton
+            direction="prev"
             onClick={() => handleTabChange("prev")}
-            variant="default"
-            p={0}
-            style={{ border: "none" }}
-          >
-            <CaretCircleLeft
-              className={classes.fusionCaretCircleIcon}
-              weight="light"
-            />
-          </Button>
+          />
 
           <div className={classes.fusionTabsContainer} ref={tabsListRef}>
             <Tabs value={activeTab} onChange={setActiveTab}>
               <Tabs.List style={{ display: "flex", flexWrap: "nowrap" }}>
                 {tabItems.map((item, index) => (
                   <Tabs.Tab
-                    value={`${index}`}
-                    key={index}
+                    value={String(index)}
+                    key={item.title}
                     className={
-                      activeTab === `${index}`
+                      activeTab === String(index)
                         ? classes.fusionActiveRecentTab
                         : ""
                     }
                   >
-                    <Flex gap="4px">
-                      <Text>{item.title}</Text>
-                    </Flex>
+                    <Text>{item.title}</Text>
                   </Tabs.Tab>
                 ))}
               </Tabs.List>
             </Tabs>
           </div>
 
-          <Button
+          <NavigationButton
+            direction="next"
             onClick={() => handleTabChange("next")}
-            variant="default"
-            p={0}
-            style={{ border: "none" }}
-          >
-            <CaretCircleRight
-              className={classes.fusionCaretCircleIcon}
-              weight="light"
-            />
-          </Button>
+          />
         </Flex>
       </Flex>
 
-      {/* Main content */}
       <Flex direction="row" justify="start" align="start">
-        <div>{renderTabContent()}</div>
+        <Suspense fallback={<Loader />}>{getTabContent()}</Suspense>
       </Flex>
     </div>
   );
