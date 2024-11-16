@@ -249,7 +249,7 @@ function GenerateReport() {
           borderLeft: "0.6rem solid #15ABFF",
           width: "60vw",
           minHeight: "45vh",
-          maxHeight: "70vh",
+          maxHeight: "78vh",
           overflowY: "auto",
         }}
         withBorder
