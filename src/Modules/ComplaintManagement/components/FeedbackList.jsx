@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import FeedbackItem from "./FeedbackItem";
 
 function FeedbackList({ complaints, setSelectedComplaint }) {
-  // Filter complaints to only include those with status 2
   const filteredComplaints = complaints.filter(
     (complaint) => complaint.status === 2,
   );
@@ -17,9 +16,16 @@ function FeedbackList({ complaints, setSelectedComplaint }) {
         overflowY: "auto",
       }}
     >
-      <Flex direction="column" gap="md" style={{ width: "100%" }}>
+      <Flex
+        direction="column"
+        gap="md"
+        style={{
+          width: "100%",
+          flexGrow: 1,
+        }}
+      >
         {filteredComplaints.length === 0 ? (
-          <Text align="center" color="gray">
+          <Text align="center" color="gray" style={{ fontSize: "14px" }}>
             No resolved complaints available.
           </Text>
         ) : (

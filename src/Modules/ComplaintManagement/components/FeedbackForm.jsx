@@ -81,65 +81,65 @@ function FeedbackForm({ complaint, setSelectedComplaint }) {
       gap="lg"
       style={{ textAlign: "left", width: "100%" }}
     >
-      <Flex direction="column">
-        <Text size="18px" style={{ fontWeight: "bold" }}>
+      <Flex direction="column" gap="xs">
+        <Text size="24px" style={{ fontWeight: "bold" }}>
           Submit Feedback
         </Text>
-        <Text size="18px" style={{ fontWeight: "bold" }}>
+        <Text size="14px" style={{ fontWeight: "bold" }}>
           Complaint id: {complaint.id}
         </Text>
       </Flex>
 
-      <Grid columns="2" style={{ width: "100%" }}>
+      <Grid columns="3" style={{ width: "100%" }}>
         <Grid.Col span={1}>
-          <Flex direction="column" gap="xs">
-            <Text size="14px" style={{ fontWeight: "bold" }}>
-              Register Date:
-            </Text>
-            <Text weight="300" size="14px">
-              {formatDateTime(complaint.complaint_date)}
-            </Text>
+          <Flex direction="column" gap="md">
+            <Flex direction="column" gap="xs">
+              <Text size="14px" style={{ fontWeight: "bold" }}>
+                Register Date:
+              </Text>
+              <Text weight="300" size="14px">
+                {formatDateTime(complaint.complaint_date)}
+              </Text>
+            </Flex>
+            <Flex direction="column" gap="xs">
+              <Text size="14px" style={{ fontWeight: "bold" }}>
+                Finished Date:
+              </Text>
+              <Text weight="300" size="14px">
+                {formatDateTime(complaint.complaint_finish)}
+              </Text>
+            </Flex>
+          </Flex>
+        </Grid.Col>
+        <Grid.Col span={1}>
+          <Flex direction="column" gap="md">
+            <Flex direction="column" gap="xs">
+              <Text size="14px" style={{ fontWeight: "bold" }}>
+                Location:
+              </Text>
+              <Text weight="300" size="14px">
+                {complaint.location}
+              </Text>
+            </Flex>
+            <Flex direction="column" gap="xs">
+              <Text size="14px" style={{ fontWeight: "bold" }}>
+                Specific Location:
+              </Text>
+              <Text weight="300" size="14px">
+                {complaint.specific_location}
+              </Text>
+            </Flex>
           </Flex>
         </Grid.Col>
         <Flex direction="column" gap="xs">
           <Text size="14px" style={{ fontWeight: "bold" }}>
-            Finished Date:
+            Caretaker comment on your complaint:
           </Text>
           <Text weight="300" size="14px">
-            {formatDateTime(complaint.complaint_finish)}
+            {complaint.comment || "No comment"}
           </Text>
         </Flex>
       </Grid>
-
-      <Grid columns="2" style={{ width: "100%" }}>
-        <Grid.Col span={1}>
-          <Flex direction="column" gap="xs">
-            <Text size="14px" style={{ fontWeight: "bold" }}>
-              Location:
-            </Text>
-            <Text weight="300" size="14px">
-              {complaint.location}
-            </Text>
-          </Flex>
-        </Grid.Col>
-        <Flex direction="column" gap="xs">
-          <Text size="14px" style={{ fontWeight: "bold" }}>
-            Specific Location:
-          </Text>
-          <Text weight="300" size="14px">
-            {complaint.specific_location}
-          </Text>
-        </Flex>
-      </Grid>
-
-      <Flex direction="column" gap="xs">
-        <Text size="14px" style={{ fontWeight: "bold" }}>
-          Caretaker comment on your complaint:
-        </Text>
-        <Text weight="300" size="14px">
-          {complaint.comment || "No comment"}
-        </Text>
-      </Flex>
 
       <Flex direction="column" gap="xs">
         <Text size="14px" style={{ fontWeight: "bold" }}>
@@ -178,44 +178,45 @@ function FeedbackForm({ complaint, setSelectedComplaint }) {
         />
       </Flex>
 
-      <Text size="sm" color="dimmed">
-        Complaint will be registered with your User ID.
-      </Text>
-
-      <Flex direction="row-reverse" gap="xs">
-        <Button
-          size="sm"
-          variant="filled"
-          color="black"
-          style={{
-            width: "100px",
-            backgroundColor: isSuccess ? "#2BB673" : undefined,
-            color: isSuccess ? "black" : "white",
-          }}
-          onClick={handleSubmitButtonClick}
-          disabled={isLoading || isSuccess}
-        >
-          {isLoading ? (
-            <Center>
-              <Loader color="black" size="xs" />
-            </Center>
-          ) : isSuccess ? (
-            <Center>
-              <CheckIcon size="16px" color="black" />
-            </Center>
-          ) : (
-            "Submit"
-          )}
-        </Button>
-        <Button
-          size="sm"
-          variant="filled"
-          color="black"
-          onClick={handleBackButtonClick}
-          disabled={isLoading || isSuccess}
-        >
-          Back
-        </Button>
+      <Flex direction="row" gap="xs" justify="space-between" align="center">
+        <Text size="sm" color="dimmed">
+          Complaint will be registered with your User ID.
+        </Text>
+        <Flex direction="row" gap="xs">
+          <Button
+            size="sm"
+            variant="filled"
+            color="black"
+            onClick={handleBackButtonClick}
+            disabled={isLoading || isSuccess}
+          >
+            Back
+          </Button>
+          <Button
+            size="sm"
+            variant="filled"
+            color="black"
+            style={{
+              width: "100px",
+              backgroundColor: isSuccess ? "#2BB673" : undefined,
+              color: isSuccess ? "black" : "white",
+            }}
+            onClick={handleSubmitButtonClick}
+            disabled={isLoading || isSuccess}
+          >
+            {isLoading ? (
+              <Center>
+                <Loader color="black" size="xs" />
+              </Center>
+            ) : isSuccess ? (
+              <Center>
+                <CheckIcon size="16px" color="black" />
+              </Center>
+            ) : (
+              "Submit"
+            )}
+          </Button>
+        </Flex>
       </Flex>
     </Flex>
   );

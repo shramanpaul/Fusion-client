@@ -2,7 +2,6 @@ import React from "react";
 import { Button, Flex, Paper, Text, CheckIcon, Divider } from "@mantine/core";
 import PropTypes from "prop-types";
 
-// Helper function to format date and time
 const formatDateTime = (datetimeStr) => {
   const date = new Date(datetimeStr);
   const day = String(date.getDate()).padStart(2, "0");
@@ -11,7 +10,7 @@ const formatDateTime = (datetimeStr) => {
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
 
-  return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY, HH:MM
+  return `${day}-${month}-${year}, ${hours}:${minutes}`;
 };
 
 function FeedbackItem({ complaint, setSelectedComplaint }) {
@@ -25,20 +24,40 @@ function FeedbackItem({ complaint, setSelectedComplaint }) {
       px="lg"
       pt="sm"
       pb="xl"
-      style={{ width: "100%", border: "1.5px solid #000000", margin: "10px 0" }}
+      style={{
+        width: "100%",
+        border: "1.5px solid #000000",
+        margin: "10px 0",
+      }}
       withBorder
-      maw="1240px"
       backgroundColor="white"
     >
-      <Flex direction="column" style={{ width: "100%" }}>
-        <Flex direction="row" justify="space-between" style={{ width: "100%" }}>
+      <Flex
+        direction="column"
+        style={{
+          width: "100%",
+          flexGrow: 1,
+        }}
+      >
+        <Flex
+          direction="row"
+          justify="space-between"
+          style={{
+            width: "100%",
+            flexGrow: 0,
+          }}
+        >
           <Flex
             direction="row"
             gap="xs"
             align="center"
-            style={{ width: "100%", padding: "10px 0px" }}
+            style={{
+              width: "100%",
+              padding: "10px 0px",
+              flexGrow: 1,
+            }}
           >
-            <Text size="19px" style={{ fontWeight: "Bold" }}>
+            <Text size="14px" style={{ fontWeight: "Bold" }}>
               Complaint Id: {complaint.id}
             </Text>
             <Text
@@ -56,7 +75,7 @@ function FeedbackItem({ complaint, setSelectedComplaint }) {
             size="35px"
             style={{
               color: "white",
-              backgroundColor: "2BB673",
+              backgroundColor: "#2BB673",
               padding: "10px",
               borderRadius: "50px",
             }}
@@ -67,24 +86,38 @@ function FeedbackItem({ complaint, setSelectedComplaint }) {
           direction="row"
           justify="space-between"
           align="center"
-          style={{ width: "100%" }}
+          style={{
+            width: "100%",
+            flexGrow: 1,
+          }}
         >
-          <Flex direction="column" gap="xs">
-            <Text size="15px">
+          <Flex
+            direction="column"
+            gap="xs"
+            style={{
+              width: "100%",
+              flexGrow: 1,
+            }}
+          >
+            <Text size="14px">
               Date: {formatDateTime(complaint.complaint_date)}
             </Text>
-            <Text size="15px">
+            <Text size="14px">
               Location: {complaint.specific_location}, {complaint.location}
             </Text>
             {complaint.feedback !== "" && (
-              <Text size="15px">Feedback: {complaint.feedback}</Text>
+              <Text size="14px">Feedback: {complaint.feedback}</Text>
             )}
           </Flex>
           {complaint.feedback === "" && (
             <Button
-              size="md"
               color="#14ABFF"
               radius="lg"
+              style={{
+                width: "130px",
+                padding: "5px",
+                fontSize: "14px",
+              }}
               onClick={handleFeedbackButtonClick}
             >
               Give Feedback
@@ -94,7 +127,7 @@ function FeedbackItem({ complaint, setSelectedComplaint }) {
 
         <Divider my="md" size="sm" />
 
-        <Text size="15px">Description: {complaint.details}</Text>
+        <Text size="14px">Description: {complaint.details}</Text>
       </Flex>
     </Paper>
   );
