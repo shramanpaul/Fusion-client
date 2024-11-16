@@ -86,8 +86,8 @@ function ComplaintHistory() {
           borderLeft: "0.6rem solid #15ABFF",
           width: "100%",
           backgroundColor: "white",
-          minHeight: "45vh",
           overflow: "hidden",
+          maxHeight: "65vh",
         }}
         withBorder
       >
@@ -108,7 +108,6 @@ function ComplaintHistory() {
                   variant={activeTab === tab ? "filled" : "outline"}
                   onClick={() => setActiveTab(tab)}
                   style={{
-                    width: "150px",
                     backgroundColor: activeTab === tab ? "#15ABFF" : "white",
                     color: activeTab === tab ? "white" : "black",
                     padding: "8px 10px",
@@ -126,7 +125,7 @@ function ComplaintHistory() {
             <div
               className="inner-card-content"
               style={{
-                maxHeight: "60vh",
+                maxHeight: "50vh",
                 overflowY: "auto",
                 width: "100%",
               }}
@@ -155,7 +154,6 @@ function ComplaintHistory() {
                     pb="xl"
                     style={{
                       width: "100%",
-                      border: "1.5px solid #000000",
                       margin: "10px 0",
                     }}
                     withBorder
@@ -223,13 +221,17 @@ function ComplaintHistory() {
                           <Text size="14px">
                             <b>Location:</b> {complaint.location}
                           </Text>
-                          <Text size="14px">
-                            <b>Description:</b> {complaint.details}
-                          </Text>
                         </Flex>
                       </Flex>
                       <Divider my="md" size="sm" />
-                      <Flex direction="row-reverse">
+                      <Flex
+                        direction="row"
+                        justify="space-between"
+                        align="center"
+                      >
+                        <Text size="14px">
+                          <b>Description:</b> {complaint.details}
+                        </Text>
                         <Button
                           variant="outline"
                           size="xs"
