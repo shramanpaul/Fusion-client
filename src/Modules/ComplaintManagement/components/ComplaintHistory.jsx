@@ -111,12 +111,18 @@ function ComplaintHistory() {
                     width: "150px",
                     backgroundColor: activeTab === tab ? "#15ABFF" : "white",
                     color: activeTab === tab ? "white" : "black",
+                    padding: "8px 10px",
+                    fontSize: "14px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}
                 >
                   {`${tab.charAt(0).toUpperCase() + tab.slice(1)} Complaints`}
                 </Button>
               ))}
             </Group>
+
             <div
               className="inner-card-content"
               style={{
