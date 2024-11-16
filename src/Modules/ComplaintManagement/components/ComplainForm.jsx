@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import {
+  Flex,
   Paper,
   TextInput,
   Textarea,
@@ -11,7 +12,6 @@ import {
   Grid,
   Title,
   Text,
-  Group,
 } from "@mantine/core";
 
 function ComplaintForm() {
@@ -25,7 +25,7 @@ function ComplaintForm() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
-  const [key, setKey] = useState(0); // State to force re-render
+  const [key, setKey] = useState(0);
 
   const resetFormFields = () => {
     setComplaintType("");
@@ -71,7 +71,7 @@ function ComplaintForm() {
 
       setTimeout(() => {
         resetFormFields();
-        setKey((prevKey) => prevKey + 1); // Change the key to force re-render
+        setKey((prevKey) => prevKey + 1);
       }, 2000);
     } catch (error) {
       const errorResponse = error.response?.data || error.message;
@@ -86,7 +86,7 @@ function ComplaintForm() {
   };
 
   return (
-    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
+    <Grid mt="xl" style={{ paddingInline: "49px", width: "100%" }}>
       <Paper
         key={key}
         radius="md"
@@ -95,20 +95,19 @@ function ComplaintForm() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "60vw",
           backgroundColor: "white",
           minHeight: "45vh",
           maxHeight: "70vh",
+          width: "100%",
         }}
         withBorder
-        maw="1240px"
       >
-        <Title order={3} mb="md">
+        <Title order={3} mb="md" style={{ fontSize: "24px" }}>
           Add a new Complaint
         </Title>
 
         {errorMessage && (
-          <Text color="red" mb="md">
+          <Text color="red" mb="md" style={{ fontSize: "14px" }}>
             {errorMessage}
           </Text>
         )}
@@ -132,6 +131,7 @@ function ComplaintForm() {
                 ]}
                 required
                 mb="md"
+                style={{ fontSize: "14px" }}
               />
             </Grid.Col>
             <Grid.Col span={6}>
@@ -158,6 +158,7 @@ function ComplaintForm() {
                 ]}
                 required
                 mb="md"
+                style={{ fontSize: "14px" }}
               />
             </Grid.Col>
           </Grid>
@@ -168,6 +169,7 @@ function ComplaintForm() {
             onChange={(e) => setSpecificLocation(e.target.value)}
             required
             mb="md"
+            style={{ fontSize: "14px" }}
           />
           <Textarea
             label="Complaint Details"
@@ -176,6 +178,7 @@ function ComplaintForm() {
             onChange={(e) => setComplaintDetails(e.target.value)}
             required
             mb="md"
+            style={{ fontSize: "14px" }}
           />
           <FileInput
             label="Attach Files (PDF, JPEG, PNG, JPG)"
@@ -183,19 +186,25 @@ function ComplaintForm() {
             accept=".pdf,.jpeg,.png,.jpg"
             onChange={setFile}
             mb="md"
+            style={{ fontSize: "14px" }}
           />
-          <Group position="right" mt="lg">
-            <Text size="sm" color="dimmed" align="right">
+          <Flex direction="row" justify="space-between" align="center">
+            <Text
+              size="sm"
+              color="dimmed"
+              align="right"
+              style={{ fontSize: "14px" }}
+            >
               Complaint will be registered with your User ID.
             </Text>
-          </Group>
-          <Group position="right" mt="xs">
+
             <Button
               type="submit"
               style={{
                 width: "150px",
                 backgroundColor: isSuccess ? "#2BB673" : undefined,
                 color: isSuccess ? "black" : "white",
+                fontSize: "14px",
               }}
               variant="filled"
               color="blue"
@@ -203,7 +212,7 @@ function ComplaintForm() {
             >
               {loading ? "Loading..." : isSuccess ? "Submitted" : "Submit"}
             </Button>
-          </Group>
+          </Flex>
         </form>
       </Paper>
     </Grid>
