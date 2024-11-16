@@ -89,7 +89,7 @@ function UnresolvedComplaints() {
   };
 
   return (
-    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
+    <Grid mt="xl" style={{ paddingInline: "49px", width: "100%" }}>
       <Paper
         radius="md"
         px="lg"
@@ -97,16 +97,14 @@ function UnresolvedComplaints() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "60vw",
+          backgroundColor: "white",
           minHeight: "45vh",
           maxHeight: "70vh",
-          backgroundColor: "white",
-          display: "flex",
-          flexDirection: "column",
+          width: "100%",
           overflow: "auto",
         }}
         withBorder
-        maw="1240px"
+        // maw="1240px"
         backgroundColor="white"
       >
         <Flex direction="column">
@@ -149,7 +147,7 @@ function UnresolvedComplaints() {
                 pt="sm"
                 pb="xl"
                 style={{
-                  border: "1.5px solid #000000",
+                  border: "1px solid #e8e8e8",
                   margin: "10px 0",
                 }}
                 withBorder
@@ -157,7 +155,7 @@ function UnresolvedComplaints() {
                 <Flex direction="column" style={{ width: "100%" }}>
                   <Flex direction="row" justify="space-between" align="center">
                     <Flex direction="row" gap="xs" align="center">
-                      <Text size="19px" style={{ fontWeight: "bold" }}>
+                      <Text size="24px" style={{ fontWeight: "bold" }}>
                         Complaint Id: {complaint.id}
                       </Text>
                       <Text
@@ -167,6 +165,7 @@ function UnresolvedComplaints() {
                           padding: "10px 20px",
                           backgroundColor: "#14ABFF",
                           color: "white",
+                          border: "1px solid #e8e8e8",
                         }}
                       >
                         {complaint.complaint_type}
@@ -182,17 +181,21 @@ function UnresolvedComplaints() {
                   </Flex>
 
                   <Flex direction="column" gap="xs" mt="md">
-                    <Text size="15px">
-                      Date: {formatDateTime(complaint.complaint_date)}
+                    <Text size="14px">
+                      <strong>Date:</strong>{" "}
+                      {formatDateTime(complaint.complaint_date)}
                     </Text>
-                    <Text size="15px">
-                      Location: {complaint.specific_location},{" "}
+                    <Text size="14px">
+                      <strong>Location:</strong> {complaint.specific_location},{" "}
                       {complaint.location}
                     </Text>
+                    <Text size="14px">
+                      <strong>Description:</strong> {complaint.details}
+                    </Text>
                   </Flex>
-                  <Divider my="md" size="sm" />
-                  <Text size="15px">Description: {complaint.details}</Text>
-                  <Flex gap="sm" mt="md">
+                  <Divider my="sm" />
+
+                  <Flex gap="sm" ml="auto">
                     <Button
                       variant="outline"
                       size="xs"

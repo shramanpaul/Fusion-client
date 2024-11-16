@@ -76,122 +76,122 @@ function ResolvedComplaints() {
   };
 
   return (
-    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
-      <Grid.Col span={12}>
-        <Paper
-          radius="md"
-          px="lg"
-          pt="sm"
-          pb="xl"
-          style={{
-            borderLeft: "0.6rem solid #15ABFF",
-            width: "70vw",
-            minHeight: "45vh",
-            maxHeight: "70vh",
-            overflow: "auto",
-          }}
-          withBorder
-          maw="1240px"
-          backgroundColor="white"
-        >
-          {!selectedComplaint ? (
-            <div>
-              {isLoading ? (
-                <Center>
-                  <Loader size="xl" variant="bars" />
-                </Center>
-              ) : isError ? (
-                <Center>
-                  <Text color="Red">
-                    Failed to fetch complaints. Please try again.
-                  </Text>
-                </Center>
-              ) : (
-                <div style={{ overflowY: "auto" }}>
-                  {resolvedComplaints.map((complaint) => (
-                    <Paper
-                      radius="md"
-                      px="lg"
-                      pt="sm"
-                      pb="xl"
-                      style={{
-                        width: "100%",
-                        border: "1.5px solid #000000",
-                        margin: "10px 0",
-                      }}
-                      withBorder
-                      maw="1240px"
-                      backgroundColor="white"
-                    >
-                      <Group position="apart">
-                        <Text size="19px" style={{ fontWeight: "bold" }}>
-                          Complaint Id: {complaint.id}
-                        </Text>
-                        <Text
-                          size="14px"
-                          style={{
-                            borderRadius: "50px",
-                            padding: "10px 20px",
-                            backgroundColor: "#14ABFF",
-                            color: "white",
-                          }}
-                        >
-                          {complaint.complaint_type}
-                        </Text>
-                      </Group>
-                      <Divider my="sm" />
-                      <Text>
+    <Grid mt="xl" style={{ paddingInline: "49px", width: "100%" }}>
+      {/* <Grid.Col span={20}> */}
+      <Paper
+        radius="md"
+        px="lg"
+        pt="sm"
+        pb="xl"
+        style={{
+          borderLeft: "0.6rem solid #15ABFF",
+          backgroundColor: "white",
+          minHeight: "45vh",
+          maxHeight: "70vh",
+          width: "100%",
+          overflow: "auto",
+        }}
+        withBorder
+        backgroundColor="white"
+      >
+        {!selectedComplaint ? (
+          <div>
+            {isLoading ? (
+              <Center>
+                <Loader size="xl" variant="bars" />
+              </Center>
+            ) : isError ? (
+              <Center>
+                <Text color="Red">
+                  Failed to fetch complaints. Please try again.
+                </Text>
+              </Center>
+            ) : (
+              <div style={{ overflowY: "auto" }}>
+                {resolvedComplaints.map((complaint) => (
+                  <Paper
+                    radius="md"
+                    px="lg"
+                    pt="sm"
+                    pb="xl"
+                    style={{
+                      border: "1px solid #e8e8e8",
+                      margin: "10px 0",
+                    }}
+                    withBorder
+                  >
+                    <Group position="apart">
+                      <Text size="24px" style={{ fontWeight: "bold" }}>
+                        Complaint Id: {complaint.id}
+                      </Text>
+                      <Text
+                        size="14px"
+                        style={{
+                          borderRadius: "50px",
+                          padding: "10px 20px",
+                          backgroundColor: "#14ABFF",
+                          color: "white",
+                          border: "1px solid #e8e8e8",
+                        }}
+                      >
+                        {complaint.complaint_type}
+                      </Text>
+                    </Group>
+                    <Divider my="sm" />
+                    <Flex direction="column" gap="xs" mt="md">
+                      <Text size="14px">
                         <strong>Complainer id:</strong> {complaint.complainer}
                       </Text>
-                      <Text>
+                      <Text size="14px">
                         <strong>Date:</strong>{" "}
                         {formatDateTime(complaint.complaint_date)}
                       </Text>
-                      <Text>
+                      <Text size="14px">
                         <strong>Location:</strong> {complaint.location} (
                         {complaint.specific_location})
                       </Text>
-                      <Text mt="md">{complaint.description}</Text>
-                      <Divider my="sm" />
-                      <Flex direction="column" gap="xs">
-                        <Text size="15px">
-                          Description: {complaint.details}
-                        </Text>
-                        <Flex direction="row" gap="xs">
-                          <Button
-                            variant="outline"
-                            size="xs"
-                            onClick={() => handleDetailsClick(complaint)}
-                          >
-                            Details
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="xs"
-                            onClick={() => handleFeedbackClick(complaint)}
-                          >
-                            Feedback
-                          </Button>
-                        </Flex>
+                      <Text size="14px">
+                        <strong>Description:</strong> {complaint.details}
+                      </Text>
+                    </Flex>
+                    <Text mt="md">{complaint.description}</Text>
+                    <Divider my="sm" />
+                    <Flex direction="column" gap="xs">
+                      <Flex direction="row" gap="xs" ml="auto">
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => handleDetailsClick(complaint)}
+                        >
+                          Details
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => handleFeedbackClick(complaint)}
+                        >
+                          Feedback
+                        </Button>
                       </Flex>
-                    </Paper>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : viewFeedback ? (
-            <FeedbackDetails
-              complaint={selectedComplaint}
-              onBack={handleBackClick}
-            />
-          ) : (
-            <ComplaintDetails
-              complaintId={selectedComplaint.id}
-              onBack={handleBackClick}
-            />
-          )}
-        </Paper>
-      </Grid.Col>
+                    </Flex>
+                  </Paper>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : viewFeedback ? (
+          <FeedbackDetails
+            complaint={selectedComplaint}
+            onBack={handleBackClick}
+          />
+        ) : (
+          <ComplaintDetails
+            complaintId={selectedComplaint.id}
+            onBack={handleBackClick}
+          />
+        )}
+      </Paper>
+      {/* </Grid.Col> */}
     </Grid>
   );
 }
@@ -226,7 +226,7 @@ function FeedbackDetails({ complaint, onBack }) {
 
         <Grid.Col span={1}>
           <Flex direction="column" gap="xs">
-            <Text weight="600" size="14px">
+            <Text weight="600" size="24px">
               Complaint ID:
             </Text>
             <Text weight="300">{complaint.id}</Text>
