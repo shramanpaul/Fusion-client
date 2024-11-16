@@ -1,29 +1,41 @@
+// Import React and hooks for state and lifecycle management
+
 import React, { useState, useEffect } from "react";
 import {
-  Text,
-  Button,
-  Flex,
-  Grid,
-  Divider,
-  Badge,
-  Paper,
-  Loader,
-  Center,
+  Text, // For displaying text
+  Button, // For interactive buttons
+  Flex, // For flexible layout
+  Grid, // For grid-based layout
+  Divider, // For visual separation of content
+  Badge, // For status or metadata tags
+  Paper, // For card-like components
+  Loader, // For showing loading state
+  Center, // For centering content
 } from "@mantine/core";
+
+// Import useSelector to access the Redux store and retrieve the role of the user
 import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
+
+// Import custom components for the application
 import ComplaintDetails from "./ComplaintDetails.jsx";
 import UnresCompChangeStatus from "./UnresComp_ChangeStatus.jsx";
 import UnresCompRedirect from "./UnresComp_Redirect.jsx";
 
 function UnresolvedComplaints() {
   const [activeComponent, setActiveComponent] = useState("list");
+
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+
   const [complaints, setComplaints] = useState([]);
+
   const [redirectedComplaints, setRedirectedComplaints] = useState([]);
+
   const [isLoading, setIsLoading] = useState(false);
+
   const [isError, setIsError] = useState(false);
 
   const role = useSelector((state) => state.user.role); // Get user role from Redux store
+
   const host = "http://127.0.0.1:8000";
 
   // Determine the API URL based on user role
@@ -49,8 +61,9 @@ function UnresolvedComplaints() {
         const data = await response.json();
 
         // Filter complaints that are unresolved (status !== 2 for unresolved complaints)
+        // status 0 , 1 for unresolved complaints and status 3 for declined complaints
         const unresolvedComplaints = data.filter(
-          (complaint) => complaint.status !== 2,
+          (complaint) => complaint.status === 1 || complaint.status === 0,
         );
         setComplaints(unresolvedComplaints);
       } catch (error) {
