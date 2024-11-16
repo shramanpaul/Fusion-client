@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types"; // Import PropTypes
 import { MantineProvider, Table, Text, Box } from "@mantine/core";
 import axios from "axios";
-import { host } from "../../routes/globalRoutes"; // Adjust the import as needed
+import { fetchCompletedBookingsRoute } from "../../routes/visitorsHostelRoutes";
 
 function BookingTable({ bookings }) {
   // Sort bookings by "check_in" date in ascending order
@@ -134,12 +134,9 @@ function CompletedBookingsPage() {
       }
 
       try {
-        const { data } = await axios.get(
-          `${host}/visitorhostel/completed-bookings/`,
-          {
-            headers: { Authorization: `Token ${token}` },
-          },
-        );
+        const { data } = await axios.get(fetchCompletedBookingsRoute, {
+          headers: { Authorization: `Token ${token}` },
+        });
         setBookings(data.completed_bookings);
       } catch (error) {
         console.error("Error fetching completed bookings:", error);

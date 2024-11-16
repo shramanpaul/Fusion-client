@@ -10,7 +10,10 @@ import {
   Select,
 } from "@mantine/core";
 import axios from "axios";
-import { host } from "../../routes/globalRoutes";
+import {
+  cancelBookingRoute,
+  getActiveBookingsRoute,
+} from "../../routes/visitorsHostelRoutes";
 
 function BookingTable({ activeBooking, onCancel }) {
   const [searchTerm, setSearchTerm] = useState(""); // State to store the search term
@@ -179,12 +182,9 @@ function ActiveBookingsPage() {
     }
 
     try {
-      const { data } = await axios.get(
-        `${host}/visitorhostel/get-active-bookings/`,
-        {
-          headers: { Authorization: `Token ${token}` },
-        },
-      );
+      const { data } = await axios.get(getActiveBookingsRoute, {
+        headers: { Authorization: `Token ${token}` },
+      });
       setBookings(data.active_bookings);
     } catch (error) {
       console.error("Error fetching active bookings:", error);
@@ -208,7 +208,7 @@ function ActiveBookingsPage() {
         charges: 0,
       };
 
-      await axios.post(`${host}/visitorhostel/cancel-booking/`, data, {
+      await axios.post(cancelBookingRoute, data, {
         headers: {
           Authorization: `Token ${token}`,
           "Content-Type": "application/x-www-form-urlencoded",

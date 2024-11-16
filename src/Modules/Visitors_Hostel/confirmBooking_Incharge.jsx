@@ -15,6 +15,7 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import { host } from "../../routes/globalRoutes";
+import { confirmBookingRoute } from "../../routes/visitorsHostelRoutes";
 
 function ConfirmBookingIn({
   forwardmodalOpened,
@@ -129,17 +130,13 @@ function ConfirmBookingIn({
 
     try {
       // Send the POST request to the confirm_booking_new endpoint
-      const response = await axios.post(
-        `${host}/visitorhostel/confirm-booking-new/`,
-        requestData,
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            "X-CSRFToken": csrfToken,
-            "Content-Type": "application/json",
-          },
+      const response = await axios.post(confirmBookingRoute, requestData, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "X-CSRFToken": csrfToken,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       console.log(`Booking ${action}ed`, response.data);
       onClose(); // Close the modal after action

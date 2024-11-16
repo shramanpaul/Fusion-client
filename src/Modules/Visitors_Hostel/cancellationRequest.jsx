@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types"; // Import PropTypes
 import { MantineProvider, Table, Badge, Text, Box } from "@mantine/core";
 import axios from "axios"; // Import axios for API calls
-import { host } from "../../routes/globalRoutes"; // Import the host URL
+import { fetchCancelledBookingsRoute } from "../../routes/visitorsHostelRoutes";
 
 function CancellationRequestTable({ bookings }) {
   // Sort bookings by "booking from" date in ascending order
@@ -147,12 +147,9 @@ function CancellationRequest() {
       }
 
       try {
-        const { data } = await axios.get(
-          `${host}/visitorhostel/get-inactive-bookings/`,
-          {
-            headers: { Authorization: `Token ${token}` },
-          },
-        );
+        const { data } = await axios.get(fetchCancelledBookingsRoute, {
+          headers: { Authorization: `Token ${token}` },
+        });
         setBookings(data.cancelled_bookings);
       } catch (error) {
         console.error("Error fetching cancelled bookings:", error);

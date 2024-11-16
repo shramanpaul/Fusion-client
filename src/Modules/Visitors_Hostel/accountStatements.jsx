@@ -10,6 +10,7 @@ import {
   Button,
 } from "@mantine/core";
 import * as XLSX from "xlsx";
+import { fetchIncomeDataRoute } from "../../routes/visitorsHostelRoutes";
 
 // Tabs data
 const TabsModules = [
@@ -81,15 +82,12 @@ function FinancialManagement() {
       }
 
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/visitorhostel/accounts-income/",
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-              "Content-Type": "application/json",
-            },
+        const response = await axios.get(fetchIncomeDataRoute, {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
           },
-        );
+        });
 
         setIncomeData(response.data);
         setLoadingIncome(false);

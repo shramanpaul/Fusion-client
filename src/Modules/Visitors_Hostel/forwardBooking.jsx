@@ -15,6 +15,7 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import { host } from "../../routes/globalRoutes";
+import { fetchAvailableRoomsRoute } from "../../routes/visitorsHostelRoutes";
 
 function ForwardBookingForm({
   forwardmodalOpened,
@@ -55,7 +56,7 @@ function ForwardBookingForm({
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/visitorhostel/room_availabity_new/",
+          fetchAvailableRoomsRoute,
           {
             start_date: startDate,
             end_date: endDate,

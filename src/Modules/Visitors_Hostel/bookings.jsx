@@ -11,11 +11,11 @@ import {
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { FaEye } from "react-icons/fa"; // Import the eye icon
-import { host } from "../../routes/globalRoutes";
 import CombinedBookingForm from "./bookingForm";
 import ForwardBookingForm from "./forwardBooking";
 import ConfirmBookingIn from "./confirmBooking_Incharge";
 import ViewBooking from "./viewBooking"; // Import the new ViewBooking component
+import { fetchBookingsRoute } from "../../routes/visitorsHostelRoutes";
 
 function BookingsRequestTable({ bookings, onBookingForward }) {
   const [modalOpened, setModalOpened] = useState(false); // State to control modal
@@ -309,12 +309,9 @@ function Bookings() {
     }
 
     try {
-      const { data } = await axios.get(
-        `${host}/visitorhostel/get-booking-requests/`,
-        {
-          headers: { Authorization: `Token ${token}` },
-        },
-      );
+      const { data } = await axios.get(fetchBookingsRoute, {
+        headers: { Authorization: `Token ${token}` },
+      });
       setBookings(data.pending_bookings);
     } catch (error) {
       console.error("Error fetching booking requests:", error);

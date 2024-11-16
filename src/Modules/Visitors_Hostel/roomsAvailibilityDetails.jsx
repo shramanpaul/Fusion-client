@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import axios from "axios";
 import PropTypes from "prop-types";
+import { fetchPartialBookingdataRoute } from "../../routes/visitorsHostelRoutes";
 
 function RoomsDetails({ bookingFrom, bookingTo }) {
   const [availableRooms, setAvailableRooms] = useState([]);
@@ -68,7 +69,7 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/visitorhostel/check-partial-booking/",
+          fetchPartialBookingdataRoute,
           { start_date: bookingFrom, end_date: bookingTo },
           {
             headers: {
