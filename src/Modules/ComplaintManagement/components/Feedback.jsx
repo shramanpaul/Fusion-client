@@ -87,6 +87,7 @@ function Feedback() {
         style={{
           borderLeft: "0.6rem solid #15ABFF",
           width: "100%",
+          maxHeight: "65vh",
         }}
         withBorder
         backgroundColor="white"

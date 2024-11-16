@@ -88,12 +88,22 @@ function RedirectedComplaints() {
           backgroundColor: "white",
           display: "flex",
           flexDirection: "column",
-          overflow: "auto",
           width: "100%",
+          maxHeight: "65vh",
+          overflow: "hidden",
         }}
         withBorder
       >
-        <Grid style={{ flexGrow: 1, minHeight: "45vh", width: "100%" }}>
+        <Flex
+          direction="column"
+          style={{
+            flexGrow: 1,
+            minHeight: "45vh",
+            width: "100%",
+            overflowY: "auto",
+            overflowX: "hidden",
+          }}
+        >
           {isLoading ? (
             <Center style={{ flexGrow: 1 }}>
               <Loader size="xl" variant="bars" />
@@ -120,7 +130,11 @@ function RedirectedComplaints() {
             />
           ) : (
             complaints.map((complaint) => (
-              <Grid.Col span={12} key={complaint.id}>
+              <Flex
+                direction="column"
+                key={complaint.id}
+                style={{ width: "100%", marginBottom: "16px" }}
+              >
                 <Card shadow="sm" p="lg" radius="md" withBorder>
                   <Flex align="center" mb="sm" style={{ width: "100%" }}>
                     <Text size="14px" style={{ fontWeight: "bold" }}>
@@ -143,18 +157,22 @@ function RedirectedComplaints() {
                   </Flex>
                   <Flex direction="column" gap="xs">
                     <Text size="14px">
-                      Complainer Id: {complaint.complainer}
+                      <strong>Complainer Id:</strong> {complaint.complainer}
                     </Text>
                     <Text size="14px">
-                      Date: {formatDateTime(complaint.complaint_date)}
+                      <strong>Date:</strong>{" "}
+                      {formatDateTime(complaint.complaint_date)}
                     </Text>
                     <Text size="14px">
-                      Location: {complaint.location} (
+                      <strong>Location:</strong> {complaint.location} (
                       {complaint.specific_location})
                     </Text>
                   </Flex>
                   <Divider my="md" size="sm" />
-                  <Text size="14px">{complaint.details}</Text>
+                  <Text size="14px">
+                    <strong>Description: </strong>
+                    {complaint.details}
+                  </Text>
                   <Flex justify="flex-start" gap="sm" mt="md">
                     <Button
                       variant="outline"
@@ -174,10 +192,10 @@ function RedirectedComplaints() {
                     </Button>
                   </Flex>
                 </Card>
-              </Grid.Col>
+              </Flex>
             ))
           )}
-        </Grid>
+        </Flex>
       </Paper>
     </Grid>
   );
