@@ -1,4 +1,4 @@
-import { Textarea, Text, Button, Flex, Grid, Select } from "@mantine/core";
+import { Textarea, Text, Button, Flex, Select } from "@mantine/core";
 import { useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
@@ -64,44 +64,46 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
   };
 
   return (
-    <Grid.Col>
-      <Text size="lg" weight="bold">
+    <Flex direction="column" gap="xs" style={{ width: "100%" }}>
+      <Text size="24px" weight="bold">
         Change Status
       </Text>
 
-      <Text size="sm" mt="1rem">
-        <strong>Complainer id:</strong> {complaint.complainer}
+      <Text size="14px" mt="1rem">
+        <strong>Complainer ID:</strong> {complaint.complainer}
       </Text>
-      <Text size="sm">
+      <Text size="14px">
         <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}
       </Text>
-      <Text size="sm">
-        <strong>Location:</strong> Location: {complaint.location} (
+      <Text size="14px">
+        <strong>Location:</strong> {complaint.location} (
         {complaint.specific_location})
       </Text>
-      <Text size="sm">
+      <Text size="14px">
         <strong>Issue:</strong> {complaint.details}
       </Text>
 
-      <Text mt="1rem">Has the issue been resolved?</Text>
-      <Text>
-        If you say no, the status of the complaint will automatically be set to
-        "Declined".
+      <Flex direction="column">
+        <Text size="14px" mt="1rem">
+          Has the issue been resolved? (If you say no, the status of the
+          complaint will automatically be set to "Declined".)
+        </Text>
+
+        <Select
+          placeholder="Choose an option"
+          data={[
+            { value: "yes", label: "Yes" },
+            { value: "no", label: "No" },
+          ]}
+          value={status}
+          onChange={handleStatusChange}
+          mt="1rem"
+        />
+      </Flex>
+
+      <Text size="14px" mt="1rem">
+        Any Comments
       </Text>
-
-      <Select
-        label="Please select an option"
-        placeholder="Choose an option"
-        data={[
-          { value: "yes", label: "Yes" },
-          { value: "no", label: "No" },
-        ]}
-        value={status}
-        onChange={handleStatusChange}
-        mt="1rem"
-      />
-
-      <Text mt="1rem">Any Comments</Text>
       <Textarea
         placeholder="Please leave your comments here"
         value={comments}
@@ -119,7 +121,7 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
           Submit
         </Button>
       </Flex>
-    </Grid.Col>
+    </Flex>
   );
 }
 

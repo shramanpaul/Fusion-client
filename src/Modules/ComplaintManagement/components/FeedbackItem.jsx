@@ -26,7 +26,6 @@ function FeedbackItem({ complaint, setSelectedComplaint }) {
       pb="xl"
       style={{
         width: "100%",
-        border: "1.5px solid #000000",
         margin: "10px 0",
       }}
       withBorder
