@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Loader, Center, Paper, Grid, Text } from "@mantine/core";
-import axios from "axios";
+import { getUserComplaints } from "../routes/api"; // Import the utility function
 import FeedbackForm from "./FeedbackForm";
 import FeedbackList from "./FeedbackList";
 
 function Feedback() {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
-  const token = localStorage.getItem("authToken");
-  const host = "http://127.0.0.1:8000";
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -15,18 +13,16 @@ function Feedback() {
   useEffect(() => {
     const fetchComplaints = async () => {
       setIsLoading(true);
-      try {
-        const response = await axios.get(`${host}/complaint/user/`, {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        });
+      const token = localStorage.getItem("authToken");
 
+      const response = await getUserComplaints(token);
+
+      if (response.success) {
         console.log("Complaints fetched:", response.data);
         setComplaints(response.data);
         setIsError(false);
-      } catch (error) {
-        console.error("Error fetching complaints:", error);
+      } else {
+        console.error("Error fetching complaints:", response.error);
         setIsError(true);
       }
       setIsLoading(false);
