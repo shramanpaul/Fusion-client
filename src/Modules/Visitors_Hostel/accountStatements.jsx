@@ -179,7 +179,12 @@ function FinancialManagement() {
           {data
             .filter((item) => item.bill !== null)
             .map((item, index) => (
-              <tr key={index}>
+              <tr
+                key={index}
+                style={{
+                  backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8", // Alternating row colors
+                }}
+              >
                 <td
                   style={{
                     padding: "12px",
@@ -254,22 +259,43 @@ function FinancialManagement() {
     };
 
     // Calculate total income for the selected month
-    const totalIncomeForSelectedMonth =
-      selectedMonth === "All"
-        ? data.reduce((sum, item) => sum + item.total_bill, 0)
-        : groupedData[selectedMonth].reduce(
-            (sum, item) => sum + item.total_bill,
-            0,
-          );
+    // const totalIncomeForSelectedMonth =
+    //   selectedMonth === "All"
+    //     ? data.reduce((sum, item) => sum + item.total_bill, 0)
+    //     : groupedData[selectedMonth].reduce(
+    //         (sum, item) => sum + item.total_bill,
+    //         0,
+    //       );
+    let totalIncomeForSelectedMonth = 0;
+
+    try {
+      if (selectedMonth === "All") {
+        totalIncomeForSelectedMonth = data.reduce(
+          (sum, item) => sum + item.total_bill,
+          0,
+        );
+      } else {
+        totalIncomeForSelectedMonth = groupedData[selectedMonth].reduce(
+          (sum, item) => sum + item.total_bill,
+          0,
+        );
+      }
+    } catch (err) {
+      console.error(
+        "Error calculating total income for the selected month:",
+        err,
+      );
+    }
 
     return (
       <Box>
         <Box
-          sx={{
+          style={{
             display: "flex",
-            justifyContent: "space-between", // Ensures items are spaced apart
-            alignItems: "center", // Vertically center the items
-            marginBottom: "10px", // Add space at the bottom
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "10px",
+            marginTop: "10px",
           }}
         >
           <Box sx={{ flexGrow: 1 }}>
@@ -282,10 +308,11 @@ function FinancialManagement() {
               style={{ maxWidth: "150px" }} // Control the width
             />
           </Box>
-
-          <Button onClick={exportToExcel} size="xs">
-            Export to Excel
-          </Button>
+          <Box>
+            <Button onClick={exportToExcel} size="xs">
+              Export to Excel
+            </Button>
+          </Box>
         </Box>
 
         <Text
@@ -337,8 +364,13 @@ function FinancialManagement() {
               {(selectedMonth === "All"
                 ? sortedData
                 : groupedData[selectedMonth]
-              ).map((item) => (
-                <tr key={item.bill_id}>
+              ).map((item, index) => (
+                <tr
+                  key={item.bill_id}
+                  style={{
+                    backgroundColor: index % 2 === 0 ? "#ffffff" : "#f5f7f8", // Alternating row colors
+                  }}
+                >
                   <td
                     style={{
                       padding: "12px",
@@ -429,8 +461,13 @@ function FinancialManagement() {
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
-            <tr key={item.id}>
+          {data.map((item, index) => (
+            <tr
+              key={item.id}
+              style={{
+                backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8", // Alternating row colors
+              }}
+            >
               <td
                 style={{
                   padding: "12px",

@@ -20,7 +20,7 @@ function VHGuidelinesPage() {
           fontSize: "24px",
           fontWeight: "bold",
           textAlign: "center",
-          color: "#0066CC",
+          color: "#228be6",
           paddingBottom: "10px",
         }}
       >
