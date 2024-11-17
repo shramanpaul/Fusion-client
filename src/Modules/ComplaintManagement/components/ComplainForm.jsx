@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
 import {
   Flex,
   Paper,
@@ -13,9 +12,9 @@ import {
   Title,
   Text,
 } from "@mantine/core";
+import { lodgeComplaint } from "../routes/api"; // Import the utility function
 
 function ComplaintForm() {
-  const host = "http://127.0.0.1:8000";
   const role = useSelector((state) => state.user.role);
   const [complaintType, setComplaintType] = useState("");
   const [location, setLocation] = useState("");
@@ -44,12 +43,7 @@ function ComplaintForm() {
 
     const token = localStorage.getItem("authToken");
 
-    const url = role.includes("supervisor")
-      ? `${host}/complaint/supervisor/lodge/`
-      : role.includes("caretaker") || role.includes("convener")
-        ? `${host}/complaint/caretaker/lodge/`
-        : `${host}/complaint/user/`;
-
+    // Prepare form data
     const formData = new FormData();
     formData.append("complaint_type", complaintType);
     formData.append("location", location);
@@ -59,13 +53,10 @@ function ComplaintForm() {
       formData.append("upload_complaint", file);
     }
 
-    try {
-      const response = await axios.post(url, formData, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      });
+    // Call the API utility function
+    const response = await lodgeComplaint(role, formData, token);
 
+    if (response.success) {
       setIsSuccess(true);
       console.log("Complaint registered:", response.data);
 
@@ -73,16 +64,15 @@ function ComplaintForm() {
         resetFormFields();
         setKey((prevKey) => prevKey + 1);
       }, 2000);
-    } catch (error) {
-      const errorResponse = error.response?.data || error.message;
+    } else {
       setErrorMessage(
-        errorResponse.detail ||
+        response.error.detail ||
           "Error registering complaint. Please try again.",
       );
-      console.error("Error registering complaint:", errorResponse);
-    } finally {
-      setLoading(false);
+      console.error("Error registering complaint:", response.error);
     }
+
+    setLoading(false);
   };
 
   return (

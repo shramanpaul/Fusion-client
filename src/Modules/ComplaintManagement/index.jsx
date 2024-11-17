@@ -5,11 +5,11 @@ import { CaretCircleLeft, CaretCircleRight } from "@phosphor-icons/react";
 import PropTypes from "prop-types";
 import CustomBreadcrumbs from "../../components/Breadcrumbs";
 import classes from "./ComplaintModule.module.css";
-
+import ComplaintHistory from "./components/ComplaintHistory";
 // Lazy load components
 const Feedback = lazy(() => import("./components/Feedback"));
 const FormPage = lazy(() => import("./components/FormPage"));
-const ComplaintHistory = lazy(() => import("./components/ComplaintHistory"));
+
 const GenerateReport = lazy(() => import("./components/Generate_Report"));
 const ResolvedComplaints = lazy(
   () => import("./components/ResolvedComplaints"),
