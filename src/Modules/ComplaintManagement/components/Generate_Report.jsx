@@ -239,7 +239,7 @@ function GenerateReport() {
   };
 
   return (
-    <div className="full-width-container">
+    <div className="full-width-container ">
       <Paper
         radius="md"
         px="lg"
@@ -251,12 +251,13 @@ function GenerateReport() {
           minHeight: "45vh",
           maxHeight: "78vh",
           overflowY: "auto",
+          marginTop: "3.5vh",
         }}
         withBorder
         maw="1240px"
         backgroundColor="white"
       >
-        <Flex direction="column">
+        <Flex direction="column ">
           {filteredData.length > 0 ? (
             filteredData.map((complaint, index) => {
               const displayedStatus =
@@ -274,14 +275,18 @@ function GenerateReport() {
                 >
                   <div className="complaint-header-container">
                     <div className="complaint-header">
-                      <span>Complaint Id: {complaint.id}</span>
+                      <span style={{ fontSize: "24px", fontWeight: "bold" }}>
+                        Complaint Id: {complaint.id}
+                      </span>
                     </div>
+                    {/* <Flex direction="row-reverse" gap="xs"> */}
                     <Badge
                       id="complaint-type-badge"
-                      style={{ marginRight: "20px" }}
+                      // style={{left: "-50px" }}
                     >
                       {complaint.complaint_type}
                     </Badge>
+                    {/* </Flex> */}
                     <div className="details-status-container">
                       <div className="status-section">
                         {statusMapping[displayedStatus] && (
@@ -300,22 +305,42 @@ function GenerateReport() {
                       </div>
                     </div>
                   </div>
+                  {/* <Flex direction="column" gap="xs" mt="md">
+                      <Text size="14px">
+                        <strong>Date:</strong>{" "}
+                        {formatDate(complaint.complaint_date)}
+                      </Text>
+                      <Text size="14px">
+                        <strong>Location:</strong> {" "}(
+                        {complaint.location})
+                      </Text>
+                      <Text size="14px">
+                        <strong>Complaint:</strong>{" "} {complaint.details.split(".")[0]}
+                      </Text>
+                    </Flex>  */}
 
-                  <div className="complaint-detail">
-                    <b>Date : </b>
-                    <span id="content-generate">
-                      {formatDate(complaint.complaint_date)}
-                    </span>
-                  </div>
-
-                  <div className="complaint-detail">
-                    <b>Location : </b>
-                    <span id="content-generate">{complaint.location}</span>
-                  </div>
-
-                  <div className="complaint-detail">
-                    <b>Complaint : </b>
-                    <span id="content">{complaint.details.split(".")[0]}</span>
+                  <div
+                    className="complaint-detail "
+                    style={{ display: "flex", flexDirection: "column" }}
+                  >
+                    <div>
+                      <b>Date : </b>
+                      <span id="content-generate" style={{ fontSize: "14px" }}>
+                        {formatDate(complaint.complaint_date)}
+                      </span>
+                    </div>
+                    <div>
+                      <b>Location : </b>
+                      <span id="content-generate" style={{ fontSize: "14px" }}>
+                        {complaint.location}
+                      </span>
+                    </div>
+                    <div>
+                      <b>Complaint : </b>
+                      <span id="content" style={{ fontSize: "14px" }}>
+                        {complaint.details.split(".")[0]}
+                      </span>
+                    </div>
                   </div>
 
                   <div id="hr">
@@ -332,12 +357,14 @@ function GenerateReport() {
         </Flex>
       </Paper>
 
-      <div className="filter-card-container">
+      <div className="filter-card-container mt-5">
         <h2>Filters</h2>
 
         {role.includes("supervisor") && (
           <>
-            <div className="filter-label">Location</div>
+            <div className="filter-label" style={{ fontWeight: "bold" }}>
+              Location
+            </div>
             <select name="location" onChange={handleFilterChange}>
               <option value="">Select Location</option>
               {locations.map((loc) => (
@@ -351,7 +378,10 @@ function GenerateReport() {
 
         {(role.includes("caretaker") || role.includes("convener")) && (
           <>
-            <div className="filter-label">Complaint Type</div>
+            <div className="filter-label" style={{ fontWeight: "bold" }}>
+              Complaint Type
+            </div>
+
             <select name="complaintType" onChange={handleFilterChange}>
               <option value="">Select Complaint Type</option>
               {complaintTypes.map((type) => (
@@ -363,7 +393,9 @@ function GenerateReport() {
           </>
         )}
 
-        <div className="filter-label">Status</div>
+        <div className="filter-label" style={{ fontWeight: "bold" }}>
+          Status
+        </div>
         <select name="status" onChange={handleFilterChange}>
           <option value="">Select Status</option>
           <option value="0">Pending</option>
@@ -371,13 +403,19 @@ function GenerateReport() {
           <option value="3">Declined</option>
         </select>
 
-        <div className="filter-label">From Date</div>
+        <div className="filter-label" style={{ fontWeight: "bold" }}>
+          From Date
+        </div>
         <input type="date" name="startDate" onChange={handleFilterChange} />
 
-        <div className="filter-label">To Date</div>
+        <div className="filter-label" style={{ fontWeight: "bold" }}>
+          To Date
+        </div>
         <input type="date" name="endDate" onChange={handleFilterChange} />
 
-        <div className="filter-label">Sort By</div>
+        <div className="filter-label" style={{ fontWeight: "bold" }}>
+          Sort By
+        </div>
         <select name="sortBy" onChange={handleFilterChange}>
           <option value="">Sort By</option>
           <option value="mostRecent">Most Recent</option>
