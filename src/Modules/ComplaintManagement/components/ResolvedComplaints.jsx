@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Text,
   Divider,
@@ -14,9 +13,10 @@ import {
 import PropTypes from "prop-types";
 import ComplaintDetails from "./ComplaintDetails";
 
+import { getComplaintsByRole } from "../routes/api"; // Import the API function
+
 function ResolvedComplaints() {
   const token = localStorage.getItem("authToken");
-  const host = "http://127.0.0.1:8000";
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [viewFeedback, setViewFeedback] = useState(false);
   const [resolvedComplaints, setResolvedComplaints] = useState([]);
@@ -24,21 +24,19 @@ function ResolvedComplaints() {
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
-    const fetchComplaints = async () => {
+    const fetchResolvedComplaints = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${host}/complaint/caretaker/`, {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        });
-
-        console.log("Complaints fetched:", response.data);
-        const filteredComplaints = response.data.filter(
-          (complaint) => complaint.status === 2,
-        );
-        setResolvedComplaints(filteredComplaints);
-        setIsError(false);
+        const response = await getComplaintsByRole("caretaker", token); // Use the API function
+        if (response.success) {
+          const filteredComplaints = response.data.filter(
+            (complaint) => complaint.status === 2,
+          );
+          setResolvedComplaints(filteredComplaints);
+          setIsError(false);
+        } else {
+          throw new Error(response.error);
+        }
       } catch (error) {
         console.error("Error fetching complaints:", error);
         setIsError(true);
@@ -46,7 +44,7 @@ function ResolvedComplaints() {
       setIsLoading(false);
     };
 
-    fetchComplaints();
+    fetchResolvedComplaints();
   }, []);
 
   const handleDetailsClick = (complaint) => {
@@ -77,7 +75,6 @@ function ResolvedComplaints() {
 
   return (
     <Grid mt="xl" style={{ paddingInline: "49px", width: "100%" }}>
-      {/* <Grid.Col span={20}> */}
       <Paper
         radius="md"
         px="lg"
@@ -109,11 +106,11 @@ function ResolvedComplaints() {
               <div style={{ overflowY: "auto" }}>
                 {resolvedComplaints.map((complaint) => (
                   <Paper
+                    key={complaint.id}
                     radius="md"
                     px="lg"
                     pt="sm"
                     pb="xl"
-                    key={complaint.id}
                     style={{
                       border: "1px solid #e8e8e8",
                       margin: "10px 0",
@@ -154,25 +151,22 @@ function ResolvedComplaints() {
                         <strong>Description:</strong> {complaint.details}
                       </Text>
                     </Flex>
-                    <Text mt="md">{complaint.description}</Text>
                     <Divider my="sm" />
-                    <Flex direction="column" gap="xs">
-                      <Flex direction="row" gap="xs" ml="auto">
-                        <Button
-                          variant="outline"
-                          size="xs"
-                          onClick={() => handleDetailsClick(complaint)}
-                        >
-                          Details
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="xs"
-                          onClick={() => handleFeedbackClick(complaint)}
-                        >
-                          Feedback
-                        </Button>
-                      </Flex>
+                    <Flex direction="row" gap="xs" ml="auto">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        onClick={() => handleDetailsClick(complaint)}
+                      >
+                        Details
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        onClick={() => handleFeedbackClick(complaint)}
+                      >
+                        Feedback
+                      </Button>
                     </Flex>
                   </Paper>
                 ))}
@@ -191,7 +185,6 @@ function ResolvedComplaints() {
           />
         )}
       </Paper>
-      {/* </Grid.Col> */}
     </Grid>
   );
 }
@@ -205,7 +198,7 @@ function FeedbackDetails({ complaint, onBack }) {
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
 
-    return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
+    return `${day}-${month}-${year}, ${hours}:${minutes}`;
   };
 
   return (
@@ -213,7 +206,6 @@ function FeedbackDetails({ complaint, onBack }) {
       <Text weight={700} size="lg">
         Feedback Details
       </Text>
-
       <Grid columns="2" style={{ width: "100%" }}>
         <Grid.Col span={1}>
           <Flex direction="column" gap="xs">
@@ -223,17 +215,15 @@ function FeedbackDetails({ complaint, onBack }) {
             <Text weight="300">{complaint.complainer}</Text>
           </Flex>
         </Grid.Col>
-
         <Grid.Col span={1}>
           <Flex direction="column" gap="xs">
-            <Text weight="600" size="24px">
+            <Text weight="600" size="14px">
               Complaint ID:
             </Text>
             <Text weight="300">{complaint.id}</Text>
           </Flex>
         </Grid.Col>
       </Grid>
-
       <Grid columns="2" style={{ width: "100%" }}>
         <Grid.Col span={1}>
           <Flex direction="column" gap="xs">
@@ -243,7 +233,6 @@ function FeedbackDetails({ complaint, onBack }) {
             <Text weight="300">{formatDateTime(complaint.complaint_date)}</Text>
           </Flex>
         </Grid.Col>
-
         <Grid.Col span={1}>
           <Flex direction="column" gap="xs">
             <Text weight="600" size="14px">
@@ -255,21 +244,18 @@ function FeedbackDetails({ complaint, onBack }) {
           </Flex>
         </Grid.Col>
       </Grid>
-
       <Flex direction="column" gap="xs">
         <Text weight="600" size="14px">
           Complaint Type:
         </Text>
         <Text weight="300">{complaint.complaint_type}</Text>
       </Flex>
-
       <Flex direction="column" gap="xs">
         <Text weight="600" size="14px">
           Location:
         </Text>
         <Text weight="300">{complaint.location}</Text>
       </Flex>
-
       <Flex direction="column" gap="xs">
         <Text weight="600" size="14px">
           Feedback:
@@ -278,7 +264,6 @@ function FeedbackDetails({ complaint, onBack }) {
           {complaint.feedback || "No feedback provided"}
         </Text>
       </Flex>
-
       <Flex direction="row-reverse" gap="xs">
         <Button variant="filled" color="blue" onClick={onBack}>
           Back
@@ -288,25 +273,6 @@ function FeedbackDetails({ complaint, onBack }) {
   );
 }
 
-// PropTypes for ComplaintDetails
-ComplaintDetails.propTypes = {
-  complaint: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    complaint_type: PropTypes.string.isRequired,
-    complaint_date: PropTypes.string.isRequired,
-    complaint_finish: PropTypes.string,
-    location: PropTypes.string.isRequired,
-    specific_location: PropTypes.string.isRequired,
-    details: PropTypes.string.isRequired,
-    status: PropTypes.number.isRequired,
-    feedback: PropTypes.string,
-    comment: PropTypes.string,
-    complainer: PropTypes.string,
-  }).isRequired,
-  onBack: PropTypes.func.isRequired,
-};
-
-// PropTypes for FeedbackDetails
 FeedbackDetails.propTypes = {
   complaint: PropTypes.shape({
     id: PropTypes.number.isRequired,
