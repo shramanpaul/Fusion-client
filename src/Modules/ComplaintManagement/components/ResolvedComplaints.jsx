@@ -85,14 +85,13 @@ function ResolvedComplaints() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          backgroundColor: "white",
+          backgroundColor: "white", // Ensure backgroundColor is set here
           minHeight: "45vh",
           maxHeight: "70vh",
           width: "100%",
           overflow: "auto",
         }}
         withBorder
-        backgroundColor="white"
       >
         {!selectedComplaint ? (
           <div>
@@ -114,6 +113,7 @@ function ResolvedComplaints() {
                     px="lg"
                     pt="sm"
                     pb="xl"
+                    key={complaint.id}
                     style={{
                       border: "1px solid #e8e8e8",
                       margin: "10px 0",

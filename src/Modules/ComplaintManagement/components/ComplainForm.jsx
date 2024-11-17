@@ -53,7 +53,6 @@ function ComplaintForm() {
       formData.append("upload_complaint", file);
     }
 
-    // Call the API utility function
     const response = await lodgeComplaint(role, formData, token);
 
     if (response.success) {

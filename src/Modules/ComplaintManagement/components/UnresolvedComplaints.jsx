@@ -118,7 +118,6 @@ function UnresolvedComplaints() {
         }}
         withBorder
         // maw="1240px"
-        backgroundColor="white"
       >
         <Flex direction="column">
           {isLoading ? (

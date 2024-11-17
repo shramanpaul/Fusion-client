@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import axios from "axios";
 import { Text, Button, Flex, Grid, Loader, Alert } from "@mantine/core";
+import { getComplaintDetails } from "../routes/api"; // Import the utility function
 
 function ComplaintDetails({ complaintId, onBack }) {
   const formatDateTime = (datetimeStr) => {
@@ -12,34 +12,26 @@ function ComplaintDetails({ complaintId, onBack }) {
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
 
-    return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
+    return `${day}-${month}-${year}, ${hours}:${minutes}`;
   };
 
   const [complaintDetails, setComplaintDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const host = "http://127.0.0.1:8000";
 
   useEffect(() => {
     const fetchComplaintDetails = async () => {
-      try {
-        const response = await axios.get(
-          `${host}/complaint/caretaker/detail2/${complaintId}/`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Token ${localStorage.getItem("authToken")}`,
-            },
-          },
-        );
+      const token = localStorage.getItem("authToken");
+      const response = await getComplaintDetails(complaintId, token);
+
+      if (response.success) {
         setComplaintDetails(response.data);
-        setLoading(false);
         setError(null); // Reset error on success
-      } catch (err) {
-        console.error("Error fetching complaint details:", err);
+      } else {
+        console.error("Error fetching complaint details:", response.error);
         setError("Failed to fetch complaint details");
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     fetchComplaintDetails();
@@ -50,7 +42,7 @@ function ComplaintDetails({ complaintId, onBack }) {
       alert("No attachment found for this complaint.");
       return;
     }
-    const attachmentUrl = `${host}${complaintDetails.upload_complaint}`;
+    const attachmentUrl = complaintDetails.upload_complaint;
     window.open(attachmentUrl, "_blank");
   };
 
