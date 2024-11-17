@@ -237,7 +237,10 @@ function GenerateReport() {
   };
 
   return (
-    <Grid className="full-width-container">
+    <Grid
+      className="full-width-container"
+      style={{ paddingInline: "49px", width: "100%" }}
+    >
       <Grid.Col span={8}>
         <Paper
           radius="md"
@@ -249,7 +252,8 @@ function GenerateReport() {
             borderLeft: "0.6rem solid #15ABFF",
             minHeight: "45vh",
             maxHeight: "70vh",
-            overflowY: "auto",
+            overflowY: "auto", // Enable vertical scrolling
+            marginTop: "-2px",
           }}
           withBorder
           maw="1240px"
