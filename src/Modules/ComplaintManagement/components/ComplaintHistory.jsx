@@ -13,7 +13,7 @@ import {
   Divider,
 } from "@mantine/core";
 import { useSelector } from "react-redux";
-import ComplaintDetails from "./ComplaintDetails"; // Import the ComplaintDetails component
+import ComplaintDetails from "./ComplaintDetails";
 import detailIcon from "../../../assets/detail.png";
 import declinedIcon from "../../../assets/declined.png";
 import resolvedIcon from "../../../assets/resolved.png";
@@ -27,8 +27,8 @@ function ComplaintHistory() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [selectedComplaintId, setSelectedComplaintId] = useState(null); // State for selected complaint ID
-  const [showDetails, setShowDetails] = useState(false); // State for showing details
+  const [selectedComplaintId, setSelectedComplaintId] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   const role = useSelector((state) => state.user.role);
   const host = "http://127.0.0.1:8000";
@@ -76,7 +76,7 @@ function ComplaintHistory() {
   const getComplaints = () => complaints[activeTab];
 
   return (
-    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
+    <Grid mt="xl" style={{ width: "100%", paddingInline: "49px" }}>
       <Paper
         radius="md"
         px="lg"
@@ -84,27 +84,23 @@ function ComplaintHistory() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "60vw",
+          width: "100%",
           backgroundColor: "white",
-          minHeight: "45vh",
-          maxHeight: "70vh",
-          overflow: "hidden", // Prevent overflow of Paper
+          overflow: "hidden",
+          maxHeight: "65vh",
         }}
         withBorder
-        maw="1240px"
       >
         {showDetails ? (
           <ComplaintDetails
-            complaintId={selectedComplaintId} // Pass the selected complaint ID
-            onBack={() => setShowDetails(false)} // Function to go back
+            complaintId={selectedComplaintId}
+            onBack={() => setShowDetails(false)}
           />
         ) : (
           <>
-            <Title order={3} mb="md">
+            <Title order={3} mb="md" size="24px">
               Complaint History
             </Title>
-
-            {/* Tab Menu */}
             <Group spacing="sm" mb="md">
               {["pending", "resolved", "declined"].map((tab) => (
                 <Button
@@ -112,7 +108,6 @@ function ComplaintHistory() {
                   variant={activeTab === tab ? "filled" : "outline"}
                   onClick={() => setActiveTab(tab)}
                   style={{
-                    width: "150px",
                     backgroundColor: activeTab === tab ? "#15ABFF" : "white",
                     color: activeTab === tab ? "white" : "black",
                   }}
@@ -121,13 +116,12 @@ function ComplaintHistory() {
                 </Button>
               ))}
             </Group>
-
-            {/* Complaint List */}
             <div
               className="inner-card-content"
               style={{
-                maxHeight: "60vh", // Limit the maximum height of the complaint list
-                overflowY: "auto", // Enable vertical scrolling
+                maxHeight: "50vh",
+                overflowY: "auto",
+                width: "100%",
               }}
             >
               {isLoading ? (
@@ -136,13 +130,13 @@ function ComplaintHistory() {
                 </Center>
               ) : isError ? (
                 <Center style={{ minHeight: "45vh" }}>
-                  <Text color="red">
+                  <Text color="red" size="14px">
                     Failed to fetch complaints. Please try again.
                   </Text>
                 </Center>
               ) : getComplaints().length === 0 ? (
                 <Center style={{ minHeight: "45vh" }}>
-                  <Text>No {activeTab} complaints available.</Text>
+                  <Text size="14px">No {activeTab} complaints available.</Text>
                 </Center>
               ) : (
                 getComplaints().map((complaint, index) => (
@@ -154,16 +148,14 @@ function ComplaintHistory() {
                     pb="xl"
                     style={{
                       width: "100%",
-                      border: "1.5px solid #000000",
                       margin: "10px 0",
                     }}
                     withBorder
                   >
                     <Flex direction="column" style={{ width: "100%" }}>
-                      {/* Header Section */}
                       <Flex direction="row" justify="space-between">
                         <Flex direction="row" gap="xs" align="center">
-                          <Text size="19px" style={{ fontWeight: "Bold" }}>
+                          <Text size="14px" style={{ fontWeight: "Bold" }}>
                             Complaint Id: {complaint.id}
                           </Text>
                           <Badge
@@ -173,7 +165,6 @@ function ComplaintHistory() {
                             {complaint.complaint_type}
                           </Badge>
                         </Flex>
-
                         {activeTab === "resolved" ? (
                           <img
                             src={resolvedIcon}
@@ -209,32 +200,32 @@ function ComplaintHistory() {
                           />
                         )}
                       </Flex>
-
-                      {/* Complaint Info */}
                       <Flex
                         direction="row"
                         justify="space-between"
                         align="center"
                       >
                         <Flex direction="column" gap="xs">
-                          <Text size="15px">
+                          <Text size="14px">
                             <b>Date:</b>{" "}
                             {new Date(
                               complaint.complaint_date,
                             ).toLocaleDateString()}
                           </Text>
-                          <Text size="15px">
+                          <Text size="14px">
                             <b>Location:</b> {complaint.location}
-                          </Text>
-                          <Text size="15px">
-                            <b>Description:</b> {complaint.details}
                           </Text>
                         </Flex>
                       </Flex>
-
                       <Divider my="md" size="sm" />
-
-                      <Flex direction="row-reverse">
+                      <Flex
+                        direction="row"
+                        justify="space-between"
+                        align="center"
+                      >
+                        <Text size="14px">
+                          <b>Description:</b> {complaint.details}
+                        </Text>
                         <Button
                           variant="outline"
                           size="xs"

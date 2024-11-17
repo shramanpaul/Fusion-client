@@ -58,7 +58,9 @@ function ComplaintDetails({ complaintId, onBack }) {
     return (
       <Flex justify="center" align="center" style={{ height: "100%" }}>
         <Loader size="lg" />
-        <Text ml="md">Loading complaint details...</Text>
+        <Text ml="md" size="14px">
+          Loading complaint details...
+        </Text>
       </Flex>
     );
   }
@@ -77,11 +79,11 @@ function ComplaintDetails({ complaintId, onBack }) {
       gap="lg"
       style={{ textAlign: "left", width: "100%" }}
     >
-      <Flex direction="column">
-        <Text size="18px" style={{ fontWeight: "bold" }}>
+      <Flex direction="column" gap="xs">
+        <Text size="24px" style={{ fontWeight: "bold" }}>
           Complaint Details
         </Text>
-        <Text size="18px" style={{ fontWeight: "bold" }}>
+        <Text size="14px" style={{ fontWeight: "bold" }}>
           Complaint ID: {complaintDetails.id}
         </Text>
       </Flex>
