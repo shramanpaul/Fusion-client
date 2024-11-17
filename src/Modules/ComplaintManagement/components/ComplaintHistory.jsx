@@ -14,6 +14,7 @@ import {
 } from "@mantine/core";
 import { useSelector } from "react-redux";
 import ComplaintDetails from "./ComplaintDetails";
+import { getComplaintsByRole } from "../routes/api"; // Import the utility function
 import detailIcon from "../../../assets/detail.png";
 import declinedIcon from "../../../assets/declined.png";
 import resolvedIcon from "../../../assets/resolved.png";
@@ -31,47 +32,31 @@ function ComplaintHistory() {
   const [showDetails, setShowDetails] = useState(false);
 
   const role = useSelector((state) => state.user.role);
-  const host = "http://127.0.0.1:8000";
-  const url = role.includes("supervisor")
-    ? `${host}/complaint/supervisor/`
-    : role.includes("caretaker") || role.includes("convener")
-      ? `${host}/complaint/caretaker/`
-      : `${host}/complaint/user/`;
 
   useEffect(() => {
-    setIsLoading(true);
-    setIsError(false);
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${localStorage.getItem("authToken")}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          const pending = data.filter((c) => c.status === 0);
-          const resolved = data.filter((c) => c.status === 2);
-          const declined = data.filter((c) => c.status === 3);
+    const fetchComplaints = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      const token = localStorage.getItem("authToken");
 
-          setComplaints({ pending, resolved, declined });
-        } else {
-          setComplaints({ pending: [], resolved: [], declined: [] });
-        }
-      })
-      .catch(() => {
+      const response = await getComplaintsByRole(role, token);
+
+      if (response.success) {
+        const { data } = response;
+        const pending = data.filter((c) => c.status === 0);
+        const resolved = data.filter((c) => c.status === 2);
+        const declined = data.filter((c) => c.status === 3);
+
+        setComplaints({ pending, resolved, declined });
+      } else {
+        console.error("Error fetching complaints:", response.error);
         setIsError(true);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [url]);
+      }
+      setIsLoading(false);
+    };
+
+    fetchComplaints();
+  }, [role]);
 
   const getComplaints = () => complaints[activeTab];
 
