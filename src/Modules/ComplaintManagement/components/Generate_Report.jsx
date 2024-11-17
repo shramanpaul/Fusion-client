@@ -252,7 +252,7 @@ function GenerateReport() {
             borderLeft: "0.6rem solid #15ABFF",
             minHeight: "45vh",
             maxHeight: "70vh",
-            overflowY: "hidden",
+            overflowY: "auto", // Enable vertical scrolling
             marginTop: "-2px",
           }}
           withBorder
