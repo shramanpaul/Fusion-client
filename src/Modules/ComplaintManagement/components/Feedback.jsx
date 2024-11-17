@@ -82,8 +82,9 @@ function Feedback() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "100%",
+          width: selectedComplaint ? "70vw" : "100%",
           maxHeight: "65vh",
+          minHeight: "45vh",
         }}
         withBorder
         backgroundColor="white"
