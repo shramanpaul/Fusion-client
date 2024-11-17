@@ -10,6 +10,8 @@ import {
   Group,
   Grid,
   Modal,
+  Text,
+  Box,
 } from "@mantine/core";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -111,14 +113,35 @@ function CombinedBookingForm({ modalOpened, onClose }) {
       <Modal
         opened={modalOpened}
         onClose={onClose}
-        title="Place a Booking Request"
         size="xl"
         styles={{
           content: {
-            paddingLeft: "32px", // Adjust the value as needed
-            paddingRight: "32px", // Adjust the value as needed
+            paddingLeft: "32px",
+            paddingRight: "32px",
           },
         }}
+        title={
+          <Box
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%", // Ensure it spans the full width of the modal
+            }}
+          >
+            <Text
+              style={{
+                textAlign: "center", // Center-align the text
+                fontWeight: "bold", // Make the text bold
+                color: "#228be6", // Blue color
+                fontSize: "20px", // Adjust size as needed
+                width: "100%", //
+              }}
+            >
+              Place a Booking Request
+            </Text>
+          </Box>
+        }
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Grid>

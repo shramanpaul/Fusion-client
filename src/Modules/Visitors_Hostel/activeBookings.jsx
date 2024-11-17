@@ -45,15 +45,22 @@ function BookingTable({ activeBooking, onCancel }) {
           alignItems: "center",
         }}
       >
-        <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
-          Active Bookings
-        </Text>
         <TextInput
           placeholder="Search by Intender, Booking From, Booking To "
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.currentTarget.value)}
-          style={{ width: "300px", marginRight: "10px" }}
+          style={{ width: "250px", marginRight: "0px" }}
         />
+        <Text
+          style={{
+            paddingBottom: 10,
+            fontWeight: "bold",
+            fontSize: "24px",
+            color: "#228be6",
+          }}
+        >
+          Active Bookings
+        </Text>
         <Select
           placeholder="Sort by"
           data={[
@@ -63,7 +70,7 @@ function BookingTable({ activeBooking, onCancel }) {
           ]}
           value={sortField}
           onChange={(value) => setSortField(value)}
-          style={{ width: "150px" }}
+          style={{ width: "180px" }}
         />
       </Box>
       <Table
@@ -93,8 +100,13 @@ function BookingTable({ activeBooking, onCancel }) {
           </tr>
         </thead>
         <tbody>
-          {sortedBookings.map((booking) => (
-            <tr key={booking.id}>
+          {sortedBookings.map((booking, index) => (
+            <tr
+              key={booking.id}
+              style={{
+                backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8", // Alternating row colors
+              }}
+            >
               <td
                 style={{
                   padding: "12px",

@@ -72,18 +72,32 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
         mb="md"
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          justifyContent: "center", // Centers the content horizontally
+          alignItems: "center", // Centers the content vertically
+          width: "100%", // Ensures the Box takes full width
+          gap: "1rem", // Adds space between the text and button
         }}
       >
-        <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
-          Booking Requests
-        </Text>
+        <Box
+          style={{ display: "flex", justifyContent: "center", width: "80%" }}
+        >
+          <Text
+            style={{
+              paddingBottom: 15,
+              fontWeight: "bold",
+              fontSize: "24px",
+              color: "#228be6",
+            }}
+          >
+            Booking Requests
+          </Text>
+        </Box>
 
         <Button variant="outline" color="red" onClick={handleButtonClick}>
           Place Request
         </Button>
       </Box>
+
       {modalOpened && (
         <CombinedBookingForm
           modalOpened={modalOpened}
@@ -125,8 +139,13 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
           </tr>
         </thead>
         <tbody>
-          {sortedBookings.map((booking) => (
-            <tr key={booking.id}>
+          {sortedBookings.map((booking, index) => (
+            <tr
+              key={booking.id}
+              style={{
+                backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8", // Alternating row colors
+              }}
+            >
               <td
                 style={{
                   padding: "12px",

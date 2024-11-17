@@ -20,9 +20,20 @@ function BookingTable({ bookings }) {
           alignItems: "center",
         }}
       >
-        <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
-          Completed Bookings
-        </Text>
+        <Box
+          style={{ display: "flex", justifyContent: "center", width: "100%" }}
+        >
+          <Text
+            style={{
+              paddingBottom: 15,
+              fontWeight: "bold",
+              fontSize: "24px",
+              color: "#228be6",
+            }}
+          >
+            Completed Bookings
+          </Text>
+        </Box>
       </Box>
       <Table
         style={{
@@ -51,8 +62,13 @@ function BookingTable({ bookings }) {
           </tr>
         </thead>
         <tbody>
-          {sortedBookings.map((booking) => (
-            <tr key={booking.id}>
+          {sortedBookings.map((booking, index) => (
+            <tr
+              key={booking.id}
+              style={{
+                backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8", // Alternating row colors
+              }}
+            >
               <td
                 style={{
                   padding: "12px",
