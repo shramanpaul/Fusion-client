@@ -112,7 +112,7 @@ function ComplaintHistory() {
                   variant={activeTab === tab ? "filled" : "outline"}
                   onClick={() => setActiveTab(tab)}
                   style={{
-                    width: "150px",
+                    width: "200px",
                     backgroundColor: activeTab === tab ? "#15ABFF" : "white",
                     color: activeTab === tab ? "white" : "black",
                   }}

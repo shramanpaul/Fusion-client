@@ -239,13 +239,15 @@ function GenerateReport() {
   };
 
   return (
-    <div className="full-width-container">
+    <div className="full-width-container" x>
       <Paper
         radius="md"
         px="lg"
         pt="sm"
         pb="xl"
         style={{
+          marginTop: "30px",
+          marginLeft: "14px",
           borderLeft: "0.6rem solid #15ABFF",
           width: "60vw",
           minHeight: "45vh",

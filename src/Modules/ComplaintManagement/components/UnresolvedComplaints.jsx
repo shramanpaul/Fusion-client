@@ -89,7 +89,7 @@ function UnresolvedComplaints() {
   };
 
   return (
-    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
+    <Grid mt="xl" style={{ paddingLeft: "55px", paddingTop: "7px" }}>
       <Paper
         radius="md"
         px="lg"
@@ -97,12 +97,9 @@ function UnresolvedComplaints() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "60vw",
+          width: "70vw",
           minHeight: "45vh",
           maxHeight: "70vh",
-          backgroundColor: "white",
-          display: "flex",
-          flexDirection: "column",
           overflow: "auto",
         }}
         withBorder
