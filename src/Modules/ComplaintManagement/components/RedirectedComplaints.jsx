@@ -88,7 +88,10 @@ function RedirectedComplaints() {
           backgroundColor: "white",
           display: "flex",
           flexDirection: "column",
-          width: "100%",
+          width:
+            activeComponent === "details" || activeComponent === "changeStatus"
+              ? "70vw"
+              : "100%",
           maxHeight: "65vh",
           overflow: "hidden",
         }}

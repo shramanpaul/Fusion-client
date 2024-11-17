@@ -1,4 +1,4 @@
-import { Button, Text, Grid, Flex } from "@mantine/core";
+import { Button, Text, Flex } from "@mantine/core";
 import { useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
@@ -43,33 +43,32 @@ function UnresComp_Redirect({ complaint, onBack, onForward }) {
   };
 
   return (
-    <Grid.Col span={12} md={6}>
-      <Text size="lg" weight="bold">
+    <Flex direction="column" gap="xs">
+      <Text size="24px" weight="bold">
         Redirect
       </Text>
-      <Text size="md" weight={500} mb="1rem">
-        <strong>
-          If you want to redirect this complaint, you can pass this complaint to
-          a specific Incharge.
-        </strong>
+      <Text mb="1rem" size="14px">
+        If you want to redirect this complaint, you can pass this complaint to
+        specific Incharge.
       </Text>
 
-      <Text size="sm" weight={500}>
-        <strong>Complainer:</strong> {complaint.complainer}
+      <Text size="14px" weight={500}>
+        <strong>Complainer ID:</strong> {complaint.complainer}
       </Text>
-      <Text size="sm">
+      <Text size="14px">
         <strong>Complaint ID:</strong> {complaint.id}
       </Text>
-      <Text size="sm">
-        <strong>Complaint Type:</strong> {complaint.complaint_type}
+      <Text size="14px">
+        <strong>Complaint Type:</strong>{" "}
+        {complaint.complaint_type.toUpperCase()}
       </Text>
-      <Text size="sm">
+      <Text size="14px" mb="1rem">
         <strong>Location:</strong>{" "}
         {`${complaint.location}, ${complaint.specific_location}`}
       </Text>
 
-      <Flex justify="space-between" mt="md" my="xl" gap="sm">
-        <Button variant="outline" size="md" onClick={onBack}>
+      <Flex direction="row" justify="flex-end" gap="sm">
+        <Button variant="outline" color="blue" onClick={onBack}>
           BACK
         </Button>
         {isForwarded ? (
@@ -83,12 +82,12 @@ function UnresComp_Redirect({ complaint, onBack, onForward }) {
             </Text>
           )
         ) : (
-          <Button variant="filled" size="md" onClick={handleForward}>
+          <Button variant="outline" onClick={handleForward}>
             FORWARD
           </Button>
         )}
       </Flex>
-    </Grid.Col>
+    </Flex>
   );
 }
 

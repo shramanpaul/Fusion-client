@@ -76,8 +76,8 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
         <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}
       </Text>
       <Text size="14px">
-        <strong>Location:</strong> {complaint.location} (
-        {complaint.specific_location})
+        <strong>Location:</strong> {complaint.specific_location},{" "}
+        {complaint.location}
       </Text>
       <Text size="14px">
         <strong>Issue:</strong> {complaint.details}

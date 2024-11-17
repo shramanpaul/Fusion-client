@@ -69,7 +69,7 @@ function ComplaintHistory() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "100%",
+          width: showDetails ? "70vw" : "100%",
           backgroundColor: "white",
           overflow: "hidden",
           maxHeight: "65vh",
@@ -204,7 +204,8 @@ function ComplaintHistory() {
                             ).toLocaleDateString()}
                           </Text>
                           <Text size="14px">
-                            <b>Location:</b> {complaint.location}
+                            <b>Location:</b> {complaint.specific_location},{" "}
+                            {complaint.location}
                           </Text>
                         </Flex>
                       </Flex>

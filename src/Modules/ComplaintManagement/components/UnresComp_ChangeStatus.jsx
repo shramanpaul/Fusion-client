@@ -70,26 +70,25 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
       </Text>
 
       <Text size="sm" mt="1rem">
-        <strong>Student ID:</strong> {complaint.complainer}
+        <strong>Complainer ID:</strong> {complaint.complainer}
       </Text>
       <Text size="sm">
         <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}
       </Text>
       <Text size="sm">
-        <strong>Location:</strong> {complaint.location}
+        <strong>Location:</strong> {complaint.specific_location},{" "}
+        {complaint.location}
       </Text>
       <Text size="sm">
         <strong>Issue:</strong> {complaint.details}
       </Text>
 
-      <Text mt="1rem">Has the issue been resolved?</Text>
-      <Text>
-        If you say no, the status of the complaint will automatically be set to
-        "Declined".
+      <Text mt="1rem">
+        Has the issue been resolved? (If you say no, the status of the complaint
+        will automatically be set to "Declined".)
       </Text>
 
       <Select
-        label="Please select an option"
         placeholder="Choose an option"
         data={[
           { value: "Yes", label: "Yes" },
@@ -112,11 +111,11 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
         mt="1rem"
       />
 
-      <Flex justify="space-between" mt="xl">
-        <Button variant="outline" size="md" onClick={onBack}>
+      <Flex justify="flex-end" mt="md" gap="xs">
+        <Button variant="outline" onClick={onBack}>
           BACK
         </Button>
-        <Button variant="filled" size="md" onClick={handleSubmit}>
+        <Button variant="outline" onClick={handleSubmit}>
           Submit
         </Button>
       </Flex>
