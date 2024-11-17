@@ -1,29 +1,41 @@
+// Import React and hooks for state and lifecycle management
+
 import React, { useState, useEffect } from "react";
 import {
-  Text,
-  Button,
-  Flex,
-  Grid,
-  Divider,
-  Badge,
-  Paper,
-  Loader,
-  Center,
+  Text, // For displaying text
+  Button, // For interactive buttons
+  Flex, // For flexible layout
+  Grid, // For grid-based layout
+  Divider, // For visual separation of content
+  Badge, // For status or metadata tags
+  Paper, // For card-like components
+  Loader, // For showing loading state
+  Center, // For centering content
 } from "@mantine/core";
+
+// Import useSelector to access the Redux store and retrieve the role of the user
 import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
+
+// Import custom components for the application
 import ComplaintDetails from "./ComplaintDetails.jsx";
 import UnresCompChangeStatus from "./UnresComp_ChangeStatus.jsx";
 import UnresCompRedirect from "./UnresComp_Redirect.jsx";
 
 function UnresolvedComplaints() {
   const [activeComponent, setActiveComponent] = useState("list");
+
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+
   const [complaints, setComplaints] = useState([]);
+
   const [redirectedComplaints, setRedirectedComplaints] = useState([]);
+
   const [isLoading, setIsLoading] = useState(false);
+
   const [isError, setIsError] = useState(false);
 
   const role = useSelector((state) => state.user.role); // Get user role from Redux store
+
   const host = "http://127.0.0.1:8000";
 
   // Determine the API URL based on user role
@@ -49,8 +61,9 @@ function UnresolvedComplaints() {
         const data = await response.json();
 
         // Filter complaints that are unresolved (status !== 2 for unresolved complaints)
+        // status 0 , 1 for unresolved complaints and status 3 for declined complaints
         const unresolvedComplaints = data.filter(
-          (complaint) => complaint.status !== 2,
+          (complaint) => complaint.status === 1 || complaint.status === 0,
         );
         setComplaints(unresolvedComplaints);
       } catch (error) {
@@ -89,7 +102,7 @@ function UnresolvedComplaints() {
   };
 
   return (
-    <Grid mt="xl" style={{ paddingLeft: "55px", paddingTop: "7px" }}>
+    <Grid mt="xl" style={{ paddingInline: "49px", width: "100%" }}>
       <Paper
         radius="md"
         px="lg"
@@ -97,13 +110,14 @@ function UnresolvedComplaints() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "70vw",
+          backgroundColor: "white",
           minHeight: "45vh",
           maxHeight: "70vh",
+          width: "100%",
           overflow: "auto",
         }}
         withBorder
-        maw="1240px"
+        // maw="1240px"
         backgroundColor="white"
       >
         <Flex direction="column">
@@ -146,7 +160,7 @@ function UnresolvedComplaints() {
                 pt="sm"
                 pb="xl"
                 style={{
-                  border: "1.5px solid #000000",
+                  border: "1px solid #e8e8e8",
                   margin: "10px 0",
                 }}
                 withBorder
@@ -154,7 +168,7 @@ function UnresolvedComplaints() {
                 <Flex direction="column" style={{ width: "100%" }}>
                   <Flex direction="row" justify="space-between" align="center">
                     <Flex direction="row" gap="xs" align="center">
-                      <Text size="19px" style={{ fontWeight: "bold" }}>
+                      <Text size="24px" style={{ fontWeight: "bold" }}>
                         Complaint Id: {complaint.id}
                       </Text>
                       <Text
@@ -164,6 +178,7 @@ function UnresolvedComplaints() {
                           padding: "10px 20px",
                           backgroundColor: "#14ABFF",
                           color: "white",
+                          border: "1px solid #e8e8e8",
                         }}
                       >
                         {complaint.complaint_type}
@@ -179,17 +194,21 @@ function UnresolvedComplaints() {
                   </Flex>
 
                   <Flex direction="column" gap="xs" mt="md">
-                    <Text size="15px">
-                      Date: {formatDateTime(complaint.complaint_date)}
+                    <Text size="14px">
+                      <strong>Date:</strong>{" "}
+                      {formatDateTime(complaint.complaint_date)}
                     </Text>
-                    <Text size="15px">
-                      Location: {complaint.specific_location},{" "}
+                    <Text size="14px">
+                      <strong>Location:</strong> {complaint.specific_location},{" "}
                       {complaint.location}
                     </Text>
+                    <Text size="14px">
+                      <strong>Description:</strong> {complaint.details}
+                    </Text>
                   </Flex>
-                  <Divider my="md" size="sm" />
-                  <Text size="15px">Description: {complaint.details}</Text>
-                  <Flex gap="sm" mt="md">
+                  <Divider my="sm" />
+
+                  <Flex gap="sm" ml="auto">
                     <Button
                       variant="outline"
                       size="xs"

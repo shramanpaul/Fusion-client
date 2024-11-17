@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
 import {
+  Flex,
   Paper,
   TextInput,
   Textarea,
@@ -11,11 +11,10 @@ import {
   Grid,
   Title,
   Text,
-  Group,
 } from "@mantine/core";
+import { lodgeComplaint } from "../routes/api"; // Import the utility function
 
 function ComplaintForm() {
-  const host = "http://127.0.0.1:8000";
   const role = useSelector((state) => state.user.role);
   const [complaintType, setComplaintType] = useState("");
   const [location, setLocation] = useState("");
@@ -25,7 +24,7 @@ function ComplaintForm() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
-  const [key, setKey] = useState(0); // State to force re-render
+  const [key, setKey] = useState(0);
 
   const resetFormFields = () => {
     setComplaintType("");
@@ -44,12 +43,7 @@ function ComplaintForm() {
 
     const token = localStorage.getItem("authToken");
 
-    const url = role.includes("supervisor")
-      ? `${host}/complaint/supervisor/lodge/`
-      : role.includes("caretaker") || role.includes("convener")
-        ? `${host}/complaint/caretaker/lodge/`
-        : `${host}/complaint/user/`;
-
+    // Prepare form data
     const formData = new FormData();
     formData.append("complaint_type", complaintType);
     formData.append("location", location);
@@ -59,34 +53,30 @@ function ComplaintForm() {
       formData.append("upload_complaint", file);
     }
 
-    try {
-      const response = await axios.post(url, formData, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      });
+    // Call the API utility function
+    const response = await lodgeComplaint(role, formData, token);
 
+    if (response.success) {
       setIsSuccess(true);
       console.log("Complaint registered:", response.data);
 
       setTimeout(() => {
         resetFormFields();
-        setKey((prevKey) => prevKey + 1); // Change the key to force re-render
+        setKey((prevKey) => prevKey + 1);
       }, 2000);
-    } catch (error) {
-      const errorResponse = error.response?.data || error.message;
+    } else {
       setErrorMessage(
-        errorResponse.detail ||
+        response.error.detail ||
           "Error registering complaint. Please try again.",
       );
-      console.error("Error registering complaint:", errorResponse);
-    } finally {
-      setLoading(false);
+      console.error("Error registering complaint:", response.error);
     }
+
+    setLoading(false);
   };
 
   return (
-    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
+    <Grid mt="xl" style={{ paddingInline: "49px", width: "100%" }}>
       <Paper
         key={key}
         radius="md"
@@ -95,20 +85,19 @@ function ComplaintForm() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "60vw",
           backgroundColor: "white",
           minHeight: "45vh",
           maxHeight: "70vh",
+          width: "100%",
         }}
         withBorder
-        maw="1240px"
       >
-        <Title order={3} mb="md">
+        <Title order={3} mb="md" style={{ fontSize: "24px" }}>
           Add a new Complaint
         </Title>
 
         {errorMessage && (
-          <Text color="red" mb="md">
+          <Text color="red" mb="md" style={{ fontSize: "14px" }}>
             {errorMessage}
           </Text>
         )}
@@ -132,6 +121,7 @@ function ComplaintForm() {
                 ]}
                 required
                 mb="md"
+                style={{ fontSize: "14px" }}
               />
             </Grid.Col>
             <Grid.Col span={6}>
@@ -158,6 +148,7 @@ function ComplaintForm() {
                 ]}
                 required
                 mb="md"
+                style={{ fontSize: "14px" }}
               />
             </Grid.Col>
           </Grid>
@@ -168,6 +159,7 @@ function ComplaintForm() {
             onChange={(e) => setSpecificLocation(e.target.value)}
             required
             mb="md"
+            style={{ fontSize: "14px" }}
           />
           <Textarea
             label="Complaint Details"
@@ -176,6 +168,7 @@ function ComplaintForm() {
             onChange={(e) => setComplaintDetails(e.target.value)}
             required
             mb="md"
+            style={{ fontSize: "14px" }}
           />
           <FileInput
             label="Attach Files (PDF, JPEG, PNG, JPG)"
@@ -183,19 +176,25 @@ function ComplaintForm() {
             accept=".pdf,.jpeg,.png,.jpg"
             onChange={setFile}
             mb="md"
+            style={{ fontSize: "14px" }}
           />
-          <Group position="right" mt="lg">
-            <Text size="sm" color="dimmed" align="right">
+          <Flex direction="row" justify="space-between" align="center">
+            <Text
+              size="sm"
+              color="dimmed"
+              align="right"
+              style={{ fontSize: "14px" }}
+            >
               Complaint will be registered with your User ID.
             </Text>
-          </Group>
-          <Group position="right" mt="xs">
+
             <Button
               type="submit"
               style={{
                 width: "150px",
                 backgroundColor: isSuccess ? "#2BB673" : undefined,
                 color: isSuccess ? "black" : "white",
+                fontSize: "14px",
               }}
               variant="filled"
               color="blue"
@@ -203,7 +202,7 @@ function ComplaintForm() {
             >
               {loading ? "Loading..." : isSuccess ? "Submitted" : "Submit"}
             </Button>
-          </Group>
+          </Flex>
         </form>
       </Paper>
     </Grid>

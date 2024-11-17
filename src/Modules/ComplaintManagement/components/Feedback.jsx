@@ -48,11 +48,13 @@ function Feedback() {
       return (
         <Center>
           {isError ? (
-            <Text color="Red">
+            <Text color="Red" style={{ fontSize: "14px" }}>
               Failed to fetch complaints. Please try again.
             </Text>
           ) : (
-            <Text>No resolved complaints available</Text>
+            <Text style={{ fontSize: "14px" }}>
+              No resolved complaints available
+            </Text>
           )}
         </Center>
       );
@@ -76,7 +78,7 @@ function Feedback() {
   };
 
   return (
-    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
+    <Grid mt="xl" style={{ paddingInline: "49px", width: "100%" }}>
       <Paper
         radius="md"
         px="lg"
@@ -84,12 +86,10 @@ function Feedback() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: "60vw",
-          minHeight: "45vh",
-          maxHeight: "70vh",
+          width: "100%",
+          maxHeight: "65vh",
         }}
         withBorder
-        maw="1240px"
         backgroundColor="white"
       >
         {renderFormTabContent()}
