@@ -14,6 +14,7 @@ import {
 } from "@mantine/core";
 import { useSelector } from "react-redux";
 import ComplaintDetails from "./ComplaintDetails";
+import { getComplaintsByRole } from "../routes/api"; // Import the utility function
 import detailIcon from "../../../assets/detail.png";
 import declinedIcon from "../../../assets/declined.png";
 import resolvedIcon from "../../../assets/resolved.png";
@@ -31,47 +32,31 @@ function ComplaintHistory() {
   const [showDetails, setShowDetails] = useState(false);
 
   const role = useSelector((state) => state.user.role);
-  const host = "http://127.0.0.1:8000";
-  const url = role.includes("supervisor")
-    ? `${host}/complaint/supervisor/`
-    : role.includes("caretaker") || role.includes("convener")
-      ? `${host}/complaint/caretaker/`
-      : `${host}/complaint/user/`;
 
   useEffect(() => {
-    setIsLoading(true);
-    setIsError(false);
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${localStorage.getItem("authToken")}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          const pending = data.filter((c) => c.status === 0);
-          const resolved = data.filter((c) => c.status === 2);
-          const declined = data.filter((c) => c.status === 3);
+    const fetchComplaints = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      const token = localStorage.getItem("authToken");
 
-          setComplaints({ pending, resolved, declined });
-        } else {
-          setComplaints({ pending: [], resolved: [], declined: [] });
-        }
-      })
-      .catch(() => {
+      const response = await getComplaintsByRole(role, token);
+
+      if (response.success) {
+        const { data } = response;
+        const pending = data.filter((c) => c.status === 0);
+        const resolved = data.filter((c) => c.status === 2);
+        const declined = data.filter((c) => c.status === 3);
+
+        setComplaints({ pending, resolved, declined });
+      } else {
+        console.error("Error fetching complaints:", response.error);
         setIsError(true);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [url]);
+      }
+      setIsLoading(false);
+    };
+
+    fetchComplaints();
+  }, [role]);
 
   const getComplaints = () => complaints[activeTab];
 
@@ -86,8 +71,8 @@ function ComplaintHistory() {
           borderLeft: "0.6rem solid #15ABFF",
           width: "100%",
           backgroundColor: "white",
-          minHeight: "45vh",
           overflow: "hidden",
+          maxHeight: "65vh",
         }}
         withBorder
       >
@@ -108,19 +93,24 @@ function ComplaintHistory() {
                   variant={activeTab === tab ? "filled" : "outline"}
                   onClick={() => setActiveTab(tab)}
                   style={{
-                    width: "150px",
                     backgroundColor: activeTab === tab ? "#15ABFF" : "white",
                     color: activeTab === tab ? "white" : "black",
+                    padding: "8px 10px",
+                    fontSize: "14px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}
                 >
                   {`${tab.charAt(0).toUpperCase() + tab.slice(1)} Complaints`}
                 </Button>
               ))}
             </Group>
+
             <div
               className="inner-card-content"
               style={{
-                maxHeight: "60vh",
+                maxHeight: "50vh",
                 overflowY: "auto",
                 width: "100%",
               }}
@@ -149,7 +139,6 @@ function ComplaintHistory() {
                     pb="xl"
                     style={{
                       width: "100%",
-                      border: "1.5px solid #000000",
                       margin: "10px 0",
                     }}
                     withBorder
@@ -217,13 +206,17 @@ function ComplaintHistory() {
                           <Text size="14px">
                             <b>Location:</b> {complaint.location}
                           </Text>
-                          <Text size="14px">
-                            <b>Description:</b> {complaint.details}
-                          </Text>
                         </Flex>
                       </Flex>
                       <Divider my="md" size="sm" />
-                      <Flex direction="row-reverse">
+                      <Flex
+                        direction="row"
+                        justify="space-between"
+                        align="center"
+                      >
+                        <Text size="14px">
+                          <b>Description:</b> {complaint.details}
+                        </Text>
                         <Button
                           variant="outline"
                           size="xs"
