@@ -79,3 +79,21 @@ export const getUserComplaints = async (token) => {
     return { success: false, error: errorResponse };
   }
 };
+
+// Function to fetch complaint report data based on filters
+export const getComplaintReport = async (filters, token) => {
+  const url = `${host}/complaint/generate-report/`;
+
+  try {
+    const response = await axios.get(url, {
+      params: filters,
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    const errorResponse = error.response?.data || error.message;
+    return { success: false, error: errorResponse };
+  }
+};

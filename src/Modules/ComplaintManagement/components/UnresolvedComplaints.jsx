@@ -1,5 +1,3 @@
-// Import React and hooks for state and lifecycle management
-
 import React, { useState, useEffect } from "react";
 import {
   Text, // For displaying text
@@ -21,60 +19,42 @@ import ComplaintDetails from "./ComplaintDetails.jsx";
 import UnresCompChangeStatus from "./UnresComp_ChangeStatus.jsx";
 import UnresCompRedirect from "./UnresComp_Redirect.jsx";
 
+// API utility for fetching complaints
+import { getComplaintsByRole } from "../routes/api"; // Import axios function
+
 function UnresolvedComplaints() {
   const [activeComponent, setActiveComponent] = useState("list");
-
   const [selectedComplaint, setSelectedComplaint] = useState(null);
-
   const [complaints, setComplaints] = useState([]);
-
   const [redirectedComplaints, setRedirectedComplaints] = useState([]);
-
   const [isLoading, setIsLoading] = useState(false);
-
   const [isError, setIsError] = useState(false);
-
   const role = useSelector((state) => state.user.role); // Get user role from Redux store
 
-  const host = "http://127.0.0.1:8000";
-
-  // Determine the API URL based on user role
-  const url = role.includes("supervisor")
-    ? `${host}/complaint/supervisor/`
-    : role.includes("caretaker") || role.includes("convener")
-      ? `${host}/complaint/caretaker/`
-      : `${host}/complaint/user/`;
+  const token = localStorage.getItem("authToken"); // Get token from localStorage
 
   // Fetch unresolved complaints from the API based on role
   useEffect(() => {
     const fetchComplaints = async () => {
       setIsLoading(true);
       setIsError(false);
-      try {
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${localStorage.getItem("authToken")}`,
-          },
-        });
-        const data = await response.json();
+      const { success, data, error } = await getComplaintsByRole(role, token);
 
-        // Filter complaints that are unresolved (status !== 2 for unresolved complaints)
-        // status 0 , 1 for unresolved complaints and status 3 for declined complaints
+      if (success) {
+        // Filter unresolved complaints (status 0 or 1)
         const unresolvedComplaints = data.filter(
           (complaint) => complaint.status === 1 || complaint.status === 0,
         );
         setComplaints(unresolvedComplaints);
-      } catch (error) {
-        console.error("Error fetching complaints:", error);
+      } else {
         setIsError(true);
+        console.error("Error fetching complaints:", error);
       }
       setIsLoading(false);
     };
 
     fetchComplaints();
-  }, [url]);
+  }, [role, token]);
 
   const handleButtonClick = (component, complaint) => {
     setSelectedComplaint(complaint);
@@ -117,8 +97,6 @@ function UnresolvedComplaints() {
           overflow: "auto",
         }}
         withBorder
-        // maw="1240px"
-        backgroundColor="white"
       >
         <Flex direction="column">
           {isLoading ? (
