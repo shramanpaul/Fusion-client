@@ -1,14 +1,15 @@
 import axios from "axios";
+import { host } from "../../../routes/globalRoutes/index";
 
-const host = "http://127.0.0.1:8000";
+const hostAdd = host;
 
 // Function to lodge a complaint
 export const lodgeComplaint = async (role, complaintData, token) => {
   const url = role.includes("supervisor")
-    ? `${host}/complaint/supervisor/lodge/`
+    ? `${hostAdd}/complaint/supervisor/lodge/`
     : role.includes("caretaker") || role.includes("convener")
-      ? `${host}/complaint/caretaker/lodge/`
-      : `${host}/complaint/user/`;
+      ? `${hostAdd}/complaint/caretaker/lodge/`
+      : `${hostAdd}/complaint/user/`;
 
   try {
     const response = await axios.post(url, complaintData, {
@@ -25,7 +26,7 @@ export const lodgeComplaint = async (role, complaintData, token) => {
 
 // Function to fetch complaint details
 export const getComplaintDetails = async (complaintId, token) => {
-  const url = `${host}/complaint/caretaker/detail2/${complaintId}/`;
+  const url = `${hostAdd}/complaint/caretaker/detail2/${complaintId}/`;
 
   try {
     const response = await axios.get(url, {
@@ -44,10 +45,10 @@ export const getComplaintDetails = async (complaintId, token) => {
 // Function to fetch complaints by role
 export const getComplaintsByRole = async (role, token) => {
   const url = role.includes("supervisor")
-    ? `${host}/complaint/supervisor/`
+    ? `${hostAdd}/complaint/supervisor/`
     : role.includes("caretaker") || role.includes("convener")
-      ? `${host}/complaint/caretaker/`
-      : `${host}/complaint/user/`;
+      ? `${hostAdd}/complaint/caretaker/`
+      : `${hostAdd}/complaint/user/`;
 
   try {
     const response = await axios.get(url, {
@@ -65,7 +66,7 @@ export const getComplaintsByRole = async (role, token) => {
 
 // Function to fetch complaints for feedback
 export const getUserComplaints = async (token) => {
-  const url = `${host}/complaint/user/`;
+  const url = `${hostAdd}/complaint/user/`;
 
   try {
     const response = await axios.get(url, {
@@ -82,7 +83,7 @@ export const getUserComplaints = async (token) => {
 
 // Function to fetch complaint report data based on filters
 export const getComplaintReport = async (filters, token) => {
-  const url = `${host}/complaint/generate-report/`;
+  const url = `${hostAdd}/complaint/generate-report/`;
 
   try {
     const response = await axios.get(url, {

@@ -12,7 +12,6 @@ import {
 } from "@mantine/core";
 import PropTypes from "prop-types";
 import ComplaintDetails from "./ComplaintDetails";
-
 import { getComplaintsByRole } from "../routes/api"; // Import the API function
 
 function ResolvedComplaints() {
