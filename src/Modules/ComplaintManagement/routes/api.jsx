@@ -98,3 +98,57 @@ export const getComplaintReport = async (filters, token) => {
     return { success: false, error: errorResponse };
   }
 };
+
+// Function to forward a complaint
+export const forwardComplaint = async (complaintId, token) => {
+  const url = `${host}/complaint/caretaker/${complaintId}/`;
+
+  try {
+    const response = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      },
+    );
+    return { success: true, data: response };
+  } catch (error) {
+    const errorResponse = error.response?.data || error.message;
+    return { success: false, error: errorResponse };
+  }
+};
+
+// Function to update complaint status
+export const updateComplaintStatus = async (complaintId, data, token) => {
+  const url = `${host}/complaint/caretaker/pending/${complaintId}/`;
+
+  try {
+    const response = await axios.post(url, data, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    const errorResponse = error.response?.data || error.message;
+    return { success: false, error: errorResponse };
+  }
+};
+
+export const submitFeedback = async (complaintId, feedbackData, token) => {
+  const url = `${host}/complaint/user/${complaintId}/`;
+
+  try {
+    const response = await axios.post(url, feedbackData, {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    const errorResponse = error.response?.data || error.message;
+    return { success: false, error: errorResponse };
+  }
+};
