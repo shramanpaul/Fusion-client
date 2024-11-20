@@ -1,15 +1,15 @@
-import axios from "axios";
 import { Textarea, Text, Button, Flex, Grid, Select } from "@mantine/core";
 import { useState } from "react";
 import PropTypes from "prop-types";
+import { updateComplaintStatus } from "../routes/api"; // Import API function
 
 function UnresComp_ChangeStatus({ complaint, onBack }) {
   const [status, setStatus] = useState("");
   const [comments, setComments] = useState("");
-  const host = "http://127.0.0.1:8000";
-  const token = localStorage.getItem("authToken");
 
   if (!complaint) return null;
+
+  const token = localStorage.getItem("authToken");
 
   const handleStatusChange = (value) => {
     setStatus(value);
@@ -26,22 +26,17 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
     }
 
     try {
-      const response = await axios.post(
-        `${host}/complaint/caretaker/pending/${complaint.id}/`,
-        {
-          yesorno: status,
-          comment: comments,
-        },
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        },
+      const response = await updateComplaintStatus(
+        complaint.id,
+        { yesorno: status, comment: comments },
+        token,
       );
 
-      if (response.data.success) {
+      if (response.success) {
         alert("Thank you for resolving the complaint.");
         onBack();
+      } else {
+        throw new Error(response.error || "Unknown error");
       }
     } catch (error) {
       console.error(
