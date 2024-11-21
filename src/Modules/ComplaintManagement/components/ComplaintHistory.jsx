@@ -60,6 +60,17 @@ function ComplaintHistory() {
 
   const getComplaints = () => complaints[activeTab];
 
+  const formatDateTime = (datetimeStr) => {
+    const date = new Date(datetimeStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
+  };
+
   return (
     <Grid mt="xl" style={{ width: "100%", paddingInline: "49px" }}>
       <Paper
@@ -199,9 +210,7 @@ function ComplaintHistory() {
                         <Flex direction="column" gap="xs">
                           <Text size="14px">
                             <b>Date:</b>{" "}
-                            {new Date(
-                              complaint.complaint_date,
-                            ).toLocaleDateString()}
+                            {formatDateTime(complaint.complaint_date)}
                           </Text>
                           <Text size="14px">
                             <b>Location:</b> {complaint.specific_location},{" "}
