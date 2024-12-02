@@ -46,7 +46,7 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/visitorhostel/room_availabity_new/",
+          "http://172.27.16.215:8000/visitorhostel/room_availabity_new/",
           { start_date: bookingFrom, end_date: bookingTo },
           {
             headers: {

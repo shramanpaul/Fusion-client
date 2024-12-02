@@ -51,7 +51,7 @@ function FinancialManagement() {
 
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/visitorhostel/inventory",
+          "http://172.27.16.215:8000/visitorhostel/inventory",
           {
             headers: {
               Authorization: `Token ${token}`,
