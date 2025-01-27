@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 import PropTypes from "prop-types";
 import { fetchPartialBookingdataRoute } from "../../routes/visitorsHostelRoutes";
+import { host } from "../../routes/globalRoutes";
 
 function RoomsDetails({ bookingFrom, bookingTo }) {
   const [availableRooms, setAvailableRooms] = useState([]);
@@ -46,7 +47,7 @@ function RoomsDetails({ bookingFrom, bookingTo }) {
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/visitorhostel/room_availabity_new/",
+          `${host}/visitorhostel/room_availabity_new/`,
           { start_date: bookingFrom, end_date: bookingTo },
           {
             headers: {

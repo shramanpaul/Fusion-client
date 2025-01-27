@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types"; // Import PropTypes
+import PropTypes from "prop-types";
 import { MantineProvider, Table, Text, Box } from "@mantine/core";
 import axios from "axios";
 import { fetchCompletedBookingsRoute } from "../../routes/visitorsHostelRoutes";
 
 function BookingTable({ bookings }) {
-  // Sort bookings by "check_in" date in ascending order
   const sortedBookings = bookings.sort(
     (a, b) => new Date(a.checkIn) - new Date(b.checkIn),
   );
@@ -35,97 +34,98 @@ function BookingTable({ bookings }) {
           </Text>
         </Box>
       </Box>
-      <Table
-        style={{
-          borderRadius: "8px",
-          overflow: "hidden",
-          border: "1px solid #E0E0E0",
-        }}
-      >
-        <thead>
-          <tr>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Intender
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Booking Date
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Check In
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Check Out
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Category
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedBookings.map((booking, index) => (
-            <tr
-              key={booking.id}
-              style={{
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8", // Alternating row colors
-              }}
-            >
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                <Text weight={500}>{booking.intender}</Text>
-                <Text size="sm" color="dimmed">
-                  {booking.intender}
-                </Text>
-              </td>
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                {booking.bookingDate}
-              </td>
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                {booking.checkIn}
-              </td>
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                {booking.checkOut}
-              </td>
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                {booking.category}
-              </td>
+      <Box style={{ overflowX: "auto", maxWidth: "100%" }}>
+        <Table
+          style={{
+            borderRadius: "8px",
+            border: "1px solid #E0E0E0",
+            minWidth: "800px", // Adjust this value based on your table's minimum width
+          }}
+        >
+          <thead>
+            <tr>
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Intender
+              </th>
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Booking Date
+              </th>
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Check In
+              </th>
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Check Out
+              </th>
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Category
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {sortedBookings.map((booking, index) => (
+              <tr
+                key={booking.id}
+                style={{
+                  backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8",
+                }}
+              >
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  <Text weight={500}>{booking.intender}</Text>
+                  <Text size="sm" color="dimmed">
+                    {booking.intender}
+                  </Text>
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  {booking.bookingDate}
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  {booking.checkIn}
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  {booking.checkOut}
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  {booking.category}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Box>
     </Box>
   );
 }
 
-// Define prop types for BookingTable
 BookingTable.propTypes = {
   bookings: PropTypes.arrayOf(
     PropTypes.shape({
@@ -163,7 +163,22 @@ function CompletedBookingsPage() {
   }, []);
 
   return (
-    <MantineProvider withGlobalStyles withNormalizeCSS>
+    <MantineProvider
+      withGlobalStyles
+      withNormalizeCSS
+      theme={{
+        globalStyles: () => ({
+          ".mantine-Table-root": {
+            overflowX: "auto",
+          },
+          "@media (max-width: 768px)": {
+            ".mantine-Table-root": {
+              fontSize: "14px",
+            },
+          },
+        }),
+      }}
+    >
       <Box
         style={{
           maxWidth: "1200px",

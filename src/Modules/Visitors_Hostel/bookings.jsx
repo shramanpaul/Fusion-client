@@ -104,89 +104,49 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
           onClose={handleCloseModal}
         />
       )}
-      <Table
-        style={{
-          borderRadius: "8px", // Border radius for table
-          overflow: "hidden", // Overflow hidden to round table corners
-          border: "1px solid #E0E0E0", // Optional border for visibility
-        }}
-      >
-        <thead>
-          <tr>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Intender
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Booking From
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Booking To
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Category
-            </th>
-            {role === "VhIncharge" && (
+      <Box style={{ overflowX: "auto", maxWidth: "100%" }}>
+        <Table
+          style={{
+            borderRadius: "8px",
+            border: "1px solid #E0E0E0",
+            minWidth: "600px", // Adjust this value based on your table's minimum width
+          }}
+        >
+          <thead>
+            <tr>
               <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-                Modified Category
+                Intender
               </th>
-            )}
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Status
-            </th>
-            <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedBookings.map((booking, index) => (
-            <tr
-              key={booking.id}
-              style={{
-                backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8", // Alternating row colors
-              }}
-            >
-              <td
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Booking From
+              </th>
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Booking To
+              </th>
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Category
+              </th>
+              {role === "VhIncharge" && (
+                <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                  Modified Category
+                </th>
+              )}
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Status
+              </th>
+              <th style={{ backgroundColor: "#E6F3FF", padding: "12px" }}>
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedBookings.map((booking, index) => (
+              <tr
+                key={booking.id}
                 style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
+                  backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8", // Alternating row colors
                 }}
               >
-                <Text weight={500}>{booking.intender}</Text>
-                <Text size="sm" color="dimmed">
-                  {booking.email}
-                </Text>
-              </td>
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                {booking.bookingFrom}
-              </td>
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                {booking.bookingTo}
-              </td>
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                {booking.category}
-                {console.log("BOOKING: ", booking)}
-              </td>
-              {role === "VhIncharge" ? (
                 <td
                   style={{
                     padding: "12px",
@@ -194,110 +154,152 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
                     textAlign: "center",
                   }}
                 >
-                  {booking.modifiedCategory}
+                  <Text weight={500}>{booking.intender}</Text>
+                  <Text size="sm" color="dimmed">
+                    {booking.email}
+                  </Text>
                 </td>
-              ) : null}
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                {role === "VhCaretaker" && booking.status === "Pending" ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      color="green"
-                      onClick={() => handleForwardButtonClick(booking.id)}
-                    >
-                      Forward
-                    </Button>
-                    {forwardModalOpened === booking.id && (
-                      <ForwardBookingForm
-                        forwardmodalOpened={forwardModalOpened === booking.id}
-                        onClose={handleForwardCloseModal}
-                        onBookingForward={onBookingForward} // Pass the function down
-                        bookingId={booking.id}
-                      />
-                    )}
-                  </>
-                ) : role === "VhIncharge" && booking.status === "Forward" ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      color="green"
-                      onClick={() => handleForwardButtonClick(booking.id)}
-                    >
-                      Confirm
-                    </Button>
-                    {forwardModalOpened === booking.id && (
-                      <ConfirmBookingIn
-                        forwardmodalOpened={forwardModalOpened === booking.id}
-                        onClose={handleForwardCloseModal}
-                        bookingId={booking.id}
-                        bookingf={booking}
-                      />
-                    )}
-                  </>
-                ) : (
-                  <Badge
-                    color={
-                      booking.status === "Pending"
-                        ? "gray"
-                        : booking.status === "Confirmed"
-                          ? "green"
-                          : "red"
-                    }
-                    variant="light"
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  {booking.bookingFrom}
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  {booking.bookingTo}
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  {booking.category}
+                  {console.log("BOOKING: ", booking)}
+                </td>
+                {role === "VhIncharge" ? (
+                  <td
                     style={{
-                      backgroundColor:
-                        booking.status === "Pending"
-                          ? "#E0E0E0"
-                          : booking.status === "Confirmed"
-                            ? "#dffbe0"
-                            : "#f8d7da",
-                      color:
-                        booking.status === "Pending"
-                          ? "#757575"
-                          : booking.status === "Confirmed"
-                            ? "#84b28c"
-                            : "#721c24",
-                      padding: "4px 8px",
-                      borderRadius: "4px",
+                      padding: "12px",
+                      borderBottom: "1px solid #E0E0E0",
+                      textAlign: "center",
                     }}
                   >
-                    {booking.status}
-                  </Badge>
-                )}
-              </td>
-              <td
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #E0E0E0",
-                  textAlign: "center",
-                }}
-              >
-                <Button
-                  variant="outline"
-                  color="blue"
-                  onClick={() => handleViewBooking(booking.id)}
+                    {booking.modifiedCategory}
+                  </td>
+                ) : null}
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
                 >
-                  <FaEye />
-                </Button>
-                {viewModalOpened === booking.id && (
-                  <ViewBooking
-                    modalOpened={viewModalOpened === booking.id}
-                    onClose={handleViewCloseModal}
-                    bookingId={booking.id}
-                    bookingf={booking}
-                  />
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+                  {role === "VhCaretaker" && booking.status === "Pending" ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        color="green"
+                        onClick={() => handleForwardButtonClick(booking.id)}
+                      >
+                        Forward
+                      </Button>
+                      {forwardModalOpened === booking.id && (
+                        <ForwardBookingForm
+                          forwardmodalOpened={forwardModalOpened === booking.id}
+                          onClose={handleForwardCloseModal}
+                          onBookingForward={onBookingForward} // Pass the function down
+                          bookingId={booking.id}
+                        />
+                      )}
+                    </>
+                  ) : role === "VhIncharge" && booking.status === "Forward" ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        color="green"
+                        onClick={() => handleForwardButtonClick(booking.id)}
+                      >
+                        Confirm
+                      </Button>
+                      {forwardModalOpened === booking.id && (
+                        <ConfirmBookingIn
+                          forwardmodalOpened={forwardModalOpened === booking.id}
+                          onClose={handleForwardCloseModal}
+                          bookingId={booking.id}
+                          bookingf={booking}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <Badge
+                      color={
+                        booking.status === "Pending"
+                          ? "gray"
+                          : booking.status === "Confirmed"
+                            ? "green"
+                            : "red"
+                      }
+                      variant="light"
+                      style={{
+                        backgroundColor:
+                          booking.status === "Pending"
+                            ? "#E0E0E0"
+                            : booking.status === "Confirmed"
+                              ? "#dffbe0"
+                              : "#f8d7da",
+                        color:
+                          booking.status === "Pending"
+                            ? "#757575"
+                            : booking.status === "Confirmed"
+                              ? "#84b28c"
+                              : "#721c24",
+                        padding: "4px 8px",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      {booking.status}
+                    </Badge>
+                  )}
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  <Button
+                    variant="outline"
+                    color="blue"
+                    onClick={() => handleViewBooking(booking.id)}
+                  >
+                    <FaEye />
+                  </Button>
+                  {viewModalOpened === booking.id && (
+                    <ViewBooking
+                      modalOpened={viewModalOpened === booking.id}
+                      onClose={handleViewCloseModal}
+                      bookingId={booking.id}
+                      bookingf={booking}
+                    />
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Box>
     </Box>
   );
 }
@@ -343,7 +345,19 @@ function Bookings() {
   }, []);
 
   return (
-    <MantineProvider withGlobalStyles withNormalizeCSS>
+    <MantineProvider
+      withGlobalStyles
+      withNormalizeCSS
+      theme={{
+        globalStyles: () => ({
+          "@media (max-width: 768px)": {
+            ".mantine-Table-root": {
+              fontSize: "14px",
+            },
+          },
+        }),
+      }}
+    >
       <Box
         style={{
           maxWidth: "1200px",

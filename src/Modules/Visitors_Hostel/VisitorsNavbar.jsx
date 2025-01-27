@@ -1,5 +1,5 @@
 import React from "react";
-import { Tabs, Group, MantineProvider, Button } from "@mantine/core";
+import { Tabs, MantineProvider, Button } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -134,76 +134,95 @@ export default function BookingManagement() {
         subTab={activeSubTabLabel}
       />
       <div className="booking-management">
-        <Group position="apart" noWrap>
+        {/* Main Tab Navigation */}
+        <div className="tabs-navigation">
           <Button
             variant="subtle"
             compact
             onClick={handlePreviousTab}
             disabled={activeTabIndex === 0}
+            className="toggle-button"
           >
             <IconChevronLeft size={18} />
           </Button>
-          <Tabs value={activeTab} onTabChange={handleTabChange}>
-            <Tabs.List>
-              {filteredTabs.map((tab) => (
-                <Tabs.Tab
-                  key={tab.id}
-                  value={tab.id}
-                  onClick={() => handleTabChange(tab.id)} // Ensure clicking on the tab works
-                  sx={() => ({
-                    fontWeight: activeTab === tab.id ? "bold" : "normal",
-                  })}
-                >
-                  {tab.label}
-                </Tabs.Tab>
-              ))}
-            </Tabs.List>
-          </Tabs>
+          <div className="tabs-scrollable-container">
+            <Tabs value={activeTab} onTabChange={handleTabChange}>
+              <Tabs.List className="responsive-tabs">
+                {filteredTabs.map((tab) => (
+                  <Tabs.Tab
+                    key={tab.id}
+                    value={tab.id}
+                    onClick={() => handleTabChange(tab.id)}
+                    sx={() => ({
+                      fontWeight: activeTab === tab.id ? "bold" : "normal",
+                      maxWidth: "120px",
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                    })}
+                  >
+                    {tab.label}
+                  </Tabs.Tab>
+                ))}
+              </Tabs.List>
+            </Tabs>
+          </div>
           <Button
             variant="subtle"
             compact
             onClick={handleNextTab}
             disabled={activeTabIndex === filteredTabs.length - 1}
+            className="toggle-button"
           >
             <IconChevronRight size={18} />
           </Button>
-        </Group>
+        </div>
+        {/* SubTab Navigation */}
         {activeTab === "manage-bookings" && (
-          <div className="tabs-container" style={{ marginBottom: 30 }}>
-            <Group position="apart" noWrap>
+          <div className="tabs-container">
+            <div className="tabs-navigation">
               <Button
                 variant="subtle"
                 compact
                 onClick={handlePreviousSubTab}
                 disabled={activeSubTabIndex === 0}
+                className="toggle-button"
               >
                 <IconChevronLeft size={18} />
               </Button>
-              <Tabs value={activeSubTab} onTabChange={handleSubTabChange}>
-                <Tabs.List>
-                  {ManageBookingsTabs.map((tab) => (
-                    <Tabs.Tab
-                      key={tab.id}
-                      value={tab.id}
-                      onClick={() => handleSubTabChange(tab.id)} // Ensure clicking on the sub-tab works
-                      sx={() => ({
-                        fontWeight: activeSubTab === tab.id ? "bold" : "normal",
-                      })}
-                    >
-                      {tab.label}
-                    </Tabs.Tab>
-                  ))}
-                </Tabs.List>
-              </Tabs>
+              <div className="tabs-scrollable-container">
+                <Tabs value={activeSubTab} onTabChange={handleSubTabChange}>
+                  <Tabs.List className="responsive-tabs">
+                    {ManageBookingsTabs.map((tab) => (
+                      <Tabs.Tab
+                        key={tab.id}
+                        value={tab.id}
+                        onClick={() => handleSubTabChange(tab.id)}
+                        sx={() => ({
+                          fontWeight:
+                            activeSubTab === tab.id ? "bold" : "normal",
+                          maxWidth: "120px",
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                        })}
+                      >
+                        {tab.label}
+                      </Tabs.Tab>
+                    ))}
+                  </Tabs.List>
+                </Tabs>
+              </div>
               <Button
                 variant="subtle"
                 compact
                 onClick={handleNextSubTab}
                 disabled={activeSubTabIndex === ManageBookingsTabs.length - 1}
+                className="toggle-button"
               >
                 <IconChevronRight size={18} />
               </Button>
-            </Group>
+            </div>
           </div>
         )}
       </div>
@@ -213,29 +232,38 @@ export default function BookingManagement() {
           padding: 20px;
           font-family: Arial, sans-serif;
         }
-        .top-nav ul {
-          list-style-type: none;
-          padding: 0;
-          margin: 0 0 20px 0;
+        .tabs-navigation {
           display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+        }
+        .tabs-scrollable-container {
+          flex-grow: 1;
+          overflow-x: auto; /* Allow horizontal scrolling for the tabs */
+          overflow-y: hidden; /* Prevent vertical scrolling */
+          white-space: nowrap; /* Ensure tabs stay on one line */
+        }
+        .responsive-tabs {
+          display: inline-flex;
           gap: 10px;
         }
-        .top-nav li {
-          color: #666;
-          font-size: 14px;
-        }
-        .top-nav li.active {
-          font-weight: bold;
-        }
-        .top-nav li:not(:last-child)::after {
-          content: "|";
-          margin-left: 10px;
-          color: #ccc;
-        }
         .tabs-container {
-          background-color: #f0f0f0;
-          border-radius: 4px;
-          padding: 10px;
+          max-width: 100%; /* Ensure content fits within the parent container */
+          overflow: hidden;
+        }
+        .toggle-button {
+          width: 40px; /* Fixed width */
+          height: 40px; /* Fixed height */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0; /* Remove extra padding */
+        }
+        @media (max-width: 768px) {
+          .tabs-scrollable-container {
+            overflow-x: hidden; /* Allow scrolling on smaller screens */
+          }
         }
       `}</style>
     </MantineProvider>
