@@ -301,12 +301,6 @@ function BookingTable({ activeBooking, onCancel }) {
           flexWrap: "wrap",
         }}
       >
-        <TextInput
-          placeholder="Search by Intender, Booking From, Booking To"
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.currentTarget.value)}
-          style={{ flex: "1 1 250px", margin: "5px 0" }}
-        />
         <Text
           style={{
             flex: "1 1 100%",
@@ -319,6 +313,12 @@ function BookingTable({ activeBooking, onCancel }) {
         >
           Active Bookings
         </Text>
+        <TextInput
+          placeholder="Search by Intender, Booking From, Booking To"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.currentTarget.value)}
+          style={{ flex: "1 1 250px", margin: "5px 0", padding: "5px" }}
+        />
         <Select
           placeholder="Sort by"
           data={[
