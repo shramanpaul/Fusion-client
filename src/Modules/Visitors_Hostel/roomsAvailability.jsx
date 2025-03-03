@@ -29,11 +29,27 @@ function BookingsRequestTable() {
           alignItems: "center",
         }}
       >
-        <Text size="xl" style={{ paddingBottom: 15, fontWeight: "bold" }}>
-          Rooms Availability
-        </Text>
+        <Box
+          style={{ display: "flex", justifyContent: "center", width: "90%" }}
+        >
+          <Text
+            style={{
+              paddingBottom: 10,
+              fontWeight: "bold",
+              fontSize: "24px",
+              color: "#228be6",
+            }}
+          >
+            Rooms Availability
+          </Text>
+        </Box>
 
-        <Button variant="outline" color="green" onClick={handleButtonClick}>
+        <Button
+          variant="outline"
+          color="green"
+          onClick={handleButtonClick}
+          sx={{ paddingLeft: "10px" }} // Fixed padding syntax
+        >
           Submit
         </Button>
       </Box>

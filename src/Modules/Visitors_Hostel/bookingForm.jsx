@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   MantineProvider,
@@ -10,39 +10,49 @@ import {
   Group,
   Grid,
   Modal,
+  Text,
+  Box,
 } from "@mantine/core";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { host } from "../../routes/globalRoutes";
+import { useForm } from "@mantine/form";
+import { requestBookingRoute } from "../../routes/visitorsHostelRoutes";
+import { countries } from "./data/countries";
 
 function CombinedBookingForm({ modalOpened, onClose }) {
-  const [formData, setFormData] = useState({
-    intender: "",
-    arrivalDate: "",
-    arrivalHour: "",
-    arrivalMinutes: "",
-    arrivalAMPM: "",
-    departureDate: "",
-    departureHour: "",
-    departureMinutes: "",
-    departureAMPM: "",
-    numberOfPeople: 1,
-    numberOfRooms: 1,
-    category: "",
-    purpose: "",
-    remarks: "",
-    billsBy: "",
-    // Visitor details
-    visitor_name: "",
-    visitor_email: "",
-    visitor_phone: "",
-    visitor_organization: "",
-    visitor_address: "",
-    nationality: "",
+  const form = useForm({
+    initialValues: {
+      intender: "",
+      arrivalDate: "",
+      arrivalHour: "",
+      arrivalMinutes: "",
+      arrivalAMPM: "",
+      departureDate: "",
+      departureHour: "",
+      departureMinutes: "",
+      departureAMPM: "",
+      numberOfPeople: 1,
+      numberOfRooms: 1,
+      category: "",
+      purpose: "",
+      remarks: "",
+      billsBy: "",
+      visitor_name: "",
+      visitor_email: "",
+      visitor_phone: "",
+      visitor_organization: "",
+      visitor_address: "",
+      nationality: "",
+    },
   });
 
-  const handleInputChange = (name, value) => {
-    setFormData({ ...formData, [name]: value });
+  // Function to get today's date in yyyy-mm-dd format
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   function getCookie(name) {
@@ -51,7 +61,6 @@ function CombinedBookingForm({ modalOpened, onClose }) {
       const cookies = document.cookie.split(";");
       for (let i = 0; i < cookies.length; i += 1) {
         const cookie = cookies[i].trim();
-        // Does this cookie string begin with the name we want?
         if (cookie.substring(0, name.length + 1) === `${name}=`) {
           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
           break;
@@ -64,82 +73,120 @@ function CombinedBookingForm({ modalOpened, onClose }) {
   const csrfToken = getCookie("csrftoken");
   console.log("CSRF TOKEN:  ", csrfToken);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async (values) => {
     const token = localStorage.getItem("authToken");
     console.log(" Token : ", token);
 
     const requestData = {
-      intender: formData.intender, // Replace with dynamic value if needed
-      category: formData.category,
-      booking_from: formData.arrivalDate,
-      booking_to: formData.departureDate,
-      "number-of-people": formData.numberOfPeople.toString(), // Ensure it's sent as a string
-      "purpose-of-visit": formData.purpose,
-      "number-of-rooms": formData.numberOfRooms.toString(), // Ensure it's sent as a string
-      booking_from_time: `${formData.arrivalHour}:${formData.arrivalMinutes} ${formData.arrivalAMPM}`,
-      booking_to_time: `${formData.departureHour}:${formData.departureMinutes} ${formData.departureAMPM}`,
-      remarks_during_booking_request: formData.remarks,
-      bill_settlement: formData.billsBy,
-      visitor_name: formData.visitor_name,
-      visitor_phone: formData.visitor_phone, // Correct field name
-      visitor_email: formData.visitor_email,
-      visitor_address: formData.visitor_address,
-      nationality: formData.nationality,
-      visitor_organization: formData.visitor_organization,
+      intender: values.intender,
+      category: values.category,
+      booking_from: values.arrivalDate,
+      booking_to: values.departureDate,
+      "number-of-people": values.numberOfPeople.toString(),
+      "purpose-of-visit": values.purpose,
+      "number-of-rooms": values.numberOfRooms.toString(),
+      booking_from_time: `${values.arrivalHour}:${values.arrivalMinutes} ${values.arrivalAMPM}`,
+      booking_to_time: `${values.departureHour}:${values.departureMinutes} ${values.departureAMPM}`,
+      remarks_during_booking_request: values.remarks,
+      bill_settlement: values.billsBy,
+      visitor_name: values.visitor_name,
+      visitor_phone: values.visitor_phone,
+      visitor_email: values.visitor_email,
+      visitor_address: values.visitor_address,
+      nationality: values.nationality,
+      visitor_organization: values.visitor_organization,
       csrfmiddlewaretoken: csrfToken,
     };
 
     try {
-      const response = await axios.post(
-        `${host}/visitorhostel/request-booking/`,
-        requestData,
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            "X-CSRFToken": csrfToken,
-            "Content-Type": "application/json",
-          },
+      const response = await axios.post(requestBookingRoute, requestData, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "X-CSRFToken": csrfToken,
+          "Content-Type": "application/json",
         },
-      );
+      });
       console.log("Form submitted", response.data);
       onClose(); // Close the modal on successful submission
       window.location.reload(); // Reload the page
-      // Optionally navigate to a success page
-      // navigate("/success-page");
     } catch (error) {
       console.error("Error submitting form", error);
     }
   };
+
   const username = useSelector((state) => state);
   console.log("IntenderID: ", username);
   const role = useSelector((state) => state.user.role);
+
+  const [todayDate, setTodayDate] = useState(getTodayDate());
+
+  useEffect(() => {
+    setTodayDate(getTodayDate());
+  }, []);
+
   return (
     <MantineProvider theme={{ fontFamily: "Arial, sans-serif" }}>
       <Modal
         opened={modalOpened}
         onClose={onClose}
-        title="Place a Booking Request"
         size="xl"
+        styles={{
+          content: {
+            paddingLeft: "32px",
+            paddingRight: "32px",
+          },
+        }}
+        title={
+          <Box
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%", // Ensure it spans the full width of the modal
+            }}
+          >
+            <Text
+              style={{
+                textAlign: "center", // Center-align the text
+                fontWeight: "bold", // Make the text bold
+                color: "#228be6", // Blue color
+                fontSize: "20px", // Adjust size as needed
+                width: "100%", //
+              }}
+            >
+              Place a Booking Request
+            </Text>
+          </Box>
+        }
       >
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
           <Grid>
             {/* {username} */}
             {/* Conditionally render Intender ID field */}
-            {role !== "student" && (
+            {role !== "student" && role !== "Professor" && (
               <Grid.Col span={12}>
                 <TextInput
-                  label="intender"
+                  label="Intender"
                   placeholder="Intender ID"
-                  value={formData.intender}
+                  value={form.values.intender}
                   onChange={(event) =>
-                    handleInputChange("intender", event.currentTarget.value)
+                    form.setFieldValue("intender", event.currentTarget.value)
                   }
                   required
                 />
               </Grid.Col>
             )}
+            <Grid.Col span={12}>
+              <TextInput
+                label="Name"
+                placeholder="Visitor's Name"
+                value={form.values.visitor_name}
+                onChange={(event) =>
+                  form.setFieldValue("visitor_name", event.currentTarget.value)
+                }
+                required
+              />
+            </Grid.Col>
 
             {/* Arrival Details */}
             <Grid.Col span={12}>
@@ -147,18 +194,21 @@ function CombinedBookingForm({ modalOpened, onClose }) {
                 label="Arrival Date"
                 placeholder="From"
                 type="date"
-                value={formData.arrivalDate}
-                onChange={(event) =>
-                  handleInputChange("arrivalDate", event.currentTarget.value)
-                }
+                value={form.values.arrivalDate || ""}
+                onChange={(event) => {
+                  form.setFieldValue("arrivalDate", event.currentTarget.value);
+                }}
                 required
+                min={todayDate} // Ensures that the arrival date can't be in the past (yyyy-mm-dd format)
               />
             </Grid.Col>
+
             <Grid.Col span={6}>
               <NumberInput
                 label="Arrival Hour"
-                value={formData.arrivalHour}
-                onChange={(value) => handleInputChange("arrivalHour", value)}
+                placeholder="12"
+                value={form.values.arrivalHour}
+                onChange={(value) => form.setFieldValue("arrivalHour", value)}
                 min={1}
                 max={12}
                 required
@@ -167,8 +217,11 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <NumberInput
                 label="Arrival Minutes"
-                value={formData.arrivalMinutes}
-                onChange={(value) => handleInputChange("arrivalMinutes", value)}
+                placeholder="59"
+                value={form.values.arrivalMinutes}
+                onChange={(value) =>
+                  form.setFieldValue("arrivalMinutes", value)
+                }
                 min={0}
                 max={59}
                 required
@@ -177,8 +230,9 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <Select
                 label="AM/PM"
-                value={formData.arrivalAMPM}
-                onChange={(value) => handleInputChange("arrivalAMPM", value)}
+                placeholder="AM"
+                value={form.values.arrivalAMPM}
+                onChange={(value) => form.setFieldValue("arrivalAMPM", value)}
                 data={["AM", "PM"]}
                 required
               />
@@ -190,18 +244,24 @@ function CombinedBookingForm({ modalOpened, onClose }) {
                 label="Departure Date"
                 placeholder="To"
                 type="date"
-                value={formData.departureDate}
-                onChange={(event) =>
-                  handleInputChange("departureDate", event.currentTarget.value)
-                }
+                value={form.values.departureDate || ""}
+                onChange={(event) => {
+                  form.setFieldValue(
+                    "departureDate",
+                    event.currentTarget.value,
+                  );
+                }}
                 required
+                min={form.values.arrivalDate || todayDate} // Ensures departure date is after arrival date
               />
             </Grid.Col>
+
             <Grid.Col span={6}>
               <NumberInput
                 label="Departure Hour"
-                value={formData.departureHour}
-                onChange={(value) => handleInputChange("departureHour", value)}
+                placeholder="12"
+                value={form.values.departureHour}
+                onChange={(value) => form.setFieldValue("departureHour", value)}
                 min={1}
                 max={12}
                 required
@@ -210,9 +270,10 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <NumberInput
                 label="Departure Minutes"
-                value={formData.departureMinutes}
+                placeholder="59"
+                value={form.values.departureMinutes}
                 onChange={(value) =>
-                  handleInputChange("departureMinutes", value)
+                  form.setFieldValue("departureMinutes", value)
                 }
                 min={0}
                 max={59}
@@ -222,8 +283,9 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <Select
                 label="AM/PM"
-                value={formData.departureAMPM}
-                onChange={(value) => handleInputChange("departureAMPM", value)}
+                placeholder="AM"
+                value={form.values.departureAMPM}
+                onChange={(value) => form.setFieldValue("departureAMPM", value)}
                 data={["AM", "PM"]}
                 required
               />
@@ -233,8 +295,10 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <NumberInput
                 label="Number of People"
-                value={formData.numberOfPeople}
-                onChange={(value) => handleInputChange("numberOfPeople", value)}
+                value={form.values.numberOfPeople}
+                onChange={(value) =>
+                  form.setFieldValue("numberOfPeople", value)
+                }
                 min={1}
                 required
               />
@@ -242,8 +306,8 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <NumberInput
                 label="Number of Rooms"
-                value={formData.numberOfRooms}
-                onChange={(value) => handleInputChange("numberOfRooms", value)}
+                value={form.values.numberOfRooms}
+                onChange={(value) => form.setFieldValue("numberOfRooms", value)}
                 min={1}
                 required
               />
@@ -253,8 +317,9 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <Select
                 label="Category"
-                value={formData.category}
-                onChange={(value) => handleInputChange("category", value)}
+                placeholder="A"
+                value={form.values.category}
+                onChange={(value) => form.setFieldValue("category", value)}
                 data={["A", "B", "C", "D"]}
                 required
               />
@@ -262,9 +327,10 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <TextInput
                 label="Purpose"
-                value={formData.purpose}
+                placeholder="Purpose"
+                value={form.values.purpose}
                 onChange={(event) =>
-                  handleInputChange("purpose", event.currentTarget.value)
+                  form.setFieldValue("purpose", event.currentTarget.value)
                 }
                 required
               />
@@ -272,17 +338,19 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <Textarea
                 label="Remarks"
-                value={formData.remarks}
+                placeholder="Remarks"
+                value={form.values.remarks}
                 onChange={(event) =>
-                  handleInputChange("remarks", event.currentTarget.value)
+                  form.setFieldValue("remarks", event.currentTarget.value)
                 }
               />
             </Grid.Col>
             <Grid.Col span={6}>
               <Select
                 label="Bills To Be Paid By"
-                value={formData.billsBy}
-                onChange={(value) => handleInputChange("billsBy", value)}
+                placeholder="Visitor"
+                value={form.values.billsBy}
+                onChange={(value) => form.setFieldValue("billsBy", value)}
                 data={[
                   "Visitor",
                   "Intender",
@@ -296,20 +364,11 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             {/* Visitor Details Form */}
             <Grid.Col span={6}>
               <TextInput
-                label="Name"
-                value={formData.visitor_name}
-                onChange={(event) =>
-                  handleInputChange("visitor_name", event.currentTarget.value)
-                }
-                required
-              />
-            </Grid.Col>
-            <Grid.Col span={6}>
-              <TextInput
                 label="Email"
-                value={formData.visitor_email}
+                placeholder="Visitor's Email: abc@domain.com"
+                value={form.values.visitor_email}
                 onChange={(event) =>
-                  handleInputChange("visitor_email", event.currentTarget.value)
+                  form.setFieldValue("visitor_email", event.currentTarget.value)
                 }
                 required
               />
@@ -317,9 +376,10 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <TextInput
                 label="Phone No."
-                value={formData.visitor_phone}
+                placeholder="0987654321"
+                value={form.values.visitor_phone}
                 onChange={(event) =>
-                  handleInputChange("visitor_phone", event.currentTarget.value)
+                  form.setFieldValue("visitor_phone", event.currentTarget.value)
                 }
                 required
               />
@@ -327,9 +387,10 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <TextInput
                 label="Organisation"
-                value={formData.visitor_organization}
+                placeholder="IIITDMJ"
+                value={form.values.visitor_organization}
                 onChange={(event) =>
-                  handleInputChange(
+                  form.setFieldValue(
                     "visitor_organization",
                     event.currentTarget.value,
                   )
@@ -340,9 +401,10 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <TextInput
                 label="Address"
-                value={formData.visitor_address}
+                placeholder="Visitor's Address"
+                value={form.values.visitor_address}
                 onChange={(event) =>
-                  handleInputChange(
+                  form.setFieldValue(
                     "visitor_address",
                     event.currentTarget.value,
                   )
@@ -353,10 +415,13 @@ function CombinedBookingForm({ modalOpened, onClose }) {
             <Grid.Col span={6}>
               <Select
                 label="Nationality"
-                value={formData.nationality}
-                onChange={(value) => handleInputChange("nationality", value)}
-                data={["Indian", "Other"]}
+                placeholder="Select your nationality"
+                value={form.values.nationality}
+                onChange={(value) => form.setFieldValue("nationality", value)}
+                data={countries}
                 required
+                searchable
+                nothingFound="No countries found"
               />
             </Grid.Col>
           </Grid>

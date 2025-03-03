@@ -13,6 +13,10 @@ import {
   Switch,
   Group,
 } from "@mantine/core";
+import {
+  addItemsRoute,
+  fetchInventorydataRoute,
+} from "../../routes/visitorsHostelRoutes";
 
 const TabsModules = [
   { label: "Consumable Inventory", id: "consumable-inventory" },
@@ -54,17 +58,14 @@ function InventoryManagement() {
     };
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/visitorhostel/api/inventory_add/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+      const response = await fetch(addItemsRoute, {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(data),
+      });
 
       if (response.ok) {
         const responseData = await response.json();
@@ -83,15 +84,12 @@ function InventoryManagement() {
     const fetchInventoryData = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(
-          "http://127.0.0.1:8000/visitorhostel/api/inventory_list/",
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-              "Content-Type": "application/json",
-            },
+        const response = await fetch(fetchInventorydataRoute, {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
           },
-        );
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch inventory data");
@@ -146,8 +144,13 @@ function InventoryManagement() {
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
-            <tr key={item.id}>
+          {data.map((item, index) => (
+            <tr
+              key={item.id}
+              style={{
+                backgroundColor: index % 2 === 0 ? "#ffffff" : "#F5F7F8", // Alternating row colors
+              }}
+            >
               <td
                 style={{
                   padding: "12px",
