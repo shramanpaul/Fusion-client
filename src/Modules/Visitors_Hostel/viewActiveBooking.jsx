@@ -17,8 +17,13 @@ import axios from "axios";
 import html2canvas from "html2canvas";
 import JsPDF from "jspdf";
 import { host } from "../../routes/globalRoutes";
+import {
+  cancelBookingRoute,
+  checkInBookingRoute,
+  checkOutBookingRoute,
+} from "../../routes/visitorsHostelRoutes"; // Add this import
 
-function ViewBooking({ modalOpened, onClose, bookingId, bookingf }) {
+function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
   const [formData, setFormData] = useState({
     intenderUsername: "",
     intenderEmail: "",
@@ -102,6 +107,92 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf }) {
     pdf.save("booking_details.pdf");
   };
 
+  const handleCheckIn = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      return console.error("No authentication token found!");
+    }
+    try {
+      const data = {
+        booking_id: bookingId,
+        name: formData.visitorName,
+        phone: formData.visitorPhone,
+        email: formData.visitorEmail,
+        address: formData.visitorAddress,
+        //check_in_date: new Date().toISOString().split("T")[0], // Current date
+        check_in_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
+      };
+      await axios.post(checkInBookingRoute, data, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Successfully checked in booking with ID:", bookingId);
+      // Optionally, you can add logic to refresh the booking data or close the modal
+      onClose(); // Close the modal after check-in
+    } catch (error) {
+      console.error("Error checking in the booking:", error);
+    }
+  };
+
+  const handleCheckOut = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      return console.error("No authentication token found!");
+    }
+    try {
+      const data = {
+        booking_id: bookingId,
+        name: formData.visitorName,
+        phone: formData.visitorPhone,
+        email: formData.visitorEmail,
+        address: formData.visitorAddress,
+        check_out_date: new Date().toISOString().split("T")[0], // Current date
+        check_out_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }), 
+      };
+      await axios.post(checkOutBookingRoute, data, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Successfully checked out booking with ID:", bookingId);
+      // Optionally, you can add logic to refresh the booking data or close the modal
+      onClose(); // Close the modal after check-out
+    } catch (error) {
+      console.error("Error checking out the booking:", error);
+    }
+  };
+
+  const handleCancel = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      return console.error("No authentication token found!");
+    }
+    try {
+      const data = {
+        "booking-id": bookingId,
+        remark: "User canceled the booking.",
+        charges: 0,
+      };
+      await axios.post(cancelBookingRoute, data, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+      console.log("Successfully canceled booking with ID:", bookingId);
+      // Optionally, you can add logic to refresh the booking data or close the modal
+      onClose(); // Close the modal after cancellation
+      if (onCancel) {
+        onCancel(bookingId); // Call the onCancel callback to refresh the bookings list
+      }
+    } catch (error) {
+      console.error("Error canceling the booking:", error);
+    }
+  };
+
   return (
     <MantineProvider theme={{ fontFamily: "Arial, sans-serif" }}>
       <Modal
@@ -141,13 +232,25 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf }) {
                         ? "#E0E0E0"
                         : bookingf.status === "Confirmed"
                           ? "#dffbe0"
-                          : "#f8d7da",
+                          : bookingf.status === "Forward"
+                            ? "#fff3cd"
+                            : bookingf.status === "CheckedIn"
+                              ? "#cce5ff"
+                              : bookingf.status === "Complete"
+                                ? "#d4edda"
+                                : "#f8d7da",
                     color:
                       bookingf.status === "Pending"
                         ? "#757575"
                         : bookingf.status === "Confirmed"
                           ? "#84b28c"
-                          : "#721c24",
+                          : bookingf.status === "Forward"
+                            ? "#856404"
+                            : bookingf.status === "CheckedIn"
+                              ? "#004085"
+                              : bookingf.status === "Complete"
+                                ? "#155724"
+                                : "#721c24",
                     padding: "4px 8px",
                     borderRadius: "4px",
                     display: "inline-block",
@@ -254,14 +357,6 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf }) {
                 <Textarea label="Remarks" value={formData.remarks} readOnly />
               </Grid.Col>
 
-              {/* <Grid.Col span={12}>
-                <TextInput
-                  label="Visitor Name"
-                  value={formData.visitorName}
-                  readOnly
-                />
-              </Grid.Col> */}
-
               <Grid.Col span={12}>
                 <TextInput
                   label="Visitor Email"
@@ -303,6 +398,15 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf }) {
           <Button onClick={handleSaveToPDF} variant="outline" color="green">
             Save to PDF
           </Button>
+          <Button onClick={handleCheckIn} variant="outline" color="teal">
+            CheckIn
+          </Button>
+          <Button onClick={handleCheckOut} variant="outline" color="orange">
+            CheckOut
+          </Button>
+          <Button onClick={handleCancel} variant="outline" color="red">
+            Cancel
+          </Button>
         </Group>
       </Modal>
       <style>{`
@@ -342,6 +446,7 @@ ViewBooking.propTypes = {
     rooms: PropTypes.arrayOf(PropTypes.string),
     status: PropTypes.string.isRequired,
   }).isRequired,
+  onCancel: PropTypes.func, // Add this prop type
 };
 
 export default ViewBooking;
