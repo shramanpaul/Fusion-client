@@ -270,10 +270,22 @@ import {
   cancelBookingRoute,
   getActiveBookingsRoute,
 } from "../../routes/visitorsHostelRoutes";
+import { FaEye } from "react-icons/fa"; // Import the eye icon
+import ViewBooking from "./viewActiveBooking"; // Import the new ViewActiveBooking component
 
 function BookingTable({ activeBooking, onCancel }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState("bookingFrom");
+  const [viewModalOpened, setViewModalOpened] = useState(null); // State to control view modal for each booking
+
+  const handleViewBooking = (bookingId) => {
+    setViewModalOpened(bookingId); // Open modal for the specific booking
+  };
+  const handleViewCloseModal = () => {
+    setViewModalOpened(null); // Close modal
+  };
+  
+
 
   const sortedBookings = activeBooking
     .sort((a, b) => {
@@ -413,13 +425,28 @@ function BookingTable({ activeBooking, onCancel }) {
                     textAlign: "center",
                   }}
                 >
-                  <Button
+                  {/* <Button
                     size="xs"
                     color="red"
                     onClick={() => onCancel(booking.id)}
                   >
                     Cancel
+                  </Button> */}
+                  <Button
+                    variant="outline"
+                    color="blue"
+                    onClick={() => handleViewBooking(booking.id)}
+                  >
+                    <FaEye />
                   </Button>
+                  {viewModalOpened === booking.id && (
+                    <ViewBooking
+                      modalOpened={viewModalOpened === booking.id}
+                      onClose={handleViewCloseModal}
+                      bookingId={booking.id}
+                      bookingf={booking}
+                    />
+                  )}
                 </td>
               </tr>
             ))}
