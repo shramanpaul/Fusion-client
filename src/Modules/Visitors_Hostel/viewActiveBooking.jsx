@@ -119,8 +119,12 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
         phone: formData.visitorPhone,
         email: formData.visitorEmail,
         address: formData.visitorAddress,
-        //check_in_date: new Date().toISOString().split("T")[0], // Current date
-        check_in_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
+        check_in_date: new Date().toISOString().split("T")[0], // Current date
+        check_in_time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }), // Current time in "12:12 AM" format
       };
       await axios.post(checkInBookingRoute, data, {
         headers: {
@@ -149,7 +153,11 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
         email: formData.visitorEmail,
         address: formData.visitorAddress,
         check_out_date: new Date().toISOString().split("T")[0], // Current date
-        check_out_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }), 
+        check_out_time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }), // Current time in "12:12 AM" format
       };
       await axios.post(checkOutBookingRoute, data, {
         headers: {
@@ -191,6 +199,18 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
     } catch (error) {
       console.error("Error canceling the booking:", error);
     }
+  };
+
+  const isCheckInEnabled = () => {
+    const currentDateTime = new Date();
+    const bookingDateTime = new Date(`${formData.bookingFrom}T00:00:00`);
+    return (
+      currentDateTime >= bookingDateTime && bookingf.status !== "CheckedIn"
+    );
+  };
+
+  const isCheckOutEnabled = () => {
+    return bookingf.status === "CheckedIn";
   };
 
   return (
@@ -398,10 +418,28 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
           <Button onClick={handleSaveToPDF} variant="outline" color="green">
             Save to PDF
           </Button>
-          <Button onClick={handleCheckIn} variant="outline" color="teal">
+          <Button
+            onClick={handleCheckIn}
+            variant="outline"
+            color="teal"
+            disabled={!isCheckInEnabled()}
+            style={{
+              backgroundColor: isCheckInEnabled() ? "#20c997" : "#d3d3d3",
+              color: isCheckInEnabled() ? "#fff" : "#757575",
+            }}
+          >
             CheckIn
           </Button>
-          <Button onClick={handleCheckOut} variant="outline" color="orange">
+          <Button
+            onClick={handleCheckOut}
+            variant="outline"
+            color="orange"
+            disabled={!isCheckOutEnabled()}
+            style={{
+              backgroundColor: isCheckOutEnabled() ? "#fd7e14" : "#d3d3d3",
+              color: isCheckOutEnabled() ? "#fff" : "#757575",
+            }}
+          >
             CheckOut
           </Button>
           <Button onClick={handleCancel} variant="outline" color="red">
