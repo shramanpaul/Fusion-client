@@ -78,6 +78,7 @@ import RoomsAvailibility from "./Modules/Visitors_Hostel/roomsAvailability";
 import AccountStatemnts from "./Modules/Visitors_Hostel/accountStatements";
 import FacultyProfessionalProfile from "./Modules/facultyProfessionalProfile/facultyProfessionalProfile";
 import InactivityHandler from "./helper/inactivityhandler";
+import PendingReqs from "./Modules/Visitors_Hostel/pendingRequests";
 
 export default function App() {
   const location = useLocation();
@@ -119,6 +120,15 @@ export default function App() {
             <Layout>
               <VisitorsContent />
               <Bookings />
+            </Layout>
+          }
+        />
+        <Route
+          path="/visitors_hostel/pending_requests"
+          element={
+            <Layout>
+              <VisitorsContent />
+              <PendingReqs />
             </Layout>
           }
         />

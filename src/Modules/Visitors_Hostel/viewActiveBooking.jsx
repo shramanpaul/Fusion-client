@@ -23,6 +23,7 @@ import {
   checkInBookingRoute,
   checkOutBookingRoute,
 } from "../../routes/visitorsHostelRoutes"; // Add this import
+// import ForwardBookingForm from "./forwardBooking";
 
 function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
   const [formData, setFormData] = useState({
@@ -46,8 +47,18 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
   });
 
   const [availableRooms, setAvailableRooms] = useState([]);
+  // const [forwardModalOpened, setForwardModalOpened] = useState(null);
   const printRef = useRef();
   const role = useSelector((state) => state.user.role);
+
+  // const handleForwardButtonClick = (bookingId) => {
+  //   setForwardModalOpened(bookingId); // Open modal for the specific booking
+  // };
+
+  // const handleForwardCloseModal = () => {
+  //   setForwardModalOpened(null); // Close modal
+  //   // onBookingForward(); // Call the fetch function to refresh bookings when closing the modal
+  // };
 
   useEffect(() => {
     const fetchBookingData = async () => {
@@ -449,6 +460,17 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
               </Button>
             </>
           )}
+          {/* <Button onClick={() => handleForwardButtonClick(formData.id)}>
+            Update Details
+          </Button>
+          {forwardModalOpened === formData.id && (
+            <ForwardBookingForm
+              forwardmodalOpened={forwardModalOpened === formData.id}
+              onClose={handleForwardCloseModal}
+              onBookingForward={} // Pass the function down
+              bookingId={formData.id}
+            />
+          )} */}
           <Button onClick={handleCancel} variant="outline" color="red">
             Cancel
           </Button>

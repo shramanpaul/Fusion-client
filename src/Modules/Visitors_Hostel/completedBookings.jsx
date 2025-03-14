@@ -116,7 +116,7 @@ function BookingTable({ bookings }) {
                     textAlign: "center",
                   }}
                 >
-                  {booking.category}
+                  {booking.modifiedVisitorCategory}
                 </td>
               </tr>
             ))}
@@ -136,6 +136,7 @@ BookingTable.propTypes = {
       checkIn: PropTypes.string.isRequired,
       checkOut: PropTypes.string.isRequired,
       category: PropTypes.string.isRequired,
+      modifiedVisitorCategory: PropTypes.string.isRequired,
     }),
   ).isRequired,
 };
@@ -154,6 +155,7 @@ function CompletedBookingsPage() {
         const { data } = await axios.get(fetchCompletedBookingsRoute, {
           headers: { Authorization: `Token ${token}` },
         });
+        console.log("Completed Bookings: ", data.completed_bookings);
         setBookings(data.completed_bookings);
       } catch (error) {
         console.error("Error fetching completed bookings:", error);
