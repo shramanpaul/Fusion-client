@@ -7,6 +7,7 @@ import {
   Badge,
   Text,
   Box,
+  TextInput, // Add TextInput import
 } from "@mantine/core";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
@@ -21,6 +22,7 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
   const [modalOpened, setModalOpened] = useState(false); // State to control modal
   const [forwardModalOpened, setForwardModalOpened] = useState(null); // State to control forward modal for each booking
   const [viewModalOpened, setViewModalOpened] = useState(null); // State to control view modal for each booking
+  const [searchTerm, setSearchTerm] = useState(""); // State to store the search term
 
   const handleForwardButtonClick = (bookingId) => {
     setForwardModalOpened(bookingId); // Open modal for the specific booking
@@ -50,24 +52,31 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
   const role = useSelector((state) => state.user.role);
 
   // Filter bookings based on role and status
-  const filteredBookings = bookings.filter((booking) => {
+  const filteredBookings = bookings.filter(() => {
     if (role === "VhIncharge") {
-      return booking.status === "Forward";
+      return true;
     }
     if (role === "VhCaretaker") {
-      return booking.status === "Pending";
+      return true;
     }
-    return booking.status !== "Forward";
+    return true;
   });
 
-  // Sort bookings by "booking from" date in ascending order
-  const sortedBookings = filteredBookings.sort(
-    (a, b) => new Date(a.bookingFrom) - new Date(b.bookingFrom),
+  // Filter bookings based on search term
+  const searchedBookings = filteredBookings.filter((booking) => {
+    return (
+      booking.intender.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.status.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  // Sort bookings by "booking from" date in descending order
+  const sortedBookings = searchedBookings.sort(
+    (a, b) => new Date(b.bookingFrom) - new Date(a.bookingFrom),
   );
 
   return (
     <Box p="md" style={{ margin: 10 }}>
-      {bookings.status}
       <Box
         mb="md"
         style={{
@@ -97,6 +106,13 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
           Place Request
         </Button>
       </Box>
+
+      <TextInput
+        placeholder="Search by Intender or Booking Status"
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.currentTarget.value)}
+        style={{ marginBottom: "1rem" }}
+      />
 
       {modalOpened && (
         <CombinedBookingForm
@@ -246,7 +262,8 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
                       color={
                         booking.status === "Pending"
                           ? "gray"
-                          : booking.status === "Confirmed"
+                          : booking.status === "Confirmed" ||
+                              booking.status === "Complete"
                             ? "green"
                             : "red"
                       }
@@ -255,13 +272,15 @@ function BookingsRequestTable({ bookings, onBookingForward }) {
                         backgroundColor:
                           booking.status === "Pending"
                             ? "#E0E0E0"
-                            : booking.status === "Confirmed"
+                            : booking.status === "Confirmed" ||
+                                booking.status === "Complete"
                               ? "#dffbe0"
                               : "#f8d7da",
                         color:
                           booking.status === "Pending"
                             ? "#757575"
-                            : booking.status === "Confirmed"
+                            : booking.status === "Confirmed" ||
+                                booking.status === "Complete"
                               ? "#84b28c"
                               : "#721c24",
                         padding: "4px 8px",

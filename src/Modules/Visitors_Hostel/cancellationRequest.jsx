@@ -6,7 +6,7 @@ import { fetchCancelledBookingsRoute } from "../../routes/visitorsHostelRoutes";
 
 function CancellationRequestTable({ bookings }) {
   const sortedBookings = bookings.sort(
-    (a, b) => new Date(a.bookingFrom) - new Date(b.bookingFrom),
+    (a, b) => new Date(b.bookingFrom) - new Date(a.bookingFrom),
   );
 
   return (

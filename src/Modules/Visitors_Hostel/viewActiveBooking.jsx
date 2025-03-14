@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import {
   MantineProvider,
@@ -30,7 +31,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
     bookingFrom: "",
     bookingTo: "",
     visitorCategory: "",
-    modifiedCategory: "",
+    modifiedVisitorCategory: "",
     personCount: 1,
     numberOfRooms: 1,
     rooms: [],
@@ -46,6 +47,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
 
   const [availableRooms, setAvailableRooms] = useState([]);
   const printRef = useRef();
+  const role = useSelector((state) => state.user.role);
 
   useEffect(() => {
     const fetchBookingData = async () => {
@@ -54,13 +56,14 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
           `${host}/visitorhostel/get-booking-details/${bookingId}/`,
         );
         const booking = response.data;
+        console.log("Active Booking Data: ", booking);
         setFormData({
           intenderUsername: booking.intenderUsername,
           intenderEmail: booking.intenderEmail,
           bookingFrom: booking.bookingFrom,
           bookingTo: booking.bookingTo,
           visitorCategory: booking.visitorCategory,
-          modifiedCategory: bookingf.modifiedCategory,
+          modifiedVisitorCategory: booking.modifiedVisitorCategory,
           personCount: booking.personCount,
           numberOfRooms: booking.numberOfRooms,
           rooms: bookingf.rooms,
@@ -324,7 +327,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
               <Grid.Col span={6}>
                 <TextInput
                   label="Modified Category"
-                  value={formData.modifiedCategory}
+                  value={formData.modifiedVisitorCategory}
                   readOnly
                 />
               </Grid.Col>
@@ -418,30 +421,34 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
           <Button onClick={handleSaveToPDF} variant="outline" color="green">
             Save to PDF
           </Button>
-          <Button
-            onClick={handleCheckIn}
-            variant="outline"
-            color="teal"
-            disabled={!isCheckInEnabled()}
-            style={{
-              backgroundColor: isCheckInEnabled() ? "#20c997" : "#d3d3d3",
-              color: isCheckInEnabled() ? "#fff" : "#757575",
-            }}
-          >
-            CheckIn
-          </Button>
-          <Button
-            onClick={handleCheckOut}
-            variant="outline"
-            color="orange"
-            disabled={!isCheckOutEnabled()}
-            style={{
-              backgroundColor: isCheckOutEnabled() ? "#fd7e14" : "#d3d3d3",
-              color: isCheckOutEnabled() ? "#fff" : "#757575",
-            }}
-          >
-            CheckOut
-          </Button>
+          {(role === "VhCaretaker" || role === "VhIncharge") && (
+            <>
+              <Button
+                onClick={handleCheckIn}
+                variant="outline"
+                color="teal"
+                disabled={!isCheckInEnabled()}
+                style={{
+                  backgroundColor: isCheckInEnabled() ? "#20c997" : "#d3d3d3",
+                  color: isCheckInEnabled() ? "#fff" : "#757575",
+                }}
+              >
+                CheckIn
+              </Button>
+              <Button
+                onClick={handleCheckOut}
+                variant="outline"
+                color="orange"
+                disabled={!isCheckOutEnabled()}
+                style={{
+                  backgroundColor: isCheckOutEnabled() ? "#fd7e14" : "#d3d3d3",
+                  color: isCheckOutEnabled() ? "#fff" : "#757575",
+                }}
+              >
+                CheckOut
+              </Button>
+            </>
+          )}
           <Button onClick={handleCancel} variant="outline" color="red">
             Cancel
           </Button>
@@ -480,7 +487,8 @@ ViewBooking.propTypes = {
     bookingFrom: PropTypes.string.isRequired,
     bookingTo: PropTypes.string.isRequired,
     category: PropTypes.string.isRequired,
-    modifiedCategory: PropTypes.string,
+    // modifiedCategory: PropTypes.string,
+    modifiedVisitorCategory: PropTypes.string,
     rooms: PropTypes.arrayOf(PropTypes.string),
     status: PropTypes.string.isRequired,
   }).isRequired,

@@ -5,8 +5,9 @@ import axios from "axios";
 import { fetchCompletedBookingsRoute } from "../../routes/visitorsHostelRoutes";
 
 function BookingTable({ bookings }) {
+  console.log("Bookings Table", bookings);
   const sortedBookings = bookings.sort(
-    (a, b) => new Date(a.checkIn) - new Date(b.checkIn),
+    (a, b) => new Date(b.checkIn) - new Date(a.checkIn),
   );
 
   return (
