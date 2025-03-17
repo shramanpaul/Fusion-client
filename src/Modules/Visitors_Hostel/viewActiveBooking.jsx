@@ -484,14 +484,17 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
               bookingId={formData.id}
             />
           )} */}
-          <Button onClick={handleUpdateButtonClick}>Update Booking</Button>
-          {updateModalOpened && (
-            <UpdateBookingForm
-              forwardmodalOpened={updateModalOpened}
-              onClose={handleUpdateCloseModal}
-              // onBookingForward={fetchBookings} // Pass the fetch function as a prop
-              bookingId={bookingId}
-            />
+          {(role === "VhCaretaker" || role === "VhIncharge") && (
+            <>
+              <Button onClick={handleUpdateButtonClick}>Update Booking</Button>
+              {updateModalOpened && (
+                <UpdateBookingForm
+                  forwardmodalOpened={updateModalOpened}
+                  onClose={handleUpdateCloseModal}
+                  bookingId={bookingId}
+                />
+              )}
+            </>
           )}
           <Button onClick={handleCancel} variant="outline" color="red">
             Cancel

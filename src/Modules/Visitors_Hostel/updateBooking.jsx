@@ -335,7 +335,7 @@ function UpdateBookingForm({
 
             <Grid.Col span={12}>
               <Group position="right" mt="md">
-                <Button type="submit">Forward</Button>
+                <Button type="submit">Update</Button>
               </Group>
             </Grid.Col>
           </Grid>
