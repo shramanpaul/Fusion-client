@@ -23,6 +23,7 @@ import {
   checkInBookingRoute,
   checkOutBookingRoute,
 } from "../../routes/visitorsHostelRoutes"; // Add this import
+import UpdateBookingForm from "./updateBooking";
 // import ForwardBookingForm from "./forwardBooking";
 
 function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
@@ -68,6 +69,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
         );
         const booking = response.data;
         console.log("Active Booking Data: ", booking);
+
         setFormData({
           intenderUsername: booking.intenderUsername,
           intenderEmail: booking.intenderEmail,
@@ -77,7 +79,8 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
           modifiedVisitorCategory: booking.modifiedVisitorCategory,
           personCount: booking.personCount,
           numberOfRooms: booking.numberOfRooms,
-          rooms: bookingf.rooms,
+          // Use the rooms data from bookingf prop instead
+          rooms: bookingf.rooms || [],
           purpose: booking.purpose,
           billToBeSettledBy: booking.billToBeSettledBy,
           remarks: booking.remarks,
@@ -87,6 +90,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
           visitorOrganization: booking.visitorOrganization,
           visitorAddress: booking.visitorAddress,
         });
+
         setAvailableRooms(
           booking.availableRooms.map((room) => room.room_number),
         );
@@ -98,8 +102,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
     if (bookingId) {
       fetchBookingData();
     }
-  }, [bookingId, bookingf]);
-
+  }, [bookingId, bookingf]); // Add bookingf as a dependency
   const handlePrint = () => {
     const printContent = printRef.current.innerHTML;
     const originalContent = document.body.innerHTML;
@@ -225,6 +228,16 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
 
   const isCheckOutEnabled = () => {
     return bookingf.status === "CheckedIn";
+  };
+
+  const [updateModalOpened, setUpdateModalOpened] = useState(false);
+
+  const handleUpdateButtonClick = () => {
+    setUpdateModalOpened(true); // Open the UpdateBookingForm modal
+  };
+
+  const handleUpdateCloseModal = () => {
+    setUpdateModalOpened(false); // Close the UpdateBookingForm modal
   };
 
   return (
@@ -471,6 +484,15 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
               bookingId={formData.id}
             />
           )} */}
+          <Button onClick={handleUpdateButtonClick}>Update Booking</Button>
+          {updateModalOpened && (
+            <UpdateBookingForm
+              forwardmodalOpened={updateModalOpened}
+              onClose={handleUpdateCloseModal}
+              // onBookingForward={fetchBookings} // Pass the fetch function as a prop
+              bookingId={bookingId}
+            />
+          )}
           <Button onClick={handleCancel} variant="outline" color="red">
             Cancel
           </Button>
