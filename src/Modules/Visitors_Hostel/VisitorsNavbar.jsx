@@ -41,6 +41,11 @@ const ManageBookingsTabs = [
     url: "/visitors_hostel/",
   },
   {
+    label: "Pending Requests",
+    id: "pending-requests",
+    url: "/visitors_hostel/pending_requests",
+  },
+  {
     label: "Cancelled Requests",
     id: "cancel-request",
     url: "/visitors_hostel/cancel_request",

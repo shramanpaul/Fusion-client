@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import {
   MantineProvider,
@@ -22,6 +23,8 @@ import {
   checkInBookingRoute,
   checkOutBookingRoute,
 } from "../../routes/visitorsHostelRoutes"; // Add this import
+import UpdateBookingForm from "./updateBooking";
+// import ForwardBookingForm from "./forwardBooking";
 
 function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
   const [formData, setFormData] = useState({
@@ -30,7 +33,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
     bookingFrom: "",
     bookingTo: "",
     visitorCategory: "",
-    modifiedCategory: "",
+    modifiedVisitorCategory: "",
     personCount: 1,
     numberOfRooms: 1,
     rooms: [],
@@ -45,7 +48,18 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
   });
 
   const [availableRooms, setAvailableRooms] = useState([]);
+  // const [forwardModalOpened, setForwardModalOpened] = useState(null);
   const printRef = useRef();
+  const role = useSelector((state) => state.user.role);
+
+  // const handleForwardButtonClick = (bookingId) => {
+  //   setForwardModalOpened(bookingId); // Open modal for the specific booking
+  // };
+
+  // const handleForwardCloseModal = () => {
+  //   setForwardModalOpened(null); // Close modal
+  //   // onBookingForward(); // Call the fetch function to refresh bookings when closing the modal
+  // };
 
   useEffect(() => {
     const fetchBookingData = async () => {
@@ -54,16 +68,19 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
           `${host}/visitorhostel/get-booking-details/${bookingId}/`,
         );
         const booking = response.data;
+        console.log("Active Booking Data: ", booking);
+
         setFormData({
           intenderUsername: booking.intenderUsername,
           intenderEmail: booking.intenderEmail,
           bookingFrom: booking.bookingFrom,
           bookingTo: booking.bookingTo,
           visitorCategory: booking.visitorCategory,
-          modifiedCategory: bookingf.modifiedCategory,
+          modifiedVisitorCategory: booking.modifiedVisitorCategory,
           personCount: booking.personCount,
           numberOfRooms: booking.numberOfRooms,
-          rooms: bookingf.rooms,
+          // Use the rooms data from bookingf prop instead
+          rooms: bookingf.rooms || [],
           purpose: booking.purpose,
           billToBeSettledBy: booking.billToBeSettledBy,
           remarks: booking.remarks,
@@ -73,6 +90,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
           visitorOrganization: booking.visitorOrganization,
           visitorAddress: booking.visitorAddress,
         });
+
         setAvailableRooms(
           booking.availableRooms.map((room) => room.room_number),
         );
@@ -84,8 +102,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
     if (bookingId) {
       fetchBookingData();
     }
-  }, [bookingId, bookingf]);
-
+  }, [bookingId, bookingf]); // Add bookingf as a dependency
   const handlePrint = () => {
     const printContent = printRef.current.innerHTML;
     const originalContent = document.body.innerHTML;
@@ -213,6 +230,16 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
     return bookingf.status === "CheckedIn";
   };
 
+  const [updateModalOpened, setUpdateModalOpened] = useState(false);
+
+  const handleUpdateButtonClick = () => {
+    setUpdateModalOpened(true); // Open the UpdateBookingForm modal
+  };
+
+  const handleUpdateCloseModal = () => {
+    setUpdateModalOpened(false); // Close the UpdateBookingForm modal
+  };
+
   return (
     <MantineProvider theme={{ fontFamily: "Arial, sans-serif" }}>
       <Modal
@@ -324,7 +351,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
               <Grid.Col span={6}>
                 <TextInput
                   label="Modified Category"
-                  value={formData.modifiedCategory}
+                  value={formData.modifiedVisitorCategory}
                   readOnly
                 />
               </Grid.Col>
@@ -418,30 +445,57 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
           <Button onClick={handleSaveToPDF} variant="outline" color="green">
             Save to PDF
           </Button>
-          <Button
-            onClick={handleCheckIn}
-            variant="outline"
-            color="teal"
-            disabled={!isCheckInEnabled()}
-            style={{
-              backgroundColor: isCheckInEnabled() ? "#20c997" : "#d3d3d3",
-              color: isCheckInEnabled() ? "#fff" : "#757575",
-            }}
-          >
-            CheckIn
+          {(role === "VhCaretaker" || role === "VhIncharge") && (
+            <>
+              <Button
+                onClick={handleCheckIn}
+                variant="outline"
+                color="teal"
+                disabled={!isCheckInEnabled()}
+                style={{
+                  backgroundColor: isCheckInEnabled() ? "#20c997" : "#d3d3d3",
+                  color: isCheckInEnabled() ? "#fff" : "#757575",
+                }}
+              >
+                CheckIn
+              </Button>
+              <Button
+                onClick={handleCheckOut}
+                variant="outline"
+                color="orange"
+                disabled={!isCheckOutEnabled()}
+                style={{
+                  backgroundColor: isCheckOutEnabled() ? "#fd7e14" : "#d3d3d3",
+                  color: isCheckOutEnabled() ? "#fff" : "#757575",
+                }}
+              >
+                CheckOut
+              </Button>
+            </>
+          )}
+          {/* <Button onClick={() => handleForwardButtonClick(formData.id)}>
+            Update Details
           </Button>
-          <Button
-            onClick={handleCheckOut}
-            variant="outline"
-            color="orange"
-            disabled={!isCheckOutEnabled()}
-            style={{
-              backgroundColor: isCheckOutEnabled() ? "#fd7e14" : "#d3d3d3",
-              color: isCheckOutEnabled() ? "#fff" : "#757575",
-            }}
-          >
-            CheckOut
-          </Button>
+          {forwardModalOpened === formData.id && (
+            <ForwardBookingForm
+              forwardmodalOpened={forwardModalOpened === formData.id}
+              onClose={handleForwardCloseModal}
+              onBookingForward={} // Pass the function down
+              bookingId={formData.id}
+            />
+          )} */}
+          {(role === "VhCaretaker" || role === "VhIncharge") && (
+            <>
+              <Button onClick={handleUpdateButtonClick}>Update Booking</Button>
+              {updateModalOpened && (
+                <UpdateBookingForm
+                  forwardmodalOpened={updateModalOpened}
+                  onClose={handleUpdateCloseModal}
+                  bookingId={bookingId}
+                />
+              )}
+            </>
+          )}
           <Button onClick={handleCancel} variant="outline" color="red">
             Cancel
           </Button>
@@ -480,7 +534,8 @@ ViewBooking.propTypes = {
     bookingFrom: PropTypes.string.isRequired,
     bookingTo: PropTypes.string.isRequired,
     category: PropTypes.string.isRequired,
-    modifiedCategory: PropTypes.string,
+    // modifiedCategory: PropTypes.string,
+    modifiedVisitorCategory: PropTypes.string,
     rooms: PropTypes.arrayOf(PropTypes.string),
     status: PropTypes.string.isRequired,
   }).isRequired,
