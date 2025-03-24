@@ -7,6 +7,9 @@ import {
   Card,
   Text,
   Container,
+  Table,
+  TextInput,
+  NumberInput,
   Divider,
 } from "@mantine/core";
 import axios from "axios";
@@ -14,25 +17,39 @@ import PropTypes from "prop-types";
 import { host } from "../../routes/globalRoutes";
 
 function CheckoutForm({ modalOpened, onClose, bookingId, bookingDetails }) {
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [items, setItems] = useState([
+    { id: 1, name: "", quantity: 1, cost: 0 },
+  ]);
+  const [totalAmount, setTotalAmount] = useState(0);
 
-  // Sample inventory items (replace with your API call)
-  const inventoryItems = [
-    { id: 1, name: "Water Bottle", price: 20 },
-    { id: 2, name: "Snacks", price: 30 },
-    { id: 3, name: "Towel", price: 50 },
-  ];
-
-  const handleAddItem = (item) => {
-    setSelectedItems([...selectedItems, item]);
+  // Move updateTotal function here
+  const updateTotal = (updatedItems) => {
+    const total = updatedItems.reduce(
+      (sum, item) => sum + item.quantity * item.cost,
+      0,
+    );
+    setTotalAmount(total);
   };
 
-  const handleRemoveItem = (itemId) => {
-    setSelectedItems(selectedItems.filter((item) => item.id !== itemId));
+  const handleAddRow = () => {
+    setItems([
+      ...items,
+      { id: items.length + 1, name: "", quantity: 1, cost: 0 },
+    ]);
   };
 
-  const calculateTotal = () => {
-    return selectedItems.reduce((sum, item) => sum + item.price, 0);
+  const handleRemoveRow = (id) => {
+    const updatedItems = items.filter((item) => item.id !== id);
+    setItems(updatedItems);
+    updateTotal(updatedItems); // Call updateTotal after removing a row
+  };
+
+  const handleInputChange = (id, field, value) => {
+    const updatedItems = items.map((item) =>
+      item.id === id ? { ...item, [field]: value } : item,
+    );
+    setItems(updatedItems);
+    updateTotal(updatedItems); // Call updateTotal after updating an item
   };
 
   const handleCompleteCheckout = async () => {
@@ -44,14 +61,24 @@ function CheckoutForm({ modalOpened, onClose, bookingId, bookingDetails }) {
     try {
       const data = {
         booking_id: bookingId,
-        inventory_items: selectedItems.map((item) => ({
-          id: item.id,
+        inventory_items: items.map((item) => ({
           name: item.name,
-          price: item.price,
+          quantity: item.quantity,
+          cost: item.cost,
         })),
+        total_amount: totalAmount,
       };
 
+      // Send request to complete-checkout route
       await axios.post(`${host}/visitorhostel/complete-checkout/`, data, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Send request to inventory_bill route
+      await axios.post(`${host}/visitorhostel/inventory-bill/`, data, {
         headers: {
           Authorization: `Token ${token}`,
           "Content-Type": "application/json",
@@ -84,73 +111,91 @@ function CheckoutForm({ modalOpened, onClose, bookingId, bookingDetails }) {
             </Card>
           </Grid.Col>
 
-          {/* Available Items */}
-          <Grid.Col span={8}>
-            <Text weight={700} mb="md">
-              Available Items
-            </Text>
-            <Grid>
-              {inventoryItems.map((item) => (
-                <Grid.Col span={6} key={item.id}>
-                  <Card shadow="sm" p="sm">
-                    <Group position="apart">
-                      <div>
-                        <Text weight={500}>{item.name}</Text>
-                        <Text size="sm" color="dimmed">
-                          ₹{item.price}
-                        </Text>
-                      </div>
-                      <Button onClick={() => handleAddItem(item)} size="sm">
-                        Add
+          {/* Items Table */}
+          <Grid.Col span={12}>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Item Name</th>
+                  <th>Quantity</th>
+                  <th>Cost</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <TextInput
+                        placeholder="Item Name"
+                        value={item.name}
+                        onChange={(e) =>
+                          handleInputChange(item.id, "name", e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <NumberInput
+                        min={1}
+                        value={item.quantity}
+                        onChange={(value) =>
+                          handleInputChange(item.id, "quantity", value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <NumberInput
+                        min={0}
+                        value={item.cost}
+                        onChange={(value) =>
+                          handleInputChange(item.id, "cost", value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <Button
+                        color="red"
+                        variant="subtle"
+                        onClick={() => handleRemoveRow(item.id)}
+                      >
+                        Remove
                       </Button>
-                    </Group>
-                  </Card>
-                </Grid.Col>
-              ))}
-            </Grid>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+            <Button onClick={handleAddRow} mt="md">
+              Add Item
+            </Button>
           </Grid.Col>
 
-          {/* Selected Items */}
-          <Grid.Col span={4}>
-            <Card shadow="sm" p="md">
-              <Text weight={700} mb="md">
-                Selected Items
-              </Text>
-              {selectedItems.map((item) => (
-                <Card key={item.id} mb="sm">
-                  <Group position="apart">
-                    <Text>{item.name}</Text>
-                    <Button
-                      color="red"
-                      variant="subtle"
-                      onClick={() => handleRemoveItem(item.id)}
-                    >
-                      Remove
-                    </Button>
-                  </Group>
-                  <Text size="sm">₹{item.price}</Text>
-                </Card>
-              ))}
-              <Divider my="sm" />
-              <Group position="apart">
-                <Text weight={700}>Total Amount</Text>
-                <Text weight={700}>₹{calculateTotal()}</Text>
-              </Group>
-              <Button
-                fullWidth
-                mt="md"
-                disabled={selectedItems.length === 0}
-                onClick={handleCompleteCheckout}
-              >
-                Complete Checkout
-              </Button>
-            </Card>
+          {/* Total Amount */}
+          <Grid.Col span={12}>
+            <Divider my="sm" />
+            <Group position="apart">
+              <Text weight={700}>Total Amount</Text>
+              <Text weight={700}>₹{totalAmount}</Text>
+            </Group>
+          </Grid.Col>
+
+          {/* Confirm Checkout */}
+          <Grid.Col span={12}>
+            <Button
+              fullWidth
+              mt="md"
+              onClick={handleCompleteCheckout}
+              disabled={items.length === 0 || totalAmount === 0}
+            >
+              Confirm Checkout
+            </Button>
           </Grid.Col>
         </Grid>
       </Container>
     </Modal>
   );
 }
+
 CheckoutForm.propTypes = {
   modalOpened: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
