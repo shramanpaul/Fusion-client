@@ -163,19 +163,22 @@ function CombinedBookingForm({ modalOpened, onClose }) {
           <Grid>
             {/* {username} */}
             {/* Conditionally render Intender ID field */}
-            {role !== "student" && role !== "Professor" && (
-              <Grid.Col span={12}>
-                <TextInput
-                  label="Intender"
-                  placeholder="Intender ID"
-                  value={form.values.intender}
-                  onChange={(event) =>
-                    form.setFieldValue("intender", event.currentTarget.value)
-                  }
-                  required
-                />
-              </Grid.Col>
-            )}
+            {role !== "student" &&
+              role !== "Professor" &&
+              role !== "VhCaretaker" &&
+              role !== "VhIncharge" && (
+                <Grid.Col span={12}>
+                  <TextInput
+                    label="Intender"
+                    placeholder="Intender ID"
+                    value={form.values.intender}
+                    onChange={(event) =>
+                      form.setFieldValue("intender", event.currentTarget.value)
+                    }
+                    required
+                  />
+                </Grid.Col>
+              )}
             <Grid.Col span={12}>
               <TextInput
                 label="Name"

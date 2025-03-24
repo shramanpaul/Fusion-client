@@ -59,6 +59,9 @@ function CheckoutForm({ modalOpened, onClose, bookingId, bookingDetails }) {
     }
 
     try {
+      const now = new Date();
+      const formattedTime = now.toTimeString().split(" ")[0]; // Extract time in HH:MM:SS format
+
       const data = {
         booking_id: bookingId,
         inventory_items: items.map((item) => ({
@@ -66,32 +69,35 @@ function CheckoutForm({ modalOpened, onClose, bookingId, bookingDetails }) {
           quantity: item.quantity,
           cost: item.cost,
         })),
-        total_amount: totalAmount,
+        meal_bill: 0, // Add meal bill if applicable
+        room_bill: totalAmount, // Total amount as room bill
+        check_out_time: formattedTime, // Send time in HH:MM:SS format
       };
 
-      // Send request to complete-checkout route
-      await axios.post(`${host}/visitorhostel/complete-checkout/`, data, {
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      console.log("Data being sent to backend:", data); // Log the data
 
-      // Send request to inventory_bill route
-      await axios.post(`${host}/visitorhostel/inventory-bill/`, data, {
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
+      // Send request to the backend
+      const response = await axios.post(
+        `${host}/visitorhostel/check-out-with-inventory/`,
+        data,
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       console.log("Successfully completed checkout for booking ID:", bookingId);
+      console.log("Response from backend:", response.data);
+
+      alert("Checkout completed successfully!");
       onClose(); // Close the modal after checkout
     } catch (error) {
       console.error("Error completing checkout:", error);
+      alert("Failed to complete checkout. Please try again.");
     }
   };
-
   return (
     <Modal
       opened={modalOpened}

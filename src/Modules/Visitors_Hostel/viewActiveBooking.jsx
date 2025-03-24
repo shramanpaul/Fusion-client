@@ -21,7 +21,7 @@ import { host } from "../../routes/globalRoutes";
 import {
   cancelBookingRoute,
   checkInBookingRoute,
-  checkOutBookingRoute,
+  // checkOutBookingRoute,
 } from "../../routes/visitorsHostelRoutes"; // Add this import
 import UpdateBookingForm from "./updateBooking";
 import CheckoutForm from "./CheckoutForm";
@@ -158,38 +158,38 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
     }
   };
 
-  const handleCheckOut = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      return console.error("No authentication token found!");
-    }
-    try {
-      const data = {
-        booking_id: bookingId,
-        name: formData.visitorName,
-        phone: formData.visitorPhone,
-        email: formData.visitorEmail,
-        address: formData.visitorAddress,
-        check_out_date: new Date().toISOString().split("T")[0], // Current date
-        check_out_time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }), // Current time in "12:12 AM" format
-      };
-      await axios.post(checkOutBookingRoute, data, {
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      console.log("Successfully checked out booking with ID:", bookingId);
-      // Optionally, you can add logic to refresh the booking data or close the modal
-      onClose(); // Close the modal after check-out
-    } catch (error) {
-      console.error("Error checking out the booking:", error);
-    }
-  };
+  // const handleCheckOut = async () => {
+  //   const token = localStorage.getItem("authToken");
+  //   if (!token) {
+  //     return console.error("No authentication token found!");
+  //   }
+  //   try {
+  //     const data = {
+  //       booking_id: bookingId,
+  //       name: formData.visitorName,
+  //       phone: formData.visitorPhone,
+  //       email: formData.visitorEmail,
+  //       address: formData.visitorAddress,
+  //       check_out_date: new Date().toISOString().split("T")[0], // Current date
+  //       check_out_time: new Date().toLocaleTimeString([], {
+  //         hour: "2-digit",
+  //         minute: "2-digit",
+  //         hour12: true,
+  //       }), // Current time in "12:12 AM" format
+  //     };
+  //     await axios.post(checkOutBookingRoute, data, {
+  //       headers: {
+  //         Authorization: `Token ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     console.log("Successfully checked out booking with ID:", bookingId);
+  //     // Optionally, you can add logic to refresh the booking data or close the modal
+  //     onClose(); // Close the modal after check-out
+  //   } catch (error) {
+  //     console.error("Error checking out the booking:", error);
+  //   }
+  // };
 
   const handleCancel = async () => {
     const token = localStorage.getItem("authToken");
@@ -240,6 +240,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
   const handleUpdateCloseModal = () => {
     setUpdateModalOpened(false); // Close the UpdateBookingForm modal
   };
+
   const [checkoutModalOpened, setCheckoutModalOpened] = useState(false);
 
   const handleCheckoutButtonClick = () => {
@@ -470,7 +471,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
                 CheckIn
               </Button>
               <Button
-                onClick={handleCheckoutButtonClick}
+                onClick={handleCheckoutButtonClick} // Open the modal
                 variant="outline"
                 color="orange"
                 disabled={!isCheckOutEnabled()}
@@ -479,14 +480,14 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
                   color: isCheckOutEnabled() ? "#fff" : "#757575",
                 }}
               >
-                Checkout
+                CheckOut
               </Button>
               {checkoutModalOpened && (
                 <CheckoutForm
                   modalOpened={checkoutModalOpened}
                   onClose={handleCheckoutCloseModal}
                   bookingId={bookingId}
-                  bookingDetails={formData}
+                  bookingDetails={formData} // Pass the booking details
                 />
               )}
             </>
