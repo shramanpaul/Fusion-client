@@ -24,6 +24,7 @@ import {
   checkOutBookingRoute,
 } from "../../routes/visitorsHostelRoutes"; // Add this import
 import UpdateBookingForm from "./updateBooking";
+import CheckoutForm from "./CheckoutForm";
 // import ForwardBookingForm from "./forwardBooking";
 
 function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
@@ -238,6 +239,15 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
 
   const handleUpdateCloseModal = () => {
     setUpdateModalOpened(false); // Close the UpdateBookingForm modal
+  };
+  const [checkoutModalOpened, setCheckoutModalOpened] = useState(false);
+
+  const handleCheckoutButtonClick = () => {
+    setCheckoutModalOpened(true); // Open the CheckoutForm modal
+  };
+
+  const handleCheckoutCloseModal = () => {
+    setCheckoutModalOpened(false); // Close the CheckoutForm modal
   };
 
   return (
@@ -460,7 +470,7 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
                 CheckIn
               </Button>
               <Button
-                onClick={handleCheckOut}
+                onClick={handleCheckoutButtonClick}
                 variant="outline"
                 color="orange"
                 disabled={!isCheckOutEnabled()}
@@ -469,8 +479,16 @@ function ViewBooking({ modalOpened, onClose, bookingId, bookingf, onCancel }) {
                   color: isCheckOutEnabled() ? "#fff" : "#757575",
                 }}
               >
-                CheckOut
+                Checkout
               </Button>
+              {checkoutModalOpened && (
+                <CheckoutForm
+                  modalOpened={checkoutModalOpened}
+                  onClose={handleCheckoutCloseModal}
+                  bookingId={bookingId}
+                  bookingDetails={formData}
+                />
+              )}
             </>
           )}
           {/* <Button onClick={() => handleForwardButtonClick(formData.id)}>
