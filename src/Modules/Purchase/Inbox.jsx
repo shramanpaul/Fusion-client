@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { MantineProvider, Table, Button, Text, Box } from "@mantine/core";
+import { Table, Button, Text, Box, TextInput, Card } from "@mantine/core";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { CaretUp, CaretDown, ArrowsDownUp } from "@phosphor-icons/react";
 import { viewIndentByUsernameAndRoleRoute2 } from "../../routes/purchaseRoutes";
 
-function InboxTable() {
+export default function Outboxfunc() {
   const [inbox, setInbox] = useState([]); // State for indents data
   const [loading, setLoading] = useState(true); // State for loading status
   const [error, setError] = useState(null); // State for error handling
@@ -13,9 +14,51 @@ function InboxTable() {
   const role = useSelector((state) => state.user.role);
   const username = useSelector((state) => state.user.roll_no);
   console.log(useSelector((state) => state.user));
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [searchQuery, setSearchQuery] = useState("");
   // const [department, setDepartment] = useState("");
   // console.log(useSelector((state) => state.user));
   // const desigid = useSelector((state) => state.user.Holds_designation);
+  const sortedFiles = [...inbox].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const direction = sortConfig.direction === "asc" ? 1 : -1;
+    return a[sortConfig.key] > b[sortConfig.key] ? direction : -direction;
+  });
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true, // Optional: Change to 24-hour format if needed
+    });
+  };
+  const filteredFiles = sortedFiles.filter((file) => {
+    const idString = `${file.branch}-${new Date(file.upload_date).getFullYear()}-
+                      ${(new Date(file.upload_date).getMonth() + 1)
+                        .toString()
+                        .padStart(2, "0")}
+                      -#${file.id}`;
+    return (
+      file.uploader.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      file.sent_by_user.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      idString.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      file.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      formatDate(file.upload_date)
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      file.sent_by_designation.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+  const handleSort = (key) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  };
   useEffect(() => {
     // Fetch indents from the server using HoldsDesignation ID from local storage
     const fetchIndents = async () => {
@@ -56,22 +99,23 @@ function InboxTable() {
   }
   // const navigate = useNavigate();
   console.log(inbox);
-  const formatDate = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true, // Optional: Change to 24-hour format if needed
-    });
-  };
+
   return (
-    <Box p="md">
-      {" "}
-      {/* Removed margin-top completely */}
+    <Card
+      shadow="sm"
+      padding="lg"
+      radius="md"
+      withBorder
+      style={{
+        backgroundColor: "#F5F7F8",
+        position: "absolute",
+        height: "70vh",
+        width: "90vw",
+        display: "flex",
+        flexDirection: "column",
+        overflowY: "auto",
+      }}
+    >
       <Box
         mb="md"
         style={{
@@ -90,6 +134,12 @@ function InboxTable() {
         >
           Inbox
         </Text>
+        <TextInput
+          placeholder="Search files..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ marginBottom: "10px", marginLeft: "auto" }}
+        />
       </Box>
       <Table
         style={{
@@ -100,79 +150,59 @@ function InboxTable() {
         }}
       >
         <thead>
-          <tr>
+          <tr style={{ backgroundColor: "#D9EAF7" }}>
+            {[
+              { key: "uploader", label: "Uploader" },
+              { key: "sent_by_user", label: "Sent By" },
+              { key: "id", label: "File Id" },
+              { key: "subject", label: "Subject" },
+              { key: "upload_date", label: "Date" },
+            ].map(({ key, label }) => (
+              <th
+                key={key}
+                onClick={() => handleSort(key)}
+                style={{
+                  cursor: "pointer",
+                  padding: "12px",
+                  width: "15.5%",
+                  border: "1px solid #D9EAF7",
+                  alignItems: "center",
+                  gap: "5px",
+                  textAlign: "center",
+                }}
+              >
+                {label}
+                {sortConfig.key === key ? (
+                  sortConfig.direction === "asc" ? (
+                    <CaretUp size={16} />
+                  ) : (
+                    <CaretDown size={16} />
+                  )
+                ) : (
+                  <ArrowsDownUp size={16} opacity={0.6} />
+                )}
+              </th>
+            ))}
             <th
               style={{
-                backgroundColor: "white",
                 padding: "12px",
-                textAlign: "center",
+                width: "8.5%",
+                border: "1px solid #ddd",
               }}
             >
-              Received as
-            </th>
-            <th
-              style={{
-                backgroundColor: "white",
-                padding: "12px",
-                textAlign: "center",
-              }}
-            >
-              Send by
-            </th>
-            <th
-              style={{
-                backgroundColor: "white",
-                padding: "12px",
-                textAlign: "center",
-              }}
-            >
-              File Id
-            </th>
-            <th
-              style={{
-                backgroundColor: "white",
-                padding: "12px",
-                textAlign: "center",
-              }}
-            >
-              Subject
-            </th>
-            <th
-              style={{
-                backgroundColor: "white",
-                padding: "12px",
-                textAlign: "center",
-              }}
-            >
-              Date
-            </th>
-            <th
-              style={{
-                backgroundColor: "white",
-                padding: "12px",
-                textAlign: "center",
-              }}
-            >
-              Features
+              View File
             </th>
           </tr>
         </thead>
         <tbody>
-          {inbox.map((booking, index) =>
-            index % 2 === 0 ? (
-              <tr key={booking.id} style={{ backgroundColor: "#f8fafb" }}>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  <Text weight={500}>{username}</Text>
-                  <Text size="sm" color="dimmed">
-                    {booking.email}-{role}
-                  </Text>
-                </td>
+          {filteredFiles && filteredFiles.length > 0 ? (
+            filteredFiles.map((booking, index) => (
+              <tr
+                key={booking.id}
+                style={{
+                  backgroundColor: index % 2 === 0 ? "#f8fafb" : "white",
+                }}
+              >
                 <td
                   style={{
                     padding: "12px",
@@ -181,6 +211,15 @@ function InboxTable() {
                   }}
                 >
                   {booking.uploader}
+                </td>
+                <td
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #E0E0E0",
+                    textAlign: "center",
+                  }}
+                >
+                  {booking.sent_by_user}
                 </td>
                 <td
                   style={{
@@ -198,76 +237,7 @@ function InboxTable() {
                     textAlign: "center",
                   }}
                 >
-                  {booking.subject ? booking.subject : "None"}
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  {/* {booking.upload_date} */}
-                  {formatDate(booking.upload_date)}
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  <Button
-                    color="green"
-                    style={{ marginRight: "8px" }}
-                    onClick={() =>
-                      navigate(`/purchase/forward_indent/${booking.id}`)
-                    }
-                  >
-                    View
-                  </Button>
-                </td>
-              </tr>
-            ) : (
-              <tr key={booking.id} style={{ backgroundColor: "white" }}>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  <Text weight={500}>{username}</Text>
-                  <Text size="sm" color="dimmed">
-                    {booking.email}-{role}
-                  </Text>
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  {booking.uploader}
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  {booking.id}
-                </td>
-                <td
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #E0E0E0",
-                    textAlign: "center",
-                  }}
-                >
-                  {booking.subject ? booking.subject : "None"}
+                  {booking.subject ? booking.subject : "No Subject"}
                 </td>
                 <td
                   style={{
@@ -296,44 +266,30 @@ function InboxTable() {
                   </Button>
                 </td>
               </tr>
-            ),
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan="6"
+                style={{
+                  textAlign: "center",
+                  padding: "24px",
+                  color: "black",
+                  fontSize: "16px",
+                  backgroundColor: "#e0e3e5",
+                }}
+              >
+                <strong>No indent found</strong>
+                <div
+                  style={{ marginTop: "4px", fontSize: "14px", color: "black" }}
+                >
+                  Start by creating one to see it listed here.
+                </div>
+              </td>
+            </tr>
           )}
         </tbody>
       </Table>
-    </Box>
+    </Card>
   );
 }
-
-function Inbox() {
-  return (
-    <MantineProvider withGlobalStyles withNormalizeCSS>
-      <Box
-        style={{
-          display: "flex",
-          justifyContent: "center", // Center horizontally
-          alignItems: "center", // Center vertically
-          height: "80vh", // Full viewport height
-          overflow: "auto", // Ensure scroll if content exceeds viewport
-        }}
-      >
-        <Box
-          style={{
-            maxWidth: "1440px", // Increased max width by 20%
-            width: "100%", // Make it responsive
-            backgroundColor: "white",
-            borderRadius: "12px", // Add border radius to outer Box
-            padding: "16px", // Optional padding
-            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Optional shadow
-            overflowX: "auto", // Horizontal scroll bar
-            overflowY: "auto", // Vertical scroll bar
-            maxHeight: "80vh", // Limit height to 80% of the viewport
-          }}
-        >
-          <InboxTable />
-        </Box>
-      </Box>
-    </MantineProvider>
-  );
-}
-
-export default Inbox;

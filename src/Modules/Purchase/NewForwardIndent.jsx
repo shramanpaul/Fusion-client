@@ -20,19 +20,25 @@ import {
   Drawer,
   Center,
   Loader,
+  Modal,
+  Table,
 } from "@mantine/core";
 import {
   IconFileDescription,
   IconPaperclip,
   IconSend,
   IconCheck,
-  IconClock,
+  // IconClock,
   IconMessageDots,
   IconArrowForward,
   IconFileDownload,
   IconCalendarTime,
-  IconHistory,
+  // IconHistory,
+  IconThumbUp,
 } from "@tabler/icons-react";
+import { showNotification } from "@mantine/notifications";
+import { Paperclip } from "@phosphor-icons/react";
+
 import dayjs from "dayjs";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -50,35 +56,31 @@ export default function NewForwardIndent() {
   const [designations, setDesignations] = useState([]);
   const navigate = useNavigate();
   const role = useSelector((state) => state.user.role);
+  const username = useSelector((state) => state.user.username);
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
   const [fileHistory, setFileHistory] = useState([]);
   const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [selectedHistoryFile] = useState({
+    id: null,
+    file: null,
+  });
+  const [confirmForwardOpen, setConfirmForwardOpen] = useState(false);
+  const [stringg, setstringg] = useState("");
+  const [approvalHistory, setApprovalHistory] = useState([]);
 
   const { indentID } = useParams();
   const [indent, setIndent] = useState(null);
   const [fileInfo, setFileInfo] = useState(null);
   const [department, setDepartment] = useState("");
-  console.log(fileInfo);
-  console.log(department);
   const [formValues, setFormValues] = useState({
     remark: "",
     forwardTo: "",
     receiverDesignation: "",
   });
-
-  const fetchAllUsers = async () => {
-    try {
-      const response = await axios.get(
-        `${host}/purchase-and-store/api/user-suggestions`,
-      );
-      setUsers(response.data.users);
-      setFilteredUsers(response.data.users);
-    } catch (error) {
-      console.error("Error fetching all users", error);
-    }
-  };
+  console.log(fileInfo, stringg, department);
 
   const getHistory = async (fileID) => {
     try {
@@ -89,10 +91,28 @@ export default function NewForwardIndent() {
         },
       });
       setFileHistory(response.data.reverse());
-      console.log(response.data);
     } catch (err) {
       console.error("Error fetching history:", err);
     }
+  };
+
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true, // Optional: Change to 24-hour format if needed
+    });
+  };
+  const [selectedRemarks, setSelectedRemarks] = useState("");
+  const [opened, setOpened] = useState(false);
+  const handleOpenRemarksModal = (x) => {
+    setSelectedRemarks(x);
+    setOpened(true);
   };
 
   const fetchIndentDetails = async () => {
@@ -108,13 +128,71 @@ export default function NewForwardIndent() {
           },
         },
       );
-      console.log(response.data);
       setIndent(response.data);
+      console.log(response.data);
+      setstringg(response.data.indent.approved_by);
+      console.log(response.data.indent.approved_by);
+      if (response.data.indent.approved_by) {
+        const approvals = response.data.indent.approved_by
+          .split(",")
+          .map((approval) => {
+            const trimmed = approval.trim();
+            const lastDashIndex = trimmed.lastIndexOf("-");
+            const namePart = trimmed.slice(0, lastDashIndex);
+            const rolePart = trimmed.slice(lastDashIndex + 1);
+
+            const name = namePart.replace(/_/g, " ");
+            const rolee = rolePart.trim();
+
+            return { name, rolee };
+          });
+
+        setApprovalHistory(approvals);
+      }
       setFileInfo(response.data.file);
       setDepartment(response.data.department);
       await getHistory(indentID);
     } catch (error) {
       console.error("Error fetching indents:", error);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (isApproving) return;
+    setIsApproving(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      console.log(indentID);
+      console.log(`${username}-${role}`);
+      await axios.post(
+        `${host}/purchase-and-store/api/approve-indent/`,
+        {
+          indent_id: indentID,
+          approval_data: `${username}-${role}`,
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      await fetchIndentDetails();
+    } catch (error) {
+      console.error("Error approving indent:", error);
+    }
+  };
+
+  const fetchAllUsers = async () => {
+    try {
+      const response = await axios.get(
+        `${host}/purchase-and-store/api/user-suggestions`,
+      );
+      setUsers(response.data.users);
+      setFilteredUsers(response.data.users);
+    } catch (error) {
+      console.error("Error fetching all users", error);
     }
   };
 
@@ -169,28 +247,55 @@ export default function NewForwardIndent() {
   const showStockEntryButton = () => {
     return (
       indent?.indent.head_approval &&
-      indent?.indent.director_approval &&
-      indent?.indent.purchased &&
-      !indent?.indent.financial_approval &&
-      role === "ps_admin"
+      // indent?.indent.director_approval &&
+      // indent?.indent.purchased &&
+      // !indent?.indent.financial_approval &&
+      role !== "Professor"
     );
   };
 
-  // const handleviewattachment = async (e) => {
-  //   e.preventDefault();
-  //   const token = localStorage.getItem("authToken");
-  //   console.log("token", token);
-  //   const response = await axios.get(`${host}/filetracking/api/file/788`, {
-  //     headers: {
-  //       Authorization: `Token ${token}`,
-  //     },
-  //   });
-  //   console.log(response);
-  //   setfilee(response.data.upload_file);
+  // const handleviewattachment = async (historyId) => {
+  //   try {
+  //     const token = localStorage.getItem("authToken");
+  //     const response = await axios.get(`${host}/filetracking/api/file/788`, {
+  //       headers: {
+  //         Authorization: `Token ${token}`,
+  //       },
+  //     });
+  //     setSelectedHistoryFile({
+  //       id: historyId,
+  //       file: response.data.upload_file,
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching file:", error);
+  //   }
   // };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
+    if (!formValues.remark) {
+      showNotification({
+        title: "Validation Error",
+        message: "Remarks are required!",
+        color: "red",
+      });
+      return;
+    }
+    if (!selectedUser) {
+      showNotification({
+        title: "Validation Error",
+        message: "Please select a receiver!",
+        color: "red",
+      });
+      return;
+    }
+    if (!formValues.receiverDesignation) {
+      showNotification({
+        title: "Validation Error",
+        message: "Please select a receiver designation!",
+        color: "red",
+      });
+      return;
+    }
     const data = new FormData();
     data.append("file", file);
     data.append("remarks", formValues.remark);
@@ -208,6 +313,7 @@ export default function NewForwardIndent() {
       });
 
       console.log("Success:", response.data);
+      setConfirmForwardOpen(false);
       navigate("/purchase/outbox");
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -228,7 +334,26 @@ export default function NewForwardIndent() {
   }
 
   return (
-    <Container size="xl" py="xl">
+    <Container size="100%" py="xl">
+      <Modal
+        opened={confirmForwardOpen}
+        onClose={() => setConfirmForwardOpen(false)}
+        title="Confirm Forward"
+        centered
+      >
+        <Text size="sm" mb="lg">
+          Are you sure you want to forward this indent to {selectedUser}?
+        </Text>
+        <Group position="right" spacing="sm">
+          <Button variant="light" onClick={() => setConfirmForwardOpen(false)}>
+            Cancel
+          </Button>
+          <Button color="blue" onClick={handleSubmit}>
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
+
       <Paper shadow="sm" p="md" mb="xl" radius="md">
         <Group position="apart" mb="md">
           <Group>
@@ -241,7 +366,7 @@ export default function NewForwardIndent() {
             </div>
           </Group>
           <Group>
-            <Button
+            {/* <Button
               variant="light"
               color="blue"
               size="md"
@@ -249,7 +374,19 @@ export default function NewForwardIndent() {
               onClick={() => setHistoryDrawerOpen(true)}
             >
               View Indent History
-            </Button>
+            </Button> */}
+            {role !== "Professor" && (
+              <Button
+                variant="light"
+                color="green"
+                size="md"
+                leftIcon={<IconThumbUp size={20} />}
+                onClick={handleApprove}
+                disabled={isApproving}
+              >
+                {isApproving ? "Approved" : "Approve Indent"}
+              </Button>
+            )}
             <Badge size="lg" color={indent.indent.purchased ? "green" : "blue"}>
               {indent.indent.purchased ? "Purchased" : "In Progress"}
             </Badge>
@@ -261,7 +398,7 @@ export default function NewForwardIndent() {
           </Group>
         </Group>
 
-        <Timeline
+        {/* <Timeline
           active={
             indent.indent.financial_approval
               ? 2
@@ -315,7 +452,45 @@ export default function NewForwardIndent() {
               Financial clearance status
             </Text>
           </Timeline.Item>
-        </Timeline>
+        </Timeline> */}
+        <Box mb="xl">
+          <Title order={4} mb="md">
+            Approval Status
+          </Title>
+
+          {approvalHistory.length === 0 ? (
+            <Text size="sm" color="dimmed">
+              No approvals received yet.
+            </Text>
+          ) : (
+            approvalHistory.map((approval, index) => (
+              <Paper
+                key={index}
+                p="md"
+                mb="xs"
+                withBorder
+                sx={(theme) => ({
+                  backgroundColor: theme.colors.gray[0],
+                  display: "flex",
+                  alignItems: "center",
+                  gap: theme.spacing.sm,
+                })}
+              >
+                <ThemeIcon color="green" size={28} radius="xl">
+                  <IconCheck size={18} />
+                </ThemeIcon>
+                <div>
+                  <Text size="sm" weight={500}>
+                    Approved by {approval.name}
+                  </Text>
+                  <Text size="xs" color="dimmed" transform="capitalize">
+                    {approval.rolee.replace(/_/g, " ")}
+                  </Text>
+                </div>
+              </Paper>
+            ))
+          )}
+        </Box>
       </Paper>
 
       <Title order={3} mb="md">
@@ -344,7 +519,7 @@ export default function NewForwardIndent() {
                     color="green"
                     size={isMobile ? "xs" : "sm"}
                     onClick={() =>
-                      navigate("/purchase/stock_entry/", {
+                      navigate("/inventory", {
                         state: {
                           file: indent.file,
                           department: indent.department,
@@ -452,6 +627,214 @@ export default function NewForwardIndent() {
         ))}
       </Accordion>
 
+      <Title order={4} mt="xl" mb="md">
+        Tracking History
+      </Title>
+      <Box
+        style={{
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+          overflowY: "auto",
+          overflowX: "auto",
+          backgroundColor: "#fff",
+        }}
+      >
+        <Table
+          highlightOnHover
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            tableLayout: "fixed",
+            fontSize: "12px", // Reduced font size
+          }}
+        >
+          <thead>
+            <tr>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "9%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Date
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "13%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Sender
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "13%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Receiver
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "13%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Designation
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "20%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Remarks
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "10%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Attachment
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {fileHistory.map((track, index) => (
+              <tr key={index}>
+                <td
+                  style={{
+                    padding: "8px", // Reduced padding
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word", // Prevent overflow
+                  }}
+                >
+                  {formatDate(track.forward_date)}
+                </td>
+                <td
+                  style={{
+                    padding: "8px", // Reduced padding
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word", // Prevent overflow
+                  }}
+                >
+                  {track.current_id}
+                </td>
+                <td
+                  style={{
+                    padding: "8px", // Reduced padding
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word", // Prevent overflow
+                  }}
+                >
+                  {track.receiver_id}
+                </td>
+                <td
+                  style={{
+                    padding: "8px", // Reduced padding
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word", // Prevent overflow
+                  }}
+                >
+                  {track.receive_design}
+                </td>
+                {/* <td
+                        style={{
+                          padding: "8px", // Reduced padding
+                          textAlign: "center",
+                          border: "1px solid #ddd",
+                          wordWrap: "break-word", // Prevent overflow
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleOpenRemarksModal(track.remarks || "No remark")}
+                      > */}
+                <td
+                  style={{
+                    padding: "8px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                  }}
+                >
+                  <button
+                    style={{
+                      all: "unset", // Remove default button styles
+                      cursor: "pointer",
+                      wordWrap: "break-word",
+                      textAlign: "center",
+                      width: "100%",
+                    }}
+                    onClick={() =>
+                      handleOpenRemarksModal(track.remarks || "No remark")
+                    }
+                  >
+                    {track.remarks && track.remarks.length > 15
+                      ? `${track.remarks.slice(0, 15)}...`
+                      : track.remarks || "No remark"}
+                  </button>
+                </td>
+                <td
+                  style={{
+                    padding: "8px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word",
+                  }}
+                >
+                  {track.upload_file ? (
+                    <a
+                      href={`${host}${track.upload_file}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        textDecoration: "none",
+                        color: "white",
+                        backgroundColor: "#007bff",
+                        padding: "5px 10px",
+                        borderRadius: "4px",
+                        display: "inline-block",
+                      }}
+                    >
+                      View Attachment
+                    </a>
+                  ) : (
+                    "No Attachment"
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+
+        {/* Modal to show remarks */}
+        <Modal
+          opened={opened}
+          onClose={() => setOpened(false)}
+          title="Full Remarks"
+          size="lg"
+        >
+          <Text style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+            {selectedRemarks}
+          </Text>
+        </Modal>
+      </Box>
+
       <Paper shadow="sm" p="lg" radius="md">
         <Title order={3} mb="lg">
           Forward Indent
@@ -465,6 +848,7 @@ export default function NewForwardIndent() {
               value={formValues.remark}
               onChange={handleInputChange("remark")}
               icon={<IconMessageDots size={14} />}
+              required
             />
           </Grid.Col>
           <Grid.Col span={12}>
@@ -480,6 +864,7 @@ export default function NewForwardIndent() {
               onSearchChange={handleSearchChange}
               searchable
               clearable
+              required
             />
           </Grid.Col>
 
@@ -495,6 +880,7 @@ export default function NewForwardIndent() {
               onChange={handleDesignationChange}
               searchable
               clearable
+              required
             />
           </Grid.Col>
 
@@ -514,9 +900,9 @@ export default function NewForwardIndent() {
                 color="green"
                 size="md"
                 leftIcon={<IconSend size={20} />}
-                onClick={handleSubmit}
+                onClick={() => setConfirmForwardOpen(true)}
               >
-                Submit
+                Forward
               </Button>
             </Group>
           </Grid.Col>
@@ -578,6 +964,27 @@ export default function NewForwardIndent() {
                     View Attachment
                   </Button>
                 )}
+                {selectedHistoryFile.id === history.id &&
+                  selectedHistoryFile.file && (
+                    <Group spacing="xs" mt="xs">
+                      <Paperclip size="1rem" />
+                      <Button
+                        variant="light"
+                        component="a"
+                        href={`${host}/${selectedHistoryFile.file}`}
+                        target="_blank"
+                        radius="md"
+                        sx={{
+                          textOverflow: "ellipsis",
+                          maxWidth: "200px",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {selectedHistoryFile.file.split("/")[2]}
+                      </Button>
+                    </Group>
+                  )}
               </Box>
             </Timeline.Item>
           ))}

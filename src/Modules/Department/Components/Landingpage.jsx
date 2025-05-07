@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 import React, { lazy, Suspense, useRef, useState, useEffect } from "react";
 import {
   Container,
@@ -37,13 +38,14 @@ const departments = [
 ];
 
 export default function LandingPage() {
-  const [, setRole] = useState(null);
+  const [role, setRole] = useState(null);
   const [branch, setBranch] = useState(null);
-  const [activeTab, setActiveTab] = useState(null);
+  const [activeTab, setActiveTab] = useState("1"); // Default active tab
   const [loading, setLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [error, setError] = useState(null);
   const tabsListRef = useRef(null);
+
   useEffect(() => {
     const fetchUserDepartment = async () => {
       const token = localStorage.getItem("authToken");
@@ -68,21 +70,29 @@ export default function LandingPage() {
     };
     fetchUserDepartment();
   }, []);
+
   const handleTabChange = (direction) => {
-    const newIndex =
-      direction === "next"
-        ? Math.min(+activeTab + 1, departments.length - 1)
-        : Math.max(+activeTab - 1, 0);
-    setActiveTab(String(newIndex));
-    tabsListRef.current?.scrollBy({
-      left: direction === "next" ? 50 : -50,
-      behavior: "smooth",
-    });
+    if (direction === "next") {
+      // Only allow navigation in the three main tabs (Make, Browse, Feedback)
+      const validTabs = ["0", "1", "2"];
+      const nextTabIndex = validTabs.indexOf(activeTab) + 1;
+      if (nextTabIndex < validTabs.length) {
+        setActiveTab(validTabs[nextTabIndex]);
+      }
+    } else {
+      const validTabs = ["0", "1", "2"];
+      const prevTabIndex = validTabs.indexOf(activeTab) - 1;
+      if (prevTabIndex >= 0) {
+        setActiveTab(validTabs[prevTabIndex]);
+      }
+    }
   };
 
   const renderTabContent = () => (
     <Suspense fallback={<Loader />}>
-      {activeTab === "0" && <MakeAnnouncement />}
+      {activeTab === "0" && role && !role.toLowerCase().includes("student") && (
+        <MakeAnnouncement />
+      )}
       {activeTab === "1" && <BrowseAnnouncements />}
       {activeTab === "2" && <FeedbackForm branch={branch} />}
       {departments.map((dept) =>
@@ -108,9 +118,26 @@ export default function LandingPage() {
             mb="lg"
             style={{ flexWrap: "nowrap" }}
           >
-            <Title order={2}>Department Portal</Title>
+            {/* Clickable Department Portal Title */}
+            <Title
+              order={2}
+              style={{
+                cursor: "pointer",
+                color: "#1C6FB1", // Blue color for clickable text (blue.7)
+                transition: "color 0.3s ease", // Smooth color transition on hover
+              }}
+              onClick={() => {
+                // Set activeTab to the "About Us" section of the user's department
+                const deptTab = departments.find((d) => d.code === branch)?.id;
+                setActiveTab(deptTab || "3");
+              }} // Only update activeTab, no page refresh
+              onMouseEnter={(e) => (e.target.style.color = "#1C6FB1")} // Darker blue on hover
+              onMouseLeave={(e) => (e.target.style.color = "black")} // Reset to original color on mouse leave
+            >
+              Department Portal
+            </Title>
+
             <Group spacing="sm" style={{ marginLeft: "auto" }}>
-              {}
               <Button
                 onClick={() => handleTabChange("prev")}
                 variant="subtle"
@@ -126,12 +153,14 @@ export default function LandingPage() {
               >
                 <Tabs value={activeTab} onChange={setActiveTab}>
                   <Tabs.List>
-                    <Button
-                      variant={activeTab === "0" ? "filled" : "light"}
-                      onClick={() => setActiveTab("0")}
-                    >
-                      Make Announcement
-                    </Button>
+                    {role && !role.toLowerCase().includes("student") && (
+                      <Button
+                        variant={activeTab === "0" ? "filled" : "light"}
+                        onClick={() => setActiveTab("0")}
+                      >
+                        Make Announcement
+                      </Button>
+                    )}
                     <Button
                       variant={activeTab === "1" ? "filled" : "light"}
                       onClick={() => setActiveTab("1")}

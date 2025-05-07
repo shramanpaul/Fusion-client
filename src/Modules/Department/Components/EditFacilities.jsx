@@ -1,162 +1,136 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import PropTypes from "prop-types";
 import {
   TextInput,
-  Textarea,
   Button,
   Container,
   Title,
-  Table,
   Divider,
+  Paper,
+  Notification,
+  Group,
+  Center,
+  Grid,
+  Badge,
+  Checkbox,
+  FileInput,
 } from "@mantine/core";
+import { IconCheck, IconX, IconPhoto, IconTrash } from "@tabler/icons-react";
 import { host } from "../../../routes/globalRoutes";
+import FacilityGallery from "./FacilityGallery"; // Import FacilityGallery
 
 function GoBackButton({ setIsEditing }) {
   return (
-    <div>
-      <button
+    <Group position="left" mb="md">
+      <Button
+        variant="filled"
+        color="indigo"
         onClick={() => setIsEditing(false)}
-        style={{
-          padding: "5px 10px",
-          backgroundColor: "indigo",
-          color: "#fff",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          marginBottom: "20px",
-        }}
       >
         Go Back
-      </button>
-    </div>
+      </Button>
+    </Group>
   );
 }
 
-// Prop validation for GoBackButton
 GoBackButton.propTypes = {
   setIsEditing: PropTypes.func.isRequired,
 };
 
+// eslint-disable-next-line react/prop-types
 export default function EditFacilities({ setIsEditing, branch }) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
-  const [facilitiesDescription, setFacilitiesDescription] = useState("");
-  const [loading, setLoading] = useState(false); // To manage loading state
-  const [errorMessage, setErrorMessage] = useState(""); // To handle errors
-  const [isSuccess, setIsSuccess] = useState(false); // To handle success message
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  // States for the Edit Labs form
   const [labName, setLabName] = useState("");
   const [labCapacity, setLabCapacity] = useState("");
   const [labLocation, setLabLocation] = useState("");
-  const [labLoading, setLabLoading] = useState(false); // To manage loading state for labs
-  const [setLabErrorMessage] = useState(""); // To handle errors for labs
-  const [labIsSuccess, setLabIsSuccess] = useState(false); // To handle success message for labs
+  const [labLoading, setLabLoading] = useState(false);
+  const [setLabErrorMessage] = useState("");
+  const [labIsSuccess, setLabIsSuccess] = useState(false);
 
-  // State for labs data
   const [labs, setLabs] = useState([]);
-  const [selectedLabs, setSelectedLabs] = useState([]); // State to store selected labs for potential deletion
+  const [selectedLabs, setSelectedLabs] = useState([]);
+  const [facilityName, setFacilityName] = useState("");
+  const [facilityLocation, setFacilityLocation] = useState("");
+  const [facilityPictureFile, setFacilityPictureFile] = useState(null);
+  const [facilityLoading, setFacilityLoading] = useState(false);
+  const scrollContainerRef = useRef(null); // Ref for scroll container
 
-  // Fetch the labs data when the component mounts
   useEffect(() => {
     const fetchLabs = async () => {
-      const token = localStorage.getItem("authToken"); // Get token from local storage
-
+      const token = localStorage.getItem("authToken");
       try {
         const response = await axios.get(`${host}/dep/api/labs/`, {
-          headers: {
-            Authorization: `Token ${token}`, // Include the token in the headers
-          },
+          headers: { Authorization: `Token ${token}` },
         });
-        // Filter labs by the current branch
         setLabs(response.data.filter((lab) => lab.department === branch));
       } catch (error) {
         console.error("Error fetching labs:", error);
       }
     };
-
-    fetchLabs(); // Call the function to fetch labs
-  }, [branch]); // Run when branch changes
+    fetchLabs();
+  }, [branch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading
+    setLoading(true);
+    const token = localStorage.getItem("authToken");
 
-    const token = localStorage.getItem("authToken"); // Get token from local storage
-
-    // Construct the data to be sent for facilities
     const data = {
       phone_number: phoneNumber,
       email,
-      facilites: facilitiesDescription, // Ensure the spelling matches your API's expectations
-      department: branch === "DS" ? "Design" : branch, // Include the branch in the request
+      department: branch === "DS" ? "Design" : branch,
     };
 
     try {
-      // Make the API request using PUT method
       const response = await axios.put(
         `${host}/dep/api/information/update-create/`,
         data,
-        {
-          headers: {
-            Authorization: `Token ${token}`, // Include the token in the headers
-          },
-        },
+        { headers: { Authorization: `Token ${token}` } },
       );
-
-      console.log("Form Data Updated:", response.data); // Log the response
-      setIsSuccess(true); // Set success state
-
-      // Reset the form fields
+      console.log("Form Data Updated:", response.data);
+      setIsSuccess(true);
       setPhoneNumber("");
       setEmail("");
-      setFacilitiesDescription("");
     } catch (error) {
       const errorResponse = error.response?.data || error.message;
       setErrorMessage(
         errorResponse.detail || "Error updating data. Please try again.",
       );
-      console.error("Error updating data:", errorResponse);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
   const handleLabSubmit = async (e) => {
     e.preventDefault();
-    setLabLoading(true); // Start loading for lab submission
+    setLabLoading(true);
+    const token = localStorage.getItem("authToken");
 
-    const token = localStorage.getItem("authToken"); // Get token from local storage
-
-    // Construct the data to be sent for lab
     const labData = {
       name: labName,
       capacity: labCapacity,
       location: labLocation,
-      department: branch, // Include the branch in the request
+      department: branch,
     };
 
     try {
-      // Make the API request using POST method
       const response = await axios.post(`${host}/dep/api/labsadd/`, labData, {
-        headers: {
-          Authorization: `Token ${token}`, // Include the token in the headers
-        },
+        headers: { Authorization: `Token ${token}` },
       });
-
-      console.log("Lab Data Submitted:", response.data); // Log the response
-      setLabIsSuccess(true); // Set success state for lab submission
-
-      // Reset the form fields
+      console.log("Lab Data Submitted:", response.data);
+      setLabIsSuccess(true);
       setLabName("");
       setLabCapacity("");
       setLabLocation("");
-      // Re-fetch labs to update the table after adding a new lab
-      const responseLabs = await axios.get(`{host}/dep/api/labs/`, {
-        headers: {
-          Authorization: `Token ${token}`, // Include the token in the headers
-        },
+
+      const responseLabs = await axios.get(`${host}/dep/api/labs/`, {
+        headers: { Authorization: `Token ${token}` },
       });
       setLabs(responseLabs.data.filter((lab) => lab.department === branch));
     } catch (error) {
@@ -164,9 +138,8 @@ export default function EditFacilities({ setIsEditing, branch }) {
       setLabErrorMessage(
         errorResponse.detail || "Error adding lab. Please try again.",
       );
-      console.error("Error adding lab:", errorResponse);
     } finally {
-      setLabLoading(false); // Stop loading for lab submission
+      setLabLoading(false);
     }
   };
 
@@ -179,195 +152,289 @@ export default function EditFacilities({ setIsEditing, branch }) {
   };
 
   const handleDeleteLabs = async () => {
-    console.log("Selected Labs for Deletion:", selectedLabs); // Check selected labs
-
     if (selectedLabs.length === 0) {
       alert("No labs selected for deletion.");
-      return; // Exit if no labs are selected
+      return;
     }
 
-    const token = localStorage.getItem("authToken"); // Get token from local storage
-
+    const token = localStorage.getItem("authToken");
     try {
-      const response = await axios.delete(`${host}/dep/api/labs/delete/`, {
-        headers: {
-          Authorization: `Token ${token}`, // Include the token in the headers
-        },
-        data: {
-          lab_ids: selectedLabs, // Send the selected lab IDs as an array
-        },
+      await axios.delete(`${host}/dep/api/labs/delete/`, {
+        headers: { Authorization: `Token ${token}` },
+        data: { lab_ids: selectedLabs },
       });
-
-      console.log("Labs Deleted:", response.data); // Log the response
-      // Re-fetch labs to update the table after deletion
       const responseLabs = await axios.get(`${host}/dep/api/labs/`, {
-        headers: {
-          Authorization: `Token ${token}`, // Include the token in the headers
-        },
+        headers: { Authorization: `Token ${token}` },
       });
       setLabs(responseLabs.data.filter((lab) => lab.department === branch));
-
-      // Reset selected labs
       setSelectedLabs([]);
     } catch (error) {
       const errorResponse = error.response?.data || error.message;
       setErrorMessage(
         errorResponse.detail || "Error deleting labs. Please try again.",
       );
-      console.error("Error deleting labs:", errorResponse);
     }
+  };
+
+  const [facilityAmount, setFacilityAmount] = useState("");
+
+  const handleFacilitySubmit = async (e) => {
+    e.preventDefault();
+    setFacilityLoading(true);
+    const token = localStorage.getItem("authToken");
+
+    const facilityData = new FormData();
+    facilityData.append("name", facilityName);
+    facilityData.append("branch", branch);
+    facilityData.append("location", facilityLocation);
+    facilityData.append("amount", facilityAmount);
+
+    if (facilityPictureFile) {
+      facilityData.append("picture", facilityPictureFile);
+    }
+
+    try {
+      const response = await axios.post(
+        `${host}/dep/api/facilities/`,
+        facilityData,
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      console.log("Facility Data Submitted:", response.data);
+      setFacilityName("");
+      setFacilityLocation("");
+      setFacilityPictureFile(null);
+    } catch (error) {
+      const errorResponse = error.response?.data || error.message;
+      setErrorMessage(
+        errorResponse.detail || "Error adding facility. Please try again.",
+      );
+    } finally {
+      setFacilityLoading(false);
+    }
+  };
+
+  const handleFileChange = (file) => {
+    setFacilityPictureFile(file);
   };
 
   return (
     <div>
       <GoBackButton setIsEditing={setIsEditing} />
-      <Container
-        style={{
-          padding: "20px",
-          borderRadius: "8px",
-          display: "flex",
-          flexDirection: "column", // Set to column for the GoBackButton and Title
-        }}
-      >
-        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+      <Container size="xl">
+        {errorMessage && (
+          <Notification icon={<IconX size={18} />} color="red" mb="sm">
+            {errorMessage}
+          </Notification>
+        )}
+        <Divider my="xl" />
+        <Grid gutter="md" mt="xl">
+          <Grid.Col xs={12} md={5}>
+            <Paper withBorder shadow="sm" p="lg" radius="md">
+              <Title order={5} mb="sm">
+                Update Department Contact
+              </Title>
+              <form onSubmit={handleSubmit}>
+                <TextInput
+                  label="Phone Number"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  mb="xs"
+                />
+                <TextInput
+                  label="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  mb="xs"
+                />
+                <Button
+                  type="submit"
+                  loading={loading}
+                  color="indigo"
+                  mt="sm"
+                  fullWidth
+                >
+                  Update
+                </Button>
+                {isSuccess && (
+                  <Notification
+                    icon={<IconCheck size={18} />}
+                    color="green"
+                    mt="sm"
+                  >
+                    Information updated successfully!
+                  </Notification>
+                )}
+              </form>
+            </Paper>
+          </Grid.Col>
 
-        {/* Flex container for horizontal layout */}
-        <div style={{ display: "flex", gap: "20px" }}>
-          {/* Facilities Form */}
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              flex: "1",
-              border: "1px solid #ccc",
-              padding: "20px",
-              borderRadius: "8px",
-            }}
-          >
-            <Title order={6} style={{ marginBottom: "20px" }}>
-              Information
-            </Title>
-            <TextInput
-              label="Phone Number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              style={{ marginBottom: "15px" }}
-            />
-            <TextInput
-              label="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ marginBottom: "15px" }}
-            />
-            <Textarea
-              label="Facilities Description"
-              value={facilitiesDescription}
-              onChange={(e) => setFacilitiesDescription(e.target.value)}
-              style={{ marginBottom: "15px" }}
-            />
-            <Button
-              type="submit"
-              loading={loading}
-              style={{ marginTop: "15px", backgroundColor: "indigo" }}
-            >
-              Update
-            </Button>
-            {isSuccess && (
-              <p style={{ color: "green" }}>Facilities updated successfully!</p>
-            )}
-          </form>
-
-          {/* Labs Form */}
-          <form
-            onSubmit={handleLabSubmit}
-            style={{
-              flex: "1",
-              border: "1px solid #ccc",
-              padding: "20px",
-              borderRadius: "8px",
-            }}
-          >
-            <Title order={6} style={{ marginBottom: "20px" }}>
-              Add Lab
-            </Title>
-            <TextInput
-              label="Lab Name"
-              value={labName}
-              onChange={(e) => setLabName(e.target.value)}
-              style={{ marginBottom: "15px" }}
-            />
-            <TextInput
-              label="Lab Capacity"
-              value={labCapacity}
-              onChange={(e) => setLabCapacity(e.target.value)}
-              style={{ marginBottom: "15px" }}
-            />
-            <TextInput
-              label="Lab Location"
-              value={labLocation}
-              onChange={(e) => setLabLocation(e.target.value)}
-              style={{ marginBottom: "15px" }}
-            />
-            <Button
-              type="submit"
-              loading={labLoading}
-              style={{ marginTop: "35px", backgroundColor: "indigo" }}
-            >
-              Add Lab
-            </Button>
-            {labIsSuccess && (
-              <p style={{ color: "green" }}>Lab added successfully!</p>
-            )}
-          </form>
-        </div>
-
-        <Divider style={{ margin: "20px 0" }} />
-
-        <Title order={6} style={{ marginBottom: "20px" }}>
-          Labs
+          <Grid.Col xs={12} md={5}>
+            <Paper withBorder shadow="sm" p="lg" radius="md">
+              <Title order={5} mb="sm">
+                Add Lab
+              </Title>
+              <form onSubmit={handleLabSubmit}>
+                <TextInput
+                  label="Lab Name"
+                  value={labName}
+                  onChange={(e) => setLabName(e.target.value)}
+                  mb="xs"
+                />
+                <TextInput
+                  label="Lab Capacity"
+                  value={labCapacity}
+                  onChange={(e) => setLabCapacity(e.target.value)}
+                  mb="xs"
+                />
+                <TextInput
+                  label="Lab Location"
+                  value={labLocation}
+                  onChange={(e) => setLabLocation(e.target.value)}
+                  mb="xs"
+                />
+                <Button
+                  type="submit"
+                  loading={labLoading}
+                  color="indigo"
+                  fullWidth
+                >
+                  Add Lab
+                </Button>
+                {labIsSuccess && (
+                  <Notification
+                    icon={<IconCheck size={18} />}
+                    color="green"
+                    mt="sm"
+                  >
+                    Lab added successfully!
+                  </Notification>
+                )}
+              </form>
+            </Paper>
+            <Paper withBorder shadow="sm" p="lg" radius="md">
+              <Title order={4} mb="md">
+                Add Facility
+              </Title>
+              <form onSubmit={handleFacilitySubmit}>
+                <TextInput
+                  label="Facility Name"
+                  value={facilityName}
+                  onChange={(e) => setFacilityName(e.target.value)}
+                  mb="xs"
+                />
+                <TextInput
+                  label="Facility Location"
+                  value={facilityLocation}
+                  onChange={(e) => setFacilityLocation(e.target.value)}
+                  mb="xs"
+                />
+                <TextInput
+                  label="amount"
+                  value={facilityAmount}
+                  onChange={(e) => setFacilityAmount(e.target.value)}
+                  type="number"
+                  min={0}
+                  mb="xs"
+                />
+                <FileInput
+                  label="Facility Picture"
+                  placeholder="Choose a file"
+                  value={facilityPictureFile}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  mb="xs"
+                  icon={<IconPhoto size={14} />}
+                  withPreview
+                  clearable
+                />
+                <Button
+                  type="submit"
+                  loading={facilityLoading}
+                  color="indigo"
+                  fullWidth
+                >
+                  Add Facility
+                </Button>
+              </form>
+            </Paper>
+          </Grid.Col>
+        </Grid>
+        <Divider my="xl" />
+        <Title order={4} mb="md">
+          Manage Labs
         </Title>
-        <Table>
-          <thead>
-            <tr>
-              <br />
-              <th>Lab Name</th>
-              <th>Capacity</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-          <tbody>
-            {labs.map((lab) => (
-              <tr key={lab.id}>
-                <td>
-                  <label htmlFor={`lab-${lab.id}`}>
-                    <input
-                      type="checkbox"
-                      id={`lab-${lab.id}`}
-                      checked={selectedLabs.includes(lab.id)}
-                      onChange={() => handleLabSelection(lab.id)}
-                    />
-                    {lab.name}
-                  </label>
-                </td>
-                <td>{lab.name}</td>
-                <td>{lab.capacity}</td>
-                <td>{lab.location}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-        <Button
-          onClick={handleDeleteLabs}
-          disabled={selectedLabs.length === 0} // Disable if no labs are selected
-          style={{ marginTop: "20px", backgroundColor: "indigo" }}
+        <div
+          style={{
+            display: "flex",
+            overflowX: "auto",
+            paddingBottom: "1rem",
+            gap: "16px",
+          }}
+          ref={scrollContainerRef}
         >
-          Delete Selected Labs
-        </Button>
+          {labs.map((lab) => {
+            const isSelected = selectedLabs.includes(lab.id);
+            return (
+              <Paper
+                key={lab.id}
+                withBorder
+                shadow="xs"
+                p="md"
+                radius="md"
+                style={{
+                  width: "250px",
+                  flexShrink: 0,
+                  border: isSelected
+                    ? "2px solid #4c6ef5"
+                    : "1px solid #ced4da",
+                  transition: "all 0.2s ease",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleLabSelection(lab.id)}
+              >
+                <Group position="apart" mb="xs">
+                  <Title order={6}>{lab.name}</Title>
+                  <Checkbox
+                    checked={isSelected}
+                    onChange={() => handleLabSelection(lab.id)}
+                    color="indigo"
+                  />
+                </Group>
+                <Badge color="gray" mb="xs">
+                  Capacity: {lab.capacity}
+                </Badge>
+                <Badge color="gray">{lab.location}</Badge>
+              </Paper>
+            );
+          })}
+        </div>
+        {selectedLabs.length > 0 && (
+          <Center>
+            <Button
+              variant="filled"
+              color="red"
+              leftIcon={<IconTrash size={18} />}
+              onClick={handleDeleteLabs}
+              loading={loading}
+              size="md"
+              radius="md"
+            >
+              Delete Selected Labs
+            </Button>
+          </Center>
+        )}
+        {/* Add FacilityGallery below the labs section */}
+        <Divider my="xl" />
+        <Title order={4} mb="md">
+          Manage Facilities
+        </Title>
+        <FacilityGallery branch={branch} /> {/* Pass branch prop here */}
       </Container>
     </div>
   );
 }
-
-EditFacilities.propTypes = {
-  setIsEditing: PropTypes.bool.isRequired,
-  branch: PropTypes.string.isRequired,
-};

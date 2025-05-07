@@ -3,17 +3,26 @@ import { Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
-import { Route, Routes, Navigate, useLocation } from "react-router-dom";
+import {
+  Route,
+  Routes,
+  Navigate,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import { Notifications } from "@mantine/notifications";
+import { host } from "./routes/globalRoutes";
 import { Layout } from "./components/layout";
 import InventoryIndex from "./Modules/Inventory/components/InventoryIndex";
 import PurchaseRoutes from "./Modules/Purchase/PurchaseRoute.jsx";
+import PatentRoutes from "./Modules/Patent/routes/PatentRoutes";
 
 // eslint-disable-next-line import/no-unresolved
-import { DesignationsProvider } from "./Modules/Iwd/helper/designationContext";
 import UserBreadcrumbs from "./Modules/Scholarship/user/components/UserBreadcumbs";
 import OtherAcadProcedures from "./Modules/Otheracademic/OtherAcademicProcedures";
 import PendingReqs from "./Modules/Visitors_Hostel/pendingRequests.jsx";
+import { DesignationsProvider } from "./Modules/Iwd/helper/designationContext";
+import { WorkProvider } from "./Modules/Iwd/helper/WorkContext";
 
 const PlacementCellPage = lazy(() => import("./Modules/PlacementCell"));
 const JobApplicationForm = lazy(
@@ -32,6 +41,9 @@ const ConvenorBreadcumbs = lazy(
 );
 const HostelPage = lazy(() => import("./Modules/Hostel-Management/index"));
 const IwdModule = lazy(() => import("./Modules/Iwd/index"));
+const IwdWorkPage = lazy(
+  () => import("./Modules/Iwd/components/managebills/index"),
+);
 
 const Dashboard = lazy(
   () => import("./Modules/Dashboard/dashboardNotifications"),
@@ -102,14 +114,19 @@ const CourseManagementPage = lazy(() => import("./Modules/CourseManagement"));
 const theme = createTheme({
   breakpoints: { xs: "30em", sm: "48em", md: "64em", lg: "74em", xl: "90em" },
 });
-
+function ProfileRouteWithUsername() {
+  const { username } = useParams();
+  return <Profile connectionRoute={`${host}/dep/api/profile/${username}/`} />;
+}
 export default function App() {
   const location = useLocation();
   const role = useSelector((state) => state.user.role);
   return (
     <MantineProvider theme={theme}>
       <Notifications position="top-center" autoClose={2000} limit={1} />
-      {location.pathname !== "/accounts/login" && <ValidateAuth />}
+      {location.pathname !== ("/accounts/login" && "/reset-password") && (
+        <ValidateAuth />
+      )}
       {location.pathname !== "/accounts/login" && <InactivityHandler />}
 
       <Routes>
@@ -242,6 +259,16 @@ export default function App() {
             <Layout>
               <Suspense fallback={<div>Loading .... </div>}>
                 <Profile />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/profile/:username"
+          element={
+            <Layout>
+              <Suspense fallback={<div>Loading .... </div>}>
+                <ProfileRouteWithUsername />
               </Suspense>
             </Layout>
           }
@@ -420,13 +447,27 @@ export default function App() {
         <Route
           path="/iwd"
           element={
-            <DesignationsProvider>
-              <Layout>
-                <Suspense fallback={<div>Loading .... </div>}>
+            <Suspense fallback={<div>Loading .... </div>}>
+              <DesignationsProvider>
+                <Layout>
                   <IwdModule />
-                </Suspense>
-              </Layout>
-            </DesignationsProvider>
+                </Layout>
+              </DesignationsProvider>
+            </Suspense>
+          }
+        />
+        <Route
+          path="/iwd/work/:id"
+          element={
+            <Suspense fallback={<div>Loading .... </div>}>
+              <DesignationsProvider>
+                <WorkProvider>
+                  <Layout>
+                    <IwdWorkPage />
+                  </Layout>
+                </WorkProvider>
+              </DesignationsProvider>
+            </Suspense>
           }
         />
         <Route
@@ -483,6 +524,7 @@ export default function App() {
 
         <Route path="/healthcenter/*" element={<HealthCenter />} />
         <Route path="/purchase/*" element={<PurchaseRoutes />} />
+        <Route path="/patent/*" element={<PatentRoutes />} />
         <Route path="/accounts/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ForgotPassword />} />
         <Route

@@ -26,25 +26,36 @@ import {
   Loader,
   Drawer,
   ThemeIcon,
+  Table,
+  Modal,
+  // Flex,
 } from "@mantine/core";
 import {
   IconFileDescription,
   IconArchive,
   IconCheck,
   IconSend,
-  IconClock,
+  // IconClock,
+  IconThumbUp,
   IconNotes,
   IconPaperclip,
   IconMessageDots,
   IconPrinter,
-  IconHistory,
+  // IconHistory,
   IconArrowForward,
   IconCalendarTime,
   IconFileDownload,
+  IconClipboardCheck,
+  IconClipboardX,
+  // IconStamp,
+  // IconUserCheck,
+  // IconBadge,
+  // IconCheckbox,
 } from "@tabler/icons-react";
 import axios from "axios";
 import dayjs from "dayjs";
 import { useMediaQuery } from "@mantine/hooks";
+import { showNotification } from "@mantine/notifications";
 import { host } from "../../routes/globalRoutes";
 import { historyRoute } from "../../routes/filetrackingRoutes";
 import {
@@ -69,6 +80,11 @@ function EmployeeViewFileIndent() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [file, setFile] = useState(null);
   const [users, setUsers] = useState([]);
+  const username = useSelector((state) => state.user.username);
+  const [isApproving, setIsApproving] = useState(false);
+  const [stringg, setstringg] = useState("");
+  console.log(stringg);
+  const [approvalHistory, setApprovalHistory] = useState([]);
   const [formValues, setFormValues] = useState({
     title: "",
     description: "",
@@ -160,10 +176,46 @@ function EmployeeViewFileIndent() {
     fetchDesignations(value);
   };
 
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true, // Optional: Change to 24-hour format if needed
+    });
+  };
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!formValues.remark) {
+      showNotification({
+        title: "Validation Error",
+        message: "Remarks are required!",
+        color: "red",
+      });
+      return;
+    }
+    if (!selectedUser) {
+      showNotification({
+        title: "Validation Error",
+        message: "Please select a receiver!",
+        color: "red",
+      });
+      return;
+    }
+    if (!formValues.receiverDesignation) {
+      showNotification({
+        title: "Validation Error",
+        message: "Please select a receiver designation!",
+        color: "red",
+      });
+      return;
+    }
     const data = new FormData();
     // data.append("title", indent.indent.item_name);
     // data.append("description", indent.item_name);
@@ -208,6 +260,12 @@ function EmployeeViewFileIndent() {
     }));
   };
   const { toPDF, targetRef } = usePDF({ filename: `indent_${indentID}.pdf` });
+  const [selectedRemarks, setSelectedRemarks] = useState("");
+  const [opened, setOpened] = useState(false);
+  const handleOpenRemarksModal = (x) => {
+    setSelectedRemarks(x);
+    setOpened(true);
+  };
 
   const archiveIndent = async (indentId) => {
     try {
@@ -242,6 +300,26 @@ function EmployeeViewFileIndent() {
         },
       );
       setIndent(response.data);
+      console.log(response.data);
+      setstringg(response.data.indent.approved_by);
+      console.log(response.data.indent.approved_by);
+      if (response.data.indent.approved_by) {
+        const approvals = response.data.indent.approved_by
+          .split(",")
+          .map((approval) => {
+            const trimmed = approval.trim();
+            const lastDashIndex = trimmed.lastIndexOf("-");
+            const namePart = trimmed.slice(0, lastDashIndex);
+            const rolePart = trimmed.slice(lastDashIndex + 1);
+
+            const name = namePart.replace(/_/g, " ");
+            const rolee = rolePart.trim();
+
+            return { name, rolee };
+          });
+
+        setApprovalHistory(approvals);
+      }
       // if (
       //   response.data.director_approval &&
       //   response.data.head_approval &&
@@ -256,6 +334,34 @@ function EmployeeViewFileIndent() {
       setError("Failed to fetch indent details.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (isApproving) return; // Optional double-check
+    setIsApproving(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      console.log(indentID);
+      console.log(`${username}-${role}`);
+      await axios.post(
+        `${host}/purchase-and-store/api/approve-indent/`,
+        {
+          indent_id: indentID,
+          approval_data: `${username}-${role}`,
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      // Refetch indent details to update approval status
+      await fetchIndentDetails();
+    } catch (e) {
+      console.error("Error approving indent:", e);
     }
   };
 
@@ -279,7 +385,7 @@ function EmployeeViewFileIndent() {
   }
 
   return (
-    <Container size="xl" py="xl">
+    <Container size="100%" py="xl">
       <div ref={targetRef}>
         {/* Header Section */}
         <Paper shadow="sm" p="md" mb="xl" radius="md">
@@ -298,7 +404,19 @@ function EmployeeViewFileIndent() {
               </div>
             </Group>
             <Group>
-              <Button
+              {role !== "Professor" && (
+                <Button
+                  variant="light"
+                  color="green"
+                  size="md"
+                  leftIcon={<IconThumbUp size={20} />}
+                  onClick={handleApprove}
+                  disabled={isApproving}
+                >
+                  {isApproving ? "Approved" : "Approve Indent"}
+                </Button>
+              )}
+              {/* <Button
                 variant="light"
                 color="blue"
                 size="md"
@@ -306,7 +424,7 @@ function EmployeeViewFileIndent() {
                 onClick={() => setHistoryDrawerOpen(true)}
               >
                 View Indent History
-              </Button>
+              </Button> */}
               <Badge
                 size="lg"
                 color={indent.indent.purchased ? "green" : "blue"}
@@ -327,7 +445,7 @@ function EmployeeViewFileIndent() {
           </Group>
 
           {/* Approval Timeline */}
-          <Timeline
+          {/* <Timeline
             active={
               indent.indent.financial_approval
                 ? 2
@@ -380,21 +498,199 @@ function EmployeeViewFileIndent() {
                 Bill approval status
               </Text>
             </Timeline.Item>
-            {/* <Timeline.Item
-              bullet={
-                indent.indent.financial_approval ? (
-                  <IconCheck size={12} />
-                ) : (
-                  <IconClock size={12} />
-                )
-              }
-              title="Financial Approval"
-            >
-              <Text color="dimmed" size="sm">
-                Financial clearance status
+          </Timeline> */}
+          {/* <Box mb="xl">
+            <Title order={4} mb="md">
+              Approval Status
+            </Title>
+
+            {approvalHistory.length === 0 ? (
+              <Text size="sm" color="dimmed">
+                No approvals received yet.
               </Text>
-            </Timeline.Item> */}
-          </Timeline>
+            ) : (
+              approvalHistory.map((approval, index) => (
+                <Paper
+                  key={index}
+                  p="md"
+                  mb="xs"
+                  withBorder
+                  sx={(theme) => ({
+                    backgroundColor: theme.colors.gray[0],
+                    display: "flex",
+                    alignItems: "center",
+                    gap: theme.spacing.sm,
+                  })}
+                >
+                  <ThemeIcon color="green" size={28} radius="xl">
+                    <IconCheck size={18} />
+                  </ThemeIcon>
+                  <div>
+                    <Text size="sm" weight={500}>
+                      Approved by {approval.name}
+                    </Text>
+                    <Text size="xs" color="dimmed" transform="capitalize">
+                      {approval.rolee.replace(/_/g, " ")}
+                    </Text>
+                  </div>
+                </Paper>
+              ))
+            )}
+          </Box> */}
+          {/* <Box mb="xl">
+            <Group mb="md" align="center">
+              <IconClipboardCheck size={24} color="#228BE6" />
+              <Title order={4}>Approval Status</Title>
+            </Group>
+
+            {approvalHistory.length === 0 ? (
+              <Paper
+                p="md"
+                withBorder
+                sx={(theme) => ({
+                  backgroundColor: theme.fn.rgba(theme.colors.gray[0], 0.5),
+                  borderStyle: "dashed",
+                })}
+              >
+                <Group spacing="sm">
+                  <ThemeIcon size={32} radius="xl" color="gray" variant="light">
+                    <IconClipboardX size={20} />
+                  </ThemeIcon>
+                  <Text size="sm" color="dimmed">
+                    No approvals received yet.
+                  </Text>
+                </Group>
+              </Paper>
+            ) : (
+              <Timeline
+                active={approvalHistory.length - 1}
+                bulletSize={24}
+                lineWidth={2}
+              >
+                {approvalHistory.map((approval, index) => (
+                  <Timeline.Item
+                    key={index}
+                    bullet={
+                      <ThemeIcon
+                        size={24}
+                        radius="xl"
+                        color={
+                          index === approvalHistory.length - 1
+                            ? "green"
+                            : "blue"
+                        }
+                      >
+                        {/* <IconStamp size={14} /> */}
+          {/* </Paper>          </ThemeIcon>
+                    }
+                  >
+                    <Paper
+                      p="md"
+                      mb="xs"
+                      withBorder
+                      sx={(theme) => ({
+                        backgroundColor: theme.fn.rgba(
+                          index === approvalHistory.length - 1
+                            ? theme.colors.green[0]
+                            : theme.colors.blue[0],
+                          0.2,
+                        ),
+                        borderColor:
+                          index === approvalHistory.length - 1
+                            ? theme.colors.green[3]
+                            : theme.colors.blue[3],
+                      })}
+                    >
+                      <Group position="apart">
+                        <div>
+                          <Group spacing="xs" mb={4}>
+                            <IconUserCheck size={18} />
+                            <Text size="sm" weight={600}>
+                              {approval.name}
+                            </Text>
+                          </Group>
+                          <Group spacing="xs">
+                            <IconBadge size={16} />
+                            <Text
+                              size="xs"
+                              color="dimmed"
+                              transform="capitalize"
+                            >
+                              {approval.rolee.replace(/_/g, " ")}
+                            </Text>
+                          </Group>
+                        </div>
+                        <ThemeIcon
+                          size={32}
+                          radius="xl"
+                          color={
+                            index === approvalHistory.length - 1
+                              ? "green"
+                              : "blue"
+                          }
+                          variant="light"
+                        >
+                          <IconCheckbox size={20} />
+                        </ThemeIcon>
+                      </Group>
+                    </Paper>
+                  </Timeline.Item>
+                ))}
+              </Timeline>
+            )}
+          </Box> */}
+          <Box mb="xl">
+            <Group mb="md" align="center">
+              <IconClipboardCheck size={24} color="#228BE6" />
+              <Title order={4}>Approval Status</Title>
+            </Group>
+
+            {approvalHistory.length === 0 ? (
+              <Paper
+                p="md"
+                withBorder
+                sx={(theme) => ({
+                  backgroundColor: theme.fn.rgba(theme.colors.gray[0], 0.5),
+                  borderStyle: "dashed",
+                })}
+              >
+                <Group spacing="sm">
+                  <ThemeIcon size={32} radius="xl" color="gray" variant="light">
+                    <IconClipboardX size={20} />
+                  </ThemeIcon>
+                  <Text size="sm" color="dimmed">
+                    No approvals received yet.
+                  </Text>
+                </Group>
+              </Paper>
+            ) : (
+              <Timeline
+                active={approvalHistory.length - 1}
+                bulletSize={24}
+                lineWidth={2}
+              >
+                {approvalHistory.map((approval, index) => (
+                  <Timeline.Item
+                    key={index}
+                    bullet={
+                      <ThemeIcon size={24} radius="xl" color="blue">
+                        <IconCheck size={14} />
+                      </ThemeIcon>
+                    }
+                    title={
+                      <Text size="sm" weight={600}>
+                        {approval.name}
+                      </Text>
+                    }
+                  >
+                    <Text size="xs" color="dimmed">
+                      {approval.rolee.replace(/_/g, " ")}
+                    </Text>
+                  </Timeline.Item>
+                ))}
+              </Timeline>
+            )}
+          </Box>
         </Paper>
 
         <Card shadow="sm" radius="md" p="md" withBorder>
@@ -443,12 +739,11 @@ function EmployeeViewFileIndent() {
               <Accordion.Item value="details">
                 <Accordion.Control>
                   <Group position="apart">
-                    {/* <Text weight={500}>Indent Details</Text> */}
                     <Badge>Indent Details</Badge>
                   </Group>
                 </Accordion.Control>
 
-                <Accordion variant="contained" radius="md" mb="xl">
+                {/* <Accordion variant="contained" radius="md" mb="xl">
                   {indent.items.map((item) => (
                     <Accordion.Item key={item.id} value={item.id.toString()}>
                       <Accordion.Control>
@@ -586,6 +881,162 @@ function EmployeeViewFileIndent() {
                       </Accordion.Panel>
                     </Accordion.Item>
                   ))}
+                </Accordion> */}
+                <Accordion variant="contained" radius="md" mt="md">
+                  <Accordion.Item value="details">
+                    <Accordion.Control>
+                      <Group position="apart">
+                        <Text>Indent Details</Text>
+                      </Group>
+                    </Accordion.Control>
+
+                    <Accordion variant="contained" radius="md" mb="xl">
+                      {indent.items.map((item) => (
+                        <Accordion.Item
+                          key={item.id}
+                          value={item.id.toString()}
+                        >
+                          <Accordion.Control>
+                            <Group position="apart" style={{ width: "100%" }}>
+                              <Text weight={500} size={isMobile ? "sm" : "md"}>
+                                {item.item_name}
+                              </Text>
+                              <Text size={isMobile ? "sm" : "md"}>
+                                Qty: {item.quantity}
+                              </Text>
+                              <Text
+                                weight={500}
+                                color="blue"
+                                size={isMobile ? "sm" : "md"}
+                              >
+                                ₹{item.estimated_cost.toLocaleString()}
+                              </Text>
+                              {showStockEntryButton() && (
+                                <Button
+                                  color="green"
+                                  size={isMobile ? "xs" : "sm"}
+                                  onClick={() =>
+                                    navigate("/inventory", {
+                                      state: {
+                                        file: indent.file,
+                                        department: indent.department,
+                                        indent: indent.indent,
+                                        item,
+                                      },
+                                    })
+                                  }
+                                >
+                                  Stock Entry
+                                </Button>
+                              )}
+                            </Group>
+                          </Accordion.Control>
+                          <Accordion.Panel>
+                            <Grid gutter="md">
+                              <Grid.Col span={isMobile ? 12 : 6}>
+                                <Card withBorder p="md">
+                                  <Text weight={500} mb="xs">
+                                    Specifications
+                                  </Text>
+                                  <Text size="sm">{item.specification}</Text>
+                                </Card>
+                              </Grid.Col>
+                              <Grid.Col span={isMobile ? 12 : 6}>
+                                <Card withBorder p="md">
+                                  <Text weight={500} mb="xs">
+                                    Purpose
+                                  </Text>
+                                  <Text size="sm">{item.purpose}</Text>
+                                </Card>
+                              </Grid.Col>
+                              <Grid.Col span={12}>
+                                <Grid gutter="md">
+                                  {[
+                                    {
+                                      label: "Item Nature",
+                                      value: item.nature,
+                                      color: item.nature ? "green" : "red",
+                                    },
+                                    {
+                                      label: "Replaced",
+                                      value: item.replaced,
+                                      color: item.replaced ? "green" : "red",
+                                    },
+                                    {
+                                      label: "Indigenous",
+                                      value: item.indigenous,
+                                      color: item.indigenous ? "green" : "red",
+                                    },
+                                    {
+                                      label: "Present Stock",
+                                      value: item.present_stock,
+                                      text: true,
+                                    },
+                                  ].map(({ label, value, color, text }) => (
+                                    <Grid.Col
+                                      key={label}
+                                      span={isMobile ? 6 : 3}
+                                    >
+                                      <Card withBorder p="md">
+                                        <Text weight={500}>{label}</Text>
+                                        {text ? (
+                                          <Text size="sm">{value}</Text>
+                                        ) : (
+                                          <Text color={color}>
+                                            {value ? "Yes" : "No"}
+                                          </Text>
+                                        )}
+                                      </Card>
+                                    </Grid.Col>
+                                  ))}
+                                </Grid>
+                              </Grid.Col>
+                              <Grid.Col span={12}>
+                                <Grid gutter="md">
+                                  {[
+                                    {
+                                      label: "Type",
+                                      value: `${item.item_type} - ${item.item_subtype}`,
+                                    },
+                                    {
+                                      label: "Budgetary Head",
+                                      value: item.budgetary_head,
+                                    },
+                                    {
+                                      label: "Expected Delivery",
+                                      value: dayjs(
+                                        item.expected_delivery,
+                                      ).format("MMM D, YYYY"),
+                                    },
+                                  ].map(({ label, value }) => (
+                                    <Grid.Col
+                                      key={label}
+                                      span={isMobile ? 12 : 4}
+                                    >
+                                      <Card withBorder p="md">
+                                        <Text weight={500}>{label}</Text>
+                                        <Text size="sm">{value}</Text>
+                                      </Card>
+                                    </Grid.Col>
+                                  ))}
+                                </Grid>
+                              </Grid.Col>
+                              <Grid.Col span={12}>
+                                <Card withBorder p="md">
+                                  <Text weight={500} mb="xs">
+                                    Sources of Supply
+                                  </Text>
+                                  <Text size="sm">
+                                    {item.sources_of_supply}
+                                  </Text>
+                                </Card>
+                              </Grid.Col>
+                            </Grid>
+                          </Accordion.Panel>
+                        </Accordion.Item>
+                      ))}
+                    </Accordion>
+                  </Accordion.Item>
                 </Accordion>
               </Accordion.Item>
             </Accordion>
@@ -647,6 +1098,215 @@ function EmployeeViewFileIndent() {
           </Tabs.Panel>
         </Tabs>
       </div>
+
+      <Title order={4} mt="xl" mb="md">
+        Tracking History
+      </Title>
+      <Box
+        style={{
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+          overflowY: "auto",
+          overflowX: "auto",
+          backgroundColor: "#fff",
+        }}
+      >
+        <Table
+          highlightOnHover
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            tableLayout: "fixed",
+            fontSize: "12px", // Reduced font size
+          }}
+        >
+          <thead>
+            <tr>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "9%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Date
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "13%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Sender
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "13%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Receiver
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "13%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Designation
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "20%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Remarks
+              </th>
+              <th
+                style={{
+                  padding: "8px", // Reduced padding
+                  width: "10%",
+                  border: "1px solid #ddd",
+                  textAlign: "center",
+                }}
+              >
+                Attachment
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {fileHistory.map((track, index) => (
+              <tr key={index}>
+                <td
+                  style={{
+                    padding: "8px", // Reduced padding
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word", // Prevent overflow
+                  }}
+                >
+                  {formatDate(track.forward_date)}
+                </td>
+                <td
+                  style={{
+                    padding: "8px", // Reduced padding
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word", // Prevent overflow
+                  }}
+                >
+                  {track.current_id}
+                </td>
+                <td
+                  style={{
+                    padding: "8px", // Reduced padding
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word", // Prevent overflow
+                  }}
+                >
+                  {track.receiver_id}
+                </td>
+                <td
+                  style={{
+                    padding: "8px", // Reduced padding
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word", // Prevent overflow
+                  }}
+                >
+                  {track.receive_design}
+                </td>
+                {/* <td
+                  style={{
+                    padding: "8px", // Reduced padding
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word", // Prevent overflow
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleOpenRemarksModal(track.remarks || "No remark")}
+                > */}
+                <td
+                  style={{
+                    padding: "8px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                  }}
+                >
+                  <button
+                    style={{
+                      all: "unset", // Remove default button styles
+                      cursor: "pointer",
+                      wordWrap: "break-word",
+                      textAlign: "center",
+                      width: "100%",
+                    }}
+                    onClick={() =>
+                      handleOpenRemarksModal(track.remarks || "No remark")
+                    }
+                  >
+                    {track.remarks && track.remarks.length > 15
+                      ? `${track.remarks.slice(0, 15)}...`
+                      : track.remarks || "No remark"}
+                  </button>
+                </td>
+                <td
+                  style={{
+                    padding: "8px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    wordWrap: "break-word",
+                  }}
+                >
+                  {track.upload_file ? (
+                    <a
+                      href={`${host}${track.upload_file}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        textDecoration: "none",
+                        color: "white",
+                        backgroundColor: "#007bff",
+                        padding: "5px 10px",
+                        borderRadius: "4px",
+                        display: "inline-block",
+                      }}
+                    >
+                      View Attachment
+                    </a>
+                  ) : (
+                    "No Attachment"
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+
+        {/* Modal to show remarks */}
+        <Modal
+          opened={opened}
+          onClose={() => setOpened(false)}
+          title="Full Remarks"
+          size="lg"
+        >
+          <Text style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+            {selectedRemarks}
+          </Text>
+        </Modal>
+      </Box>
+
       <Paper shadow="sm" p="lg" radius="md">
         <Title order={3} mb="lg">
           Forward Indent
@@ -660,6 +1320,7 @@ function EmployeeViewFileIndent() {
               value={formValues.remark}
               onChange={handleInputChange("remark")}
               icon={<IconMessageDots size={14} />}
+              required
             />
           </Grid.Col>
           <Grid.Col span={12}>
@@ -675,6 +1336,7 @@ function EmployeeViewFileIndent() {
               onSearchChange={handleSearchChange}
               searchable
               clearable
+              required
             />
           </Grid.Col>
 
@@ -690,6 +1352,7 @@ function EmployeeViewFileIndent() {
               onChange={handleDesignationChange}
               searchable
               clearable
+              required
             />
           </Grid.Col>
 
